@@ -1,15 +1,21 @@
 package com.dao;
 
-import com.util.HibernateUtil;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import java.util.List;
 
 public abstract class BaseDao<T> {
 
-    protected EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("myPU");
+    private final EntityManagerFactory entityManagerFactory;
+
+    public BaseDao() {
+        this.entityManagerFactory = Persistence.createEntityManagerFactory("myPU");
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManagerFactory.createEntityManager();
+    }
 
     public abstract List<T> list();
 

@@ -7,9 +7,13 @@ import java.util.List;
 
 public class DivisionDao extends BaseDao<Division> {
 
+    public DivisionDao() {
+        super();
+    }
+
     @Override
     public List<Division> list() {
-        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityManager em = getEntityManager();
         try {
             return em.createQuery("SELECT d FROM Division d", Division.class).getResultList();
         } finally {
@@ -19,7 +23,7 @@ public class DivisionDao extends BaseDao<Division> {
 
     @Override
     public void create(Division division) {
-        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -36,7 +40,7 @@ public class DivisionDao extends BaseDao<Division> {
     }
 
     public void edit(Division division) {
-        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -53,7 +57,7 @@ public class DivisionDao extends BaseDao<Division> {
     }
 
     public void delete(Division division) {
-        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
