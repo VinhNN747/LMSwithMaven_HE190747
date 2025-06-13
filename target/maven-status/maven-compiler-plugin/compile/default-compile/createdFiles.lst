@@ -1,0 +1,10 @@
+com\entity\Division.class
+com\dao\DivisionDao.class
+com\dao\UserDao.class
+com\controller\division_controller\divisionListServlet.class
+com\entity\LeaveRequest.class
+com\mycompany\jpahibernatetesting\JakartaRestConfiguration.class
+com\entity\User.class
+com\mycompany\jpahibernatetesting\resources\JakartaEE10Resource.class
+com\util\HibernateUtil.class
+com\dao\BaseDao.class
