@@ -1,6 +1,7 @@
 com\entity\Division.class
 com\dao\DivisionDao.class
 com\dao\UserDao.class
+com\controller\division_controller\divisionCreateServlet.class
 com\controller\division_controller\divisionListServlet.class
 com\entity\LeaveRequest.class
 com\mycompany\jpahibernatetesting\JakartaRestConfiguration.class
