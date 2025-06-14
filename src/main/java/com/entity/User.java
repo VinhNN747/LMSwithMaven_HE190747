@@ -5,47 +5,89 @@
 package com.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.io.Serializable;
+import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "Users")
-public class User implements Serializable {
+@Table(name = "[User]")
+public class User {
 
     @Id
-    @Column(length = 10)
-    private String userID;
+    @Size(max = 10)
+    @Column(name = "UserID")
+    private String userId;
 
-    @Column(nullable = false, length = 100)
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "FullName", nullable = false)
     private String fullName;
 
-    @Column(nullable = false, length = 50)
+    @NotNull
+    @Size(max = 50)
+    @Column(name = "Username", nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, length = 100)
+    @NotNull
+    @Size(max = 100)
+    @Email
+    @Column(name = "Email", nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 1)
-    private char gender;
+    @Pattern(regexp = "^[MF]$", message = "Gender must be 'M' or 'F'")
+    @Size(max = 1)
+    @Column(name = "Gender")
+    private String gender;
 
+    @Column(name = "DivisionID")
+    private Integer divisionId;
+
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "Role", nullable = false)
+    private String role = "Employee";
+
+    @NotNull
+    @Column(name = "IsActive", nullable = false)
+    private Boolean isActive = true;
+
+    @Size(max = 10)
+    @Column(name = "ManagerID")
+    private String managerId;
+
+    // Navigation property for the division
     @ManyToOne
-    @JoinColumn(name = "divisionID")
+    @JoinColumn(name = "DivisionID", insertable = false, updatable = false)
     private Division division;
 
-    @Column(length = 100)
-    private String role;
+    // Navigation property for the manager
+    @ManyToOne
+    @JoinColumn(name = "ManagerID", referencedColumnName = "UserID", insertable = false, updatable = false)
+    private User manager;
 
-    private boolean isActive;
+    // Navigation property for employees managed by this user
+    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
+    private List<User> managedUsers = new ArrayList<>();
 
-    @Column(length = 10)
-    private String managerID;
+    // Navigation property for leave requests sent by this user
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<LeaveRequest> sentLeaveRequests = new ArrayList<>();
+
+    // Navigation property for leave requests to be approved by this user
+    @OneToMany(mappedBy = "approver", cascade = CascadeType.ALL)
+    private List<LeaveRequest> receivedLeaveRequests = new ArrayList<>();
 
     // Getters and Setters
-    public String getUserID() {
-        return userID;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getFullName() {
@@ -72,20 +114,20 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public char getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
-    public Division getDivision() {
-        return division;
+    public Integer getDivisionId() {
+        return divisionId;
     }
 
-    public void setDivision(Division division) {
-        this.division = division;
+    public void setDivisionId(Integer divisionId) {
+        this.divisionId = divisionId;
     }
 
     public String getRole() {
@@ -96,20 +138,72 @@ public class User implements Serializable {
         this.role = role;
     }
 
-    public boolean isIsActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(boolean isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 
-    public String getManagerID() {
-        return managerID;
+    public String getManagerId() {
+        return managerId;
     }
 
-    public void setManagerID(String managerID) {
-        this.managerID = managerID;
+    public void setManagerId(String managerId) {
+        this.managerId = managerId;
     }
 
+    public Division getDivision() {
+        return division;
+    }
+
+    public void setDivision(Division division) {
+        this.division = division;
+    }
+
+    public User getManager() {
+        return manager;
+    }
+
+    public void setManager(User manager) {
+        this.manager = manager;
+    }
+
+    public List<User> getManagedUsers() {
+        return managedUsers;
+    }
+
+    public void setManagedUsers(List<User> managedUsers) {
+        this.managedUsers = managedUsers;
+    }
+
+    public List<LeaveRequest> getSentLeaveRequests() {
+        return sentLeaveRequests;
+    }
+
+    public void setSentLeaveRequests(List<LeaveRequest> sentLeaveRequests) {
+        this.sentLeaveRequests = sentLeaveRequests;
+    }
+
+    public List<LeaveRequest> getReceivedLeaveRequests() {
+        return receivedLeaveRequests;
+    }
+
+    public void setReceivedLeaveRequests(List<LeaveRequest> receivedLeaveRequests) {
+        this.receivedLeaveRequests = receivedLeaveRequests;
+    }
+
+    // Hibernate requires a no-arg constructor
+    public User() {
+    }
+
+    // Constructor for convenience
+    public User(String userId, String fullName, String username, String email, String role) {
+        this.userId = userId;
+        this.fullName = fullName;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+    }
 }

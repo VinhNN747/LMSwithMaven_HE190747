@@ -33,12 +33,12 @@ public class DivisionDao extends BaseDao<Division> {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            e.printStackTrace();
         } finally {
             em.close();
         }
     }
 
+    @Override
     public void edit(Division division) {
         EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
@@ -50,12 +50,12 @@ public class DivisionDao extends BaseDao<Division> {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            e.printStackTrace();
         } finally {
             em.close();
         }
     }
 
+    @Override
     public void delete(Division division) {
         EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
@@ -69,7 +69,6 @@ public class DivisionDao extends BaseDao<Division> {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            e.printStackTrace();
         } finally {
             em.close();
         }

@@ -5,54 +5,68 @@
 package com.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
 @Table(name = "LeaveRequest")
-public class LeaveRequest implements Serializable {
+public class LeaveRequest {
 
     @Id
-    @Column(length = 20)
-    private String leaveRqID;
+    @Size(max = 20)
+    @Column(name = "LeaveRqID")
+    private String leaveRqId;
 
-    @ManyToOne
-    @JoinColumn(name = "senderID")
-    private User sender;
+    @Size(max = 10)
+    @Column(name = "SenderID")
+    private String senderId;
 
-    @ManyToOne
-    @JoinColumn(name = "approverID")
-    private User approver;
+    @Size(max = 10)
+    @Column(name = "ApproverID")
+    private String approverId;
 
-    @Lob
+    @Column(name = "Reason", columnDefinition = "NVARCHAR(MAX)")
     private String reason;
 
-    @Column(length = 20)
-    private String status;
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "Status", nullable = false)
+    private String status = "Pending";
+
+    // Navigation property for the sender
+    @ManyToOne
+    @JoinColumn(name = "SenderID", referencedColumnName = "UserID", insertable = false, updatable = false)
+    private User sender;
+
+    // Navigation property for the approver
+    @ManyToOne
+    @JoinColumn(name = "ApproverID", referencedColumnName = "UserID", insertable = false, updatable = false)
+    private User approver;
 
     // Getters and Setters
-
-    public String getLeaveRqID() {
-        return leaveRqID;
+    public String getLeaveRqId() {
+        return leaveRqId;
     }
 
-    public void setLeaveRqID(String leaveRqID) {
-        this.leaveRqID = leaveRqID;
+    public void setLeaveRqId(String leaveRqId) {
+        this.leaveRqId = leaveRqId;
     }
 
-    public User getSender() {
-        return sender;
+    public String getSenderId() {
+        return senderId;
     }
 
-    public void setSender(User sender) {
-        this.sender = sender;
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 
-    public User getApprover() {
-        return approver;
+    public String getApproverId() {
+        return approverId;
     }
 
-    public void setApprover(User approver) {
-        this.approver = approver;
+    public void setApproverId(String approverId) {
+        this.approverId = approverId;
     }
 
     public String getReason() {
@@ -70,5 +84,20 @@ public class LeaveRequest implements Serializable {
     public void setStatus(String status) {
         this.status = status;
     }
-    
+
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public User getApprover() {
+        return approver;
+    }
+
+    public void setApprover(User approver) {
+        this.approver = approver;
+    }
 }

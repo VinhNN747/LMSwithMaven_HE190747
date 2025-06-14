@@ -7,5 +7,5 @@ com\entity\LeaveRequest.class
 com\mycompany\jpahibernatetesting\JakartaRestConfiguration.class
 com\entity\User.class
 com\mycompany\jpahibernatetesting\resources\JakartaEE10Resource.class
-com\util\HibernateUtil.class
+com\controller\leaverequest_controller\userListServlet.class
 com\dao\BaseDao.class
