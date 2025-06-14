@@ -1,11 +1,10 @@
-C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\leaverequest_controller\userListServlet.java
+C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\division_controller\DivisionServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\dao\DivisionDao.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entity\Division.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entity\LeaveRequest.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entity\User.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\mycompany\jpahibernatetesting\JakartaRestConfiguration.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\mycompany\jpahibernatetesting\resources\JakartaEE10Resource.java
-C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\division_controller\divisionListServlet.java
-C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\division_controller\divisionCreateServlet.java
+C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\user_controller\UserServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\dao\BaseDao.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\dao\UserDao.java

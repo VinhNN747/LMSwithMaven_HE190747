@@ -40,7 +40,7 @@ public class User {
 
     @Pattern(regexp = "^[MF]$", message = "Gender must be 'M' or 'F'")
     @Size(max = 1)
-    @Column(name = "Gender")
+    @Column(name = "Gender", length = 1)
     private String gender;
 
     @Column(name = "DivisionID")

@@ -33,6 +33,7 @@ public class DivisionDao extends BaseDao<Division> {
             if (tx.isActive()) {
                 tx.rollback();
             }
+            throw e;
         } finally {
             em.close();
         }
@@ -62,13 +63,35 @@ public class DivisionDao extends BaseDao<Division> {
         try {
             tx.begin();
             if (division != null) {
-                em.remove(division);
+                Division managedDivision = em.merge(division);
+                em.remove(managedDivision);
             }
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean existsByName(String name) {
+        EntityManager em = getEntityManager();
+        try {
+            Long count = em.createQuery("SELECT COUNT(d) FROM Division d WHERE LOWER(d.divisionName) = LOWER(:name)", Long.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+            return count > 0;
+        } finally {
+            em.close();
+        }
+    }
+
+    public Division findById(Integer id) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.find(Division.class, id);
         } finally {
             em.close();
         }

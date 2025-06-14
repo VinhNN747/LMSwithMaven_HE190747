@@ -1,11 +1,10 @@
+com\controller\division_controller\DivisionServlet.class
 com\entity\Division.class
 com\dao\DivisionDao.class
 com\dao\UserDao.class
-com\controller\division_controller\divisionCreateServlet.class
-com\controller\division_controller\divisionListServlet.class
 com\entity\LeaveRequest.class
 com\mycompany\jpahibernatetesting\JakartaRestConfiguration.class
+com\controller\user_controller\UserServlet.class
 com\entity\User.class
 com\mycompany\jpahibernatetesting\resources\JakartaEE10Resource.class
-com\controller\leaverequest_controller\userListServlet.class
 com\dao\BaseDao.class

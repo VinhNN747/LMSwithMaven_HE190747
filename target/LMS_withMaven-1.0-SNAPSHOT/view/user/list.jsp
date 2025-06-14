@@ -1,18 +1,103 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-
-<h2>User List</h2>
-<a href="UserCreate.jsp">Create New User</a>
-<table border="1">
-    <tr><th>ID</th><th>Name</th><th>Actions</th></tr>
-            <c:forEach var="user" items="${requestScope.users}">
-        <tr>
-            <td>${user.userId}</td>
-            <td>${user.fullName}</td>
-            <td>
-                <a href="UserEdit?id=${user.userId}">Edit</a>
-                <a href="UserDelete?id=${user.userId}" onclick="return confirm('Delete?')">Delete</a>
-            </td>
-        </tr>
-    </c:forEach>
-</table>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User List</title>
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 90%;
+                margin: 20px auto;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            a {
+                text-decoration: none;
+                color: #0066cc;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            .button {
+                padding: 5px 10px;
+                background-color: #0066cc;
+                color: white;
+                border-radius: 3px;
+            }
+            .error {
+                color: red;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h2 style="text-align: center;">User List</h2>
+        <c:if test="${not empty error}">
+            <p class="error">${error}</p>
+        </c:if>
+        <div style="text-align: center; margin-bottom: 10px;">
+            <a href="user?action=new" class="button">Add New User</a>
+        </div>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Gender</th>
+                <th>Division</th>
+                <th>Role</th>
+                <th>Active</th>
+                <th>Manager</th>
+                <th>Actions</th>
+            </tr>
+            <c:forEach var="user" items="${users}">
+                <tr>
+                    <td>${user.userId}</td>
+                    <td>${user.fullName}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.gender}</td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${not empty user.division}">
+                                ${user.division.divisionName}
+                            </c:when>
+                            <c:otherwise>
+                                ${user.divisionId}
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
+                    <td>${user.role}</td>
+                    <td>${user.isActive ? 'Yes' : 'No'}</td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${not empty user.manager}">
+                                ${user.manager.fullName}
+                            </c:when>
+                            <c:otherwise>
+                                ${user.managerId}
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
+                    <td>
+                        <a href="user?action=edit&id=${user.userId}">Edit</a>
+                         | 
+                        <a href="user?action=delete&id=${user.userId}"
+                           onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                    </td>
+                </tr>
+            </c:forEach>
+        </table>
+    </body>
+</html>

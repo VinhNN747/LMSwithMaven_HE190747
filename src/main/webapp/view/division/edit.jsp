@@ -1,17 +1,69 @@
-<%-- 
-    Document   : edit
-    Created on : Jun 13, 2025, 10:51:01 AM
-    Author     : vinhnnpc
---%>
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Edit Division</title>
+        <style>
+            .form-container {
+                width: 50%;
+                margin: 20px auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            label {
+                display: inline-block;
+                width: 120px;
+                margin-bottom: 10px;
+            }
+            input[type="text"], input[type="number"] {
+                width: 200px;
+                padding: 5px;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+            }
+            input[type="submit"] {
+                padding: 8px 20px;
+                background-color: #0066cc;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            input[type="submit"]:hover {
+                background-color: #0052a3;
+            }
+            .error {
+                color: red;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+        </style>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <div class="form-container">
+            <h2>Edit Division</h2>
+            <c:if test="${not empty error}">
+                <p class="error">${error}</p>
+            </c:if>
+            <form action="division" method="post">
+                <input type="hidden" name="divisionId" value="${division.divisionId}"/>
+                <div>
+                    <label>Division Name:</label>
+                    <input type="text" name="divisionName" value="${division.divisionName}" maxlength="50" required/>
+                </div>
+                <div>
+                    <label>Director ID:</label>
+                    <input type="text" name="divisionDirector" value="${division.divisionDirector}" maxlength="10"/>
+                </div>
+                <div style="margin-top: 20px;">
+                    <input type="submit" value="Save"/>
+                     
+                    <a href="division?action=list">Cancel</a>
+                </div>
+                <input type="hidden" name="action" value="update"/>
+            </form>
+        </div>
     </body>
 </html>
