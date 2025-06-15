@@ -61,11 +61,11 @@
                     <td>${division.divisionName}</td>
                     <td>
                         <c:choose>
-                            <c:when test="${not empty division.divisionDirector}">
-                                ${division.divisionDirector.fullName}
+                            <c:when test="${not empty division.director}">
+                                ${division.director.fullName}
                             </c:when>
                             <c:otherwise>
-                                ${division.divisionDirector}
+                                ${division.director}
                             </c:otherwise>
                         </c:choose>
                     </td>

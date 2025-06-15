@@ -68,13 +68,22 @@
                         <option value="F">Female</option>
                     </select>
                 </div>
-                <div>
-                    <label>Division ID:</label>
-                    <input type="text" name="divisionId"/>
+                <div>                    
+                    <label>Division:</label>
+                    <select name="divisionId">
+                        <option value="">Select a division</option>
+                        <c:forEach items="${requestScope.divisions}" var="d">
+                            <option value="${d.divisionId}">${d.divisionName}</option>
+                        </c:forEach>
+                    </select>
                 </div>
                 <div>
                     <label>Role:</label>
-                    <input type="text" name="role" value="Employee" maxlength="100" required/>
+                    <select name="role">
+                        <option value="Employee">Employee</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Director">Director</option>
+                    </select>
                 </div>
                 <div>
                     <label>Active:</label>
@@ -83,10 +92,10 @@
                         <option value="false">No</option>
                     </select>
                 </div>
-                <div>
+<!--                <div>
                     <label>Manager ID:</label>
                     <input type="text" name="managerId" maxlength="10"/>
-                </div>
+                </div>-->
                 <div style="margin-top: 20px;">
                     <input type="submit" value="Save"/>
                      

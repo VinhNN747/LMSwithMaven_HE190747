@@ -11,6 +11,10 @@ public class DivisionDao extends BaseDao<Division> {
         super();
     }
 
+    public Division get(int id) {
+        return getEntityManager().find(Division.class, id);
+    }
+
     @Override
     public List<Division> list() {
         EntityManager em = getEntityManager();
@@ -45,12 +49,30 @@ public class DivisionDao extends BaseDao<Division> {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            em.merge(division);
+            Division existingDivision = em.find(Division.class, division.getDivisionId());
+            if (existingDivision != null) {
+                if (!division.getDivisionDirector().equals(existingDivision.getDivisionDirector())) {
+                    em.createQuery("UPDATE User u SET u.managerId = :newDirectorId "
+                            + "WHERE u.divisionId = :divisionId "
+                            + "AND (u.managerId IS NULL OR u.managerId = :oldDirectorId) "
+                            + "AND u.userId != :newDirectorId")
+                            .setParameter("newDirectorId", division.getDivisionDirector())
+                            .setParameter("oldDirectorId", existingDivision.getDivisionDirector())
+                            .setParameter("divisionId", division.getDivisionId())
+                            .executeUpdate();
+                }
+                
+                existingDivision.setDivisionName(division.getDivisionName());
+                existingDivision.setDivisionDirector(division.getDivisionDirector());
+                existingDivision.setDirector(division.getDirector());
+                em.merge(existingDivision);
+            }
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
+            throw e;
         } finally {
             em.close();
         }

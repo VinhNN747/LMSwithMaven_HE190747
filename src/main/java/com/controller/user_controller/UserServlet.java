@@ -4,7 +4,9 @@
  */
 package com.controller.user_controller;
 
+import com.dao.DivisionDao;
 import com.dao.UserDao;
+import com.entity.Division;
 import com.entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +19,7 @@ import java.util.List;
 @WebServlet(name = "UserServlet", urlPatterns = {"/user"})
 public class UserServlet extends HttpServlet {
 
+    private final DivisionDao divisionDao = new DivisionDao();
     private UserDao userDao;
 
     @Override
@@ -77,6 +80,8 @@ public class UserServlet extends HttpServlet {
 
     private void showNewForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        List<Division> divisions = divisionDao.list();
+        request.setAttribute("divisions", divisions);
         request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
     }
 
@@ -88,6 +93,8 @@ public class UserServlet extends HttpServlet {
             request.setAttribute("error", "User not found");
             listUsers(request, response);
         } else {
+            List<Division> divisions = divisionDao.list();
+            request.setAttribute("divisions", divisions);
             request.setAttribute("user", user);
             request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
         }
@@ -95,6 +102,8 @@ public class UserServlet extends HttpServlet {
 
     private void createUser(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        List<Division> divisions = divisionDao.list();
+        request.setAttribute("divisions", divisions);
         String fullName = request.getParameter("fullName");
         String username = request.getParameter("username");
         String email = request.getParameter("email");
@@ -102,8 +111,8 @@ public class UserServlet extends HttpServlet {
         String divisionIdStr = request.getParameter("divisionId");
         String role = request.getParameter("role");
         String isActiveStr = request.getParameter("isActive");
-        String managerId = request.getParameter("managerId");
-
+        String managerId = null;
+        String id = setNewId(fullName);
         // Validation
         if (fullName == null || fullName.trim().isEmpty() || fullName.length() > 100) {
             request.setAttribute("error", "Full name is required and must not exceed 100 characters");
@@ -129,36 +138,47 @@ public class UserServlet extends HttpServlet {
         if (divisionIdStr != null && !divisionIdStr.trim().isEmpty()) {
             try {
                 divisionId = Integer.parseInt(divisionIdStr);
-                if (!userDao.existsByDivisionId(divisionId)) {
-                    request.setAttribute("error", "Invalid Division ID");
-                    request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
-                    return;
-                }
             } catch (NumberFormatException e) {
                 request.setAttribute("error", "Invalid Division ID format");
                 request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
                 return;
             }
         }
+        boolean isNewDirector = false;
+        Division division = divisionDao.get(divisionId);
         if (role == null || role.trim().isEmpty() || role.length() > 100) {
             request.setAttribute("error", "Role is required and must not exceed 100 characters");
             request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
             return;
         }
-        boolean isActive = Boolean.parseBoolean(isActiveStr);
-        if (managerId != null && !managerId.trim().isEmpty()) {
-            if (managerId.length() > 10) {
-                request.setAttribute("error", "Manager ID must not exceed 10 characters");
-                request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
-                return;
-            }
-            if (!userDao.existsById(managerId)) {
-                request.setAttribute("error", "Invalid Manager ID");
-                request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
-                return;
-            }
-        }
+        if (role.trim().equals("Director")) {
 
+            if (division.getDirector() != null) {
+                request.setAttribute("error", "This division has already had a director");
+                request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
+                return;
+            } else {
+                division.setDivisionDirector(id);
+                isNewDirector = true;
+
+            }
+        } else {
+            managerId = divisionDao.get(divisionId).getDivisionDirector();
+        }
+        boolean isActive = Boolean.parseBoolean(isActiveStr);
+
+//        if (managerId != null && !managerId.trim().isEmpty()) {
+//            if (managerId.length() > 10) {
+//                request.setAttribute("error", "Manager ID must not exceed 10 characters");
+//                request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
+//                return;
+//            }
+//            if (!userDao.existsById(managerId)) {
+//                request.setAttribute("error", "Invalid Manager ID");
+//                request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
+//                return;
+//            }
+//        }
         if (userDao.existsByUsernameOrEmail(username, email)) {
             request.setAttribute("error", "Username '" + username + "' or email '" + email + "' already exists");
             request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
@@ -166,7 +186,7 @@ public class UserServlet extends HttpServlet {
         }
 
         User user = new User();
-        user.setUserId("none");
+        user.setUserId(id);
         user.setFullName(fullName);
         user.setUsername(username);
         user.setEmail(email);
@@ -174,10 +194,13 @@ public class UserServlet extends HttpServlet {
         user.setDivisionId(divisionId);
         user.setRole(role);
         user.setIsActive(isActive);
-        user.setManagerId(managerId != null && !managerId.isEmpty() ? managerId : null);
+        user.setManagerId(managerId);
 
         try {
             userDao.create(user);
+            if (isNewDirector) {
+                divisionDao.edit(division);
+            }
             response.sendRedirect("user?action=list");
         } catch (Exception e) {
             System.out.println(e);
@@ -296,5 +319,22 @@ public class UserServlet extends HttpServlet {
             }
         }
         listUsers(request, response);
+    }
+
+    private String setNewId(String fullName) {
+        // Build acronym from FullName (e.g., John Doe -> JD)
+        StringBuilder acronym = new StringBuilder();
+        String[] nameParts = fullName.trim().split("\\s+");
+        for (String part : nameParts) {
+            if (!part.isEmpty()) {
+                acronym.append(part.charAt(0));
+            }
+        }
+
+        // Get max index for users with the same acronym
+        int index = userDao.getMaxIndexForAcronym(acronym.toString().toUpperCase()) + 1;
+
+        // Format ID like JD001
+        return acronym.toString().toUpperCase() + String.format("%03d", index);
     }
 }

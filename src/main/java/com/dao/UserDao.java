@@ -67,18 +67,19 @@ public class UserDao extends BaseDao<User> {
         try {
             tx.begin();
             if (user != null) {
+                User managedUser = em.find(User.class, user.getUserId());
+
                 // Nullify managerId references in other users
                 em.createQuery("UPDATE User u SET u.managerId = NULL WHERE u.managerId = :userId")
-                        .setParameter("userId", user.getUserId())
+                        .setParameter("userId", managedUser.getUserId())
                         .executeUpdate();
 
                 // Nullify divisionDirector in Division if this user is a director
                 em.createQuery("UPDATE Division d SET d.divisionDirector = NULL WHERE d.divisionDirector = :userId")
-                        .setParameter("userId", user.getUserId())
+                        .setParameter("userId", managedUser.getUserId())
                         .executeUpdate();
 
                 // Merge and remove the user
-                User managedUser = em.merge(user);
                 em.remove(managedUser);
             }
             tx.commit();
@@ -133,6 +134,35 @@ public class UserDao extends BaseDao<User> {
                     .setParameter("divisionId", divisionId)
                     .getSingleResult();
             return count > 0;
+        } finally {
+            em.close();
+        }
+    }
+
+    public int getMaxIndexForAcronym(String acronym) {
+        EntityManager em = getEntityManager();
+        try {
+            // Query to get all UserIDs starting with the acronym
+            List<String> userIds = em.createQuery("SELECT u.userId FROM User u WHERE UPPER(u.userId) LIKE :acronymPattern", String.class)
+                    .setParameter("acronymPattern", acronym.toUpperCase() + "%")
+                    .getResultList();
+
+            // Extract the numeric suffix and find the maximum
+            int maxIndex = 0;
+            for (String userId : userIds) {
+                // Ensure userId is long enough to have a numeric suffix
+                if (userId.length() > acronym.length()) {
+                    try {
+                        String suffix = userId.substring(acronym.length());
+                        int index = Integer.parseInt(suffix);
+                        maxIndex = Math.max(maxIndex, index);
+                    } catch (NumberFormatException e) {
+                        // Skip invalid suffixes
+                        continue;
+                    }
+                }
+            }
+            return maxIndex;
         } finally {
             em.close();
         }
