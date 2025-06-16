@@ -12,12 +12,13 @@ import java.io.IOException;
 
 @WebServlet("/user/demote")
 public class UserDemoteServlet extends BaseUserServlet {
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String id = request.getParameter("id");
         User user = userDao.findById(id);
-        
+
         if (user == null) {
             handleError(request, response, "User not found");
             return;
@@ -31,7 +32,7 @@ public class UserDemoteServlet extends BaseUserServlet {
 
         EntityManager em = userDao.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-        
+
         try {
             tx.begin();
             demoteUser(em, user, newRole);
@@ -58,7 +59,7 @@ public class UserDemoteServlet extends BaseUserServlet {
         }
     }
 
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage) 
+    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
             throws IOException {
         request.setAttribute("error", errorMessage);
         response.sendRedirect("list");
@@ -78,13 +79,20 @@ public class UserDemoteServlet extends BaseUserServlet {
 
     private void handleDirectorDemotion(EntityManager em, User user) {
         Division division = divisionDao.get(user.getDivisionId());
-        
+
         // Clear division director
         division.setDivisionDirector(null);
         em.merge(division);
 
-        // Keep all users currently managed by this director under their management
-        // No need to update managerId as they will stay managed by this user
+        // Set all managers' managerId to null (they will be managed by the new director)
+        em.createQuery("UPDATE User u SET u.managerId = NULL "
+                + "WHERE u.divisionId = :divisionId "
+                + "AND u.role = :managerRole")
+                .setParameter("divisionId", user.getDivisionId())
+                .setParameter("managerRole", ROLE_MANAGER)
+                .executeUpdate();
+
+        // Keep all employees currently managed by this director under their management
         // The user's role will be changed to manager but their managerId will remain null
         user.setManagerId(null);
     }
@@ -96,12 +104,12 @@ public class UserDemoteServlet extends BaseUserServlet {
         user.setManagerId(directorId);
 
         // Update all employees who were managed by this manager to be managed by the director
-        em.createQuery("UPDATE User u SET u.managerId = :directorId " +
-                "WHERE u.managerId = :oldManagerId " +
-                "AND u.divisionId = :divisionId")
+        em.createQuery("UPDATE User u SET u.managerId = :directorId "
+                + "WHERE u.managerId = :oldManagerId "
+                + "AND u.divisionId = :divisionId ")
                 .setParameter("directorId", directorId)
                 .setParameter("oldManagerId", user.getUserId())
                 .setParameter("divisionId", user.getDivisionId())
                 .executeUpdate();
     }
-} 
+}

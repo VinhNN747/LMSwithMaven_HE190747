@@ -13,12 +13,13 @@ import java.util.List;
 
 @WebServlet("/user/changeDivision")
 public class UserChangeDivisionServlet extends BaseUserServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String id = request.getParameter("id");
         User user = userDao.findById(id);
-        
+
         if (user == null) {
             handleError(request, response, "User not found");
             return;
@@ -33,7 +34,7 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
         String id = request.getParameter("id");
         String newDivisionIdStr = request.getParameter("divisionId");
         User user = userDao.findById(id);
-        
+
         if (user == null) {
             handleError(request, response, "User not found");
             return;
@@ -52,7 +53,7 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
 
         EntityManager em = userDao.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-        
+
         try {
             tx.begin();
             changeUserDivision(em, user, newDivisionId);
@@ -68,7 +69,7 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
         }
     }
 
-    private void showDivisionChangeForm(HttpServletRequest request, HttpServletResponse response, User user) 
+    private void showDivisionChangeForm(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
         List<Division> divisions = divisionDao.list();
         request.setAttribute("divisions", divisions);
@@ -87,7 +88,7 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
         }
     }
 
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage) 
+    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
             throws IOException {
         request.setAttribute("error", errorMessage);
         response.sendRedirect("list");
@@ -96,7 +97,7 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
     private void changeUserDivision(EntityManager em, User user, Integer newDivisionId) {
         Division oldDivision = divisionDao.get(user.getDivisionId());
         Division newDivision = divisionDao.get(newDivisionId);
-        
+
         if (user.getRole().equals(ROLE_DIRECTOR)) {
             handleDirectorDivisionChange(em, user, oldDivision, newDivision);
         } else {
@@ -105,84 +106,90 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
     }
 
     private void handleDirectorDivisionChange(EntityManager em, User user, Division oldDivision, Division newDivision) {
-        // Handle old division
-        clearOldDivisionDirector(em, oldDivision);
-        removeOldDivisionManagerAssignments(em, oldDivision);
-
-        // Handle new division
-        handleNewDivisionDirector(em, user, newDivision);
-        updateNewDivisionUsers(em, user, newDivision);
-
-        // Update director's manager
-        user.setManagerId(null);
+        try {
+            removeOldDivisionDirector(em, oldDivision);
+            handleNewDivisionDirector(em, user, newDivision);
+            setNewDivisionDirector(em, user, newDivision);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
-    private void clearOldDivisionDirector(EntityManager em, Division oldDivision) {
-        // Get the old director
-        String oldDirectorId = oldDivision.getDivisionDirector();
-        if (oldDirectorId != null) {
-            User oldDirector = userDao.findById(oldDirectorId);
-            if (oldDirector != null) {
-                // Demote old director to manager
-                oldDirector.setRole(ROLE_MANAGER);
-                em.merge(oldDirector);
-
-                // Update all employees who were managed by the old director to be managed by the new director
-                em.createQuery("UPDATE User u SET u.managerId = :newDirectorId " +
-                        "WHERE u.managerId = :oldDirectorId " +
-                        "AND u.divisionId = :divisionId")
-                        .setParameter("newDirectorId", oldDirectorId)
-                        .setParameter("oldDirectorId", oldDirectorId)
-                        .setParameter("divisionId", oldDivision.getDivisionId())
-                        .executeUpdate();
-            }
+    private void removeOldDivisionDirector(EntityManager em, Division oldDivision) {
+        String oldDivDirectorId = oldDivision.getDivisionDirector();
+        if (oldDivDirectorId != null) {
+            em.createQuery("UPDATE User u SET u.managerId = NULL "
+                    + "WHERE u.divisionId = :divisionId "
+                    + "AND u.managerId = :directorId")
+                    .setParameter("divisionId", oldDivision.getDivisionId())
+                    .setParameter("directorId", oldDivDirectorId)
+                    .executeUpdate();
+            em.flush();
         }
-        
         oldDivision.setDivisionDirector(null);
         em.merge(oldDivision);
-    }
-
-    private void removeOldDivisionManagerAssignments(EntityManager em, Division oldDivision) {
-        em.createQuery("UPDATE User u SET u.managerId = NULL " +
-                "WHERE u.divisionId = :divisionId " +
-                "AND u.role != :directorRole")
-                .setParameter("divisionId", oldDivision.getDivisionId())
-                .setParameter("directorRole", ROLE_DIRECTOR)
-                .executeUpdate();
+        em.flush();
     }
 
     private void handleNewDivisionDirector(EntityManager em, User user, Division newDivision) {
-        String oldDirectorId = newDivision.getDivisionDirector();
-        if (oldDirectorId != null) {
-            User oldDirector = userDao.findById(oldDirectorId);
-            if (oldDirector != null && !oldDirector.getUserId().equals(user.getUserId())) {
-                demoteOldDirector(em, oldDirector, user);
-            }
+        String newDivDirectorId = newDivision.getDivisionDirector();
+        if (newDivDirectorId == null) {
+            return;
         }
+
+        try {
+            User oldDirector = em.find(User.class, newDivDirectorId);
+            if (oldDirector == null || oldDirector.getUserId().equals(user.getUserId())) {
+                return;
+            }
+            demoteOldDirector(em, oldDirector, newDivision);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private void demoteOldDirector(EntityManager em, User oldDirector, Division newDivision) {
+        oldDirector.setRole(ROLE_MANAGER);
+        oldDirector.setManagerId(null);
+        em.merge(oldDirector);
+        em.flush();
+
+        em.createQuery("UPDATE User u SET u.managerId = NULL "
+                + "WHERE u.divisionId = :divisionId "
+                + "AND u.role = :managerRole")
+                .setParameter("divisionId", newDivision.getDivisionId())
+                .setParameter("managerRole", ROLE_MANAGER)
+                .executeUpdate();
+        em.flush();
+    }
+
+    private void setNewDivisionDirector(EntityManager em, User user, Division newDivision) {
+        // Set new division director
         newDivision.setDivisionDirector(user.getUserId());
         em.merge(newDivision);
-    }
+        em.flush();
 
-    private void demoteOldDirector(EntityManager em, User oldDirector, User newDirector) {
-        oldDirector.setRole(ROLE_MANAGER);
-        oldDirector.setManagerId(newDirector.getUserId());
-        em.merge(oldDirector);
-    }
+        // Update director's information
+        user.setManagerId(null);
+        user.setDivisionId(newDivision.getDivisionId());
+        em.merge(user);
+        em.flush();
 
-    private void updateNewDivisionUsers(EntityManager em, User newDirector, Division newDivision) {
-        em.createQuery("UPDATE User u SET u.managerId = :newDirectorId " +
-                "WHERE u.divisionId = :divisionId " +
-                "AND u.userId != :newDirectorId " +
-                "AND u.role != :directorRole")
-                .setParameter("newDirectorId", newDirector.getUserId())
+        // Set all users in the division who don't have a manager to be managed by the new director
+        em.createQuery("UPDATE User u SET u.managerId = :directorId "
+                + "WHERE u.divisionId = :divisionId "
+                + "AND u.managerId IS NULL "
+                + "AND u.userId != :directorId")  // Don't set the director as their own manager
+                .setParameter("directorId", user.getUserId())
                 .setParameter("divisionId", newDivision.getDivisionId())
-                .setParameter("directorRole", ROLE_DIRECTOR)
                 .executeUpdate();
+        em.flush();
     }
 
     private void handleRegularUserDivisionChange(EntityManager em, User user, Division newDivision) {
-        user.setManagerId(newDivision.getDivisionDirector());
+        // For regular users (employees and managers), just update their division and manager
         user.setDivisionId(newDivision.getDivisionId());
+        user.setManagerId(newDivision.getDivisionDirector());
         em.merge(user);
     }
-} 
+}

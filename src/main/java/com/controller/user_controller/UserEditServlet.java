@@ -34,7 +34,7 @@ public class UserEditServlet extends BaseUserServlet {
             throws ServletException, IOException {
         String userId = request.getParameter("userId");
         User existingUser = userDao.findById(userId);
-        
+
         if (existingUser == null) {
             handleError(request, response, "User not found");
             return;
