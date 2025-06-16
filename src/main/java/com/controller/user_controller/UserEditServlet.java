@@ -129,18 +129,17 @@ public class UserEditServlet extends BaseUserServlet {
             // Get current division
             Division division = divisionDao.get(divisionId);
             
-            // Handle role changes
-            if (!role.equals(existingUser.getRole())) {
+            // Handle role changes and division changes
+            if (!role.equals(existingUser.getRole()) || !divisionId.equals(existingUser.getDivisionId())) {
                 if (role.equals(ROLE_DIRECTOR)) {
-                    // Promoting to Director
+                    // Promoting to Director or moving to new division as director
                     try {
-                        // Step 1: Handle current director
+                        // Step 1: Handle current director in new division
                         if (division.getDivisionDirector() != null) {
                             User currentDirector = userDao.findById(division.getDivisionDirector());
                             if (currentDirector != null && !currentDirector.getUserId().equals(userId)) {
                                 // Demote current director to manager
                                 currentDirector.setRole(ROLE_MANAGER);
-                                currentDirector.setManagerId(userId);
                                 em.merge(currentDirector);
                             }
                         }
@@ -149,14 +148,12 @@ public class UserEditServlet extends BaseUserServlet {
                         division.setDivisionDirector(userId);
                         em.merge(division);
 
-                        // Step 3: Update manager references
+                        // Step 3: Update all users in new division to be managed by new director
                         em.createQuery("UPDATE User u SET u.managerId = :newDirectorId " +
                                 "WHERE u.divisionId = :divisionId " +
-                                "AND u.userId != :newDirectorId " +
-                                "AND u.role != :directorRole")
+                                "AND u.userId != :newDirectorId")
                                 .setParameter("newDirectorId", userId)
                                 .setParameter("divisionId", division.getDivisionId())
-                                .setParameter("directorRole", ROLE_DIRECTOR)
                                 .executeUpdate();
 
                         // Step 4: Set new director's manager to null
@@ -167,63 +164,22 @@ public class UserEditServlet extends BaseUserServlet {
                         e.printStackTrace();
                         throw new RuntimeException("Failed to promote user to director: " + e.getMessage());
                     }
-                    
-                } else if (role.equals(ROLE_MANAGER)) {
-                    // Promoting to Manager or Demoting to Manager
-                    if (existingUser.getRole().equals(ROLE_DIRECTOR)) {
-                        // Demoting from Director to Manager
-                        // Set all users previously managed by this director to have no manager
-                        em.createQuery("UPDATE User u SET u.managerId = NULL " +
-                                "WHERE u.managerId = :oldDirectorId")
-                                .setParameter("oldDirectorId", userId)
-                                .executeUpdate();
-                        
-                        // Set the demoted director to be managed by the division's director
-                        String newDirectorId = division.getDivisionDirector();
-                        if (newDirectorId != null && !newDirectorId.equals(userId)) {
-                            managerId = newDirectorId;
-                        } else {
-                            managerId = null; // If no new director or self-reference, set to null
-                        }
-                    } else {
-                        managerId = division.getDivisionDirector(); // Regular manager is managed by director
-                    }
-                    
-                } else if (role.equals(ROLE_EMPLOYEE)) {
-                    // Demoting to Employee
-                    if (existingUser.getRole().equals(ROLE_DIRECTOR)) {
-                        // Demoting from Director to Employee
-                        // Get the new director (if any)
-                        String newDirectorId = division.getDivisionDirector();
-                        
-                        // Update all users previously managed by this user to be managed by the new director
-                        em.createQuery("UPDATE User u SET u.managerId = :newDirectorId " +
-                                "WHERE u.managerId = :oldDirectorId")
-                                .setParameter("newDirectorId", newDirectorId)
-                                .setParameter("oldDirectorId", userId)
-                                .executeUpdate();
-                    } else if (existingUser.getRole().equals(ROLE_MANAGER)) {
-                        // Demoting from Manager to Employee
-                        // Update all users previously managed by this user to be managed by the director
-                        em.createQuery("UPDATE User u SET u.managerId = :directorId " +
-                                "WHERE u.managerId = :oldManagerId")
-                                .setParameter("directorId", division.getDivisionDirector())
-                                .setParameter("oldManagerId", userId)
-                                .executeUpdate();
-                    }
-                    managerId = division.getDivisionDirector(); // Employee is managed by director
+                } else {
+                    // For any other role or division change, set manager to new division's director
+                    managerId = division.getDivisionDirector();
                 }
             } else {
-                // No role change, just update manager based on current role
-                if (role.equals(ROLE_EMPLOYEE)) {
+                // No role or division change, just update manager based on role
+                if (role.equals(ROLE_DIRECTOR)) {
+                    managerId = null; // Directors have no manager
+                } else if (role.equals(ROLE_EMPLOYEE)) {
+                    // For employees, use the provided manager ID or default to division director
                     managerId = request.getParameter("managerId");
                     if (managerId == null || managerId.trim().isEmpty()) {
                         managerId = division.getDivisionDirector();
                     }
-                } else if (role.equals(ROLE_MANAGER)) {
-                    managerId = division.getDivisionDirector();
-                } else if (role.equals(ROLE_DIRECTOR)) {
-                    managerId = null;
+                } else {
+                    managerId = division.getDivisionDirector(); // Managers are managed by director
                 }
             }
 
