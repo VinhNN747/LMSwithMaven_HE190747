@@ -118,4 +118,28 @@ public class DivisionDao extends BaseDao<Division> {
             em.close();
         }
     }
+
+    public List<Division> getActiveDivisions(int page, int pageSize) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT d FROM Division d WHERE d.divisionId IN " +
+                    "(SELECT DISTINCT u.divisionId FROM User u WHERE u.isActive = true)", Division.class)
+                    .setFirstResult((page - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long countActiveDivisions() {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(DISTINCT d) FROM Division d WHERE d.divisionId IN " +
+                    "(SELECT DISTINCT u.divisionId FROM User u WHERE u.isActive = true)", Long.class)
+                    .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
 }

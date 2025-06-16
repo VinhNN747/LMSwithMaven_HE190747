@@ -47,7 +47,7 @@
             <c:if test="${not empty error}">
                 <p class="error">${error}</p>
             </c:if>
-            <form action="division" method="post">
+            <form action="edit" method="post">
                 <input type="hidden" name="divisionId" value="${division.divisionId}"/>
                 <div>
                     <label>Division Name:</label>
@@ -60,9 +60,8 @@
                 <div style="margin-top: 20px;">
                     <input type="submit" value="Save"/>
                      
-                    <a href="division?action=list">Cancel</a>
+                    <a href="list">Cancel</a>
                 </div>
-                <input type="hidden" name="action" value="update"/>
             </form>
         </div>
     </body>

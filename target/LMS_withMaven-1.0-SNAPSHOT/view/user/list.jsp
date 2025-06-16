@@ -46,7 +46,7 @@
             <p class="error">${error}</p>
         </c:if>
         <div style="text-align: center; margin-bottom: 10px;">
-            <a href="user?action=new" class="button">Add New User</a>
+            <a href="create" class="button">Add New User</a>
         </div>
         <table>
             <tr>
@@ -91,10 +91,12 @@
                         </c:choose>
                     </td>
                     <td>
-                        <a href="user?action=edit&id=${user.userId}">Edit</a>
-                         | 
-                        <a href="user?action=delete&id=${user.userId}"
-                           onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                        <a href="edit?id=${user.userId}">Edit</a>
+                         | 
+                        <form action="delete" method="post" style="display: inline;">
+                            <input type="hidden" name="id" value="${user.userId}"/>
+                            <a href="#" onclick="if(confirm('Are you sure you want to delete this user?')) { this.parentElement.submit(); } return false;">Delete</a>
+                        </form>
                     </td>
                 </tr>
             </c:forEach>

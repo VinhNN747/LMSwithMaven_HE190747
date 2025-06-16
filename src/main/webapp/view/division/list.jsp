@@ -46,7 +46,7 @@
             <p class="error">${error}</p>
         </c:if>
         <div style="text-align: center; margin-bottom: 10px;">
-            <a href="division?action=new" class="button">Add New Division</a>
+            <a href="create" class="button">Add New Division</a>
         </div>
         <table>
             <tr>
@@ -70,10 +70,12 @@
                         </c:choose>
                     </td>
                     <td>
-                        <a href="division?action=edit&id=${division.divisionId}">Edit</a>
-                         | 
-                        <a href="division?action=delete&id=${division.divisionId}" 
-                           onclick="return confirm('Are you sure you want to delete this division?');">Delete</a>
+                        <a href="edit?id=${division.divisionId}">Edit</a>
+                         | 
+                        <form action="delete" method="post" style="display: inline;">
+                            <input type="hidden" name="id" value="${division.divisionId}"/>
+                            <a href="#" onclick="if(confirm('Are you sure you want to delete this division?')) { this.parentElement.submit(); } return false;">Delete</a>
+                        </form>
                     </td>
                 </tr>
             </c:forEach>

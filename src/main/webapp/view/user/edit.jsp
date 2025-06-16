@@ -39,7 +39,21 @@
                 margin-bottom: 10px;
                 text-align: center;
             }
+            .hidden {
+                display: none;
+            }
         </style>
+        <script>
+            function toggleManagerField() {
+                var roleSelect = document.getElementById('role');
+                var managerDiv = document.getElementById('managerDiv');
+                if (roleSelect.value === 'Employee') {
+                    managerDiv.classList.remove('hidden');
+                } else {
+                    managerDiv.classList.add('hidden');
+                }
+            }
+        </script>
     </head>
     <body>
         <div class="form-container">
@@ -47,7 +61,7 @@
             <c:if test="${not empty error}">
                 <p class="error">${error}</p>
             </c:if>
-            <form action="user" method="post">
+            <form action="edit" method="post">
                 <input type="hidden" name="userId" value="${user.userId}"/>
                 <div>
                     <label>Full Name:</label>
@@ -70,12 +84,25 @@
                     </select>
                 </div>
                 <div>
-                    <label>Division ID:</label>
-                    <input type="text" name="divisionId" value="${user.divisionId}"/>
+                    <label>Division:</label>
+                    <select name="divisionId" required>
+                        <option value="">Select Division</option>
+                        <c:forEach items="${divisions}" var="division">
+                            <option value="${division.divisionId}" 
+                                    ${user.divisionId == division.divisionId ? 'selected' : ''}>
+                                ${division.divisionName}
+                            </option>
+                        </c:forEach>
+                    </select>
                 </div>
                 <div>
                     <label>Role:</label>
-                    <input type="text" name="role" value="${user.role}" maxlength="100" required/>
+                    <select name="role" id="role" onchange="toggleManagerField()" required>
+                        <option value="">Select Role</option>
+                        <option value="Employee" ${user.role == 'Employee' ? 'selected' : ''}>Employee</option>
+                        <option value="Director" ${user.role == 'Director' ? 'selected' : ''}>Director</option>
+                        <option value="Manager" ${user.role == 'Manager' ? 'selected' : ''}>Manager</option>
+                    </select>
                 </div>
                 <div>
                     <label>Active:</label>
@@ -84,17 +111,28 @@
                         <option value="false" ${!user.isActive ? 'selected' : ''}>No</option>
                     </select>
                 </div>
-                <div>
-                    <label>Manager ID:</label>
-                    <input type="text" name="managerId" value="${user.managerId}" maxlength="10"/>
+                <div id="managerDiv" class="${user.role != 'Employee' ? 'hidden' : ''}">
+                    <label>Manager:</label>
+                    <select name="managerId">
+                        <option value="">Select Manager</option>
+                        <c:forEach items="${managers}" var="manager">
+                            <option value="${manager.userId}" 
+                                    ${user.managerId == manager.userId ? 'selected' : ''}>
+                                ${manager.fullName} (${manager.role})
+                            </option>
+                        </c:forEach>
+                    </select>
                 </div>
                 <div style="margin-top: 20px;">
                     <input type="submit" value="Save"/>
-                     
-                    <a href="user?action=list">Cancel</a>
+                    
+                    <a href="list">Cancel</a>
                 </div>
-                <input type="hidden" name="action" value="update"/>
             </form>
         </div>
+        <script>
+            // Initialize manager field visibility on page load
+            toggleManagerField();
+        </script>
     </body>
 </html>

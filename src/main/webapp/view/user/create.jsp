@@ -47,7 +47,7 @@
             <c:if test="${not empty error}">
                 <p class="error">${error}</p>
             </c:if>
-            <form action="user" method="post">
+            <form action="create" method="post">
                 <div>
                     <label>Full Name:</label>
                     <input type="text" name="fullName" maxlength="100" required/>
@@ -92,16 +92,11 @@
                         <option value="false">No</option>
                     </select>
                 </div>
-<!--                <div>
-                    <label>Manager ID:</label>
-                    <input type="text" name="managerId" maxlength="10"/>
-                </div>-->
                 <div style="margin-top: 20px;">
                     <input type="submit" value="Save"/>
-                     
-                    <a href="user?action=list">Cancel</a>
+                    
+                    <a href="list">Cancel</a>
                 </div>
-                <input type="hidden" name="action" value="create"/>
             </form>
         </div>
     </body>
