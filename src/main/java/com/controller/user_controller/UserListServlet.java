@@ -17,6 +17,7 @@ public class UserListServlet extends BaseUserServlet {
         try {
             List<User> users = userDao.list();
             request.setAttribute("users", users);
+            request.setAttribute("divisions", divisionDao.list());
             request.getRequestDispatcher("/view/user/list.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "An error occurred: " + e.getMessage());

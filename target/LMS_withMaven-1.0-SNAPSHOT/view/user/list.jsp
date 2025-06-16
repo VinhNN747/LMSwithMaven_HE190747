@@ -53,11 +53,11 @@
                 <th>ID</th>
                 <th>Full Name</th>
                 <th>Username</th>
-                <th>Email</th>
-                <th>Gender</th>
+<!--                <th>Email</th>
+                <th>Gender</th>-->
                 <th>Division</th>
                 <th>Role</th>
-                <th>Active</th>
+                <!--<th>Active</th>-->
                 <th>Manager</th>
                 <th>Actions</th>
             </tr>
@@ -66,8 +66,8 @@
                     <td>${user.userId}</td>
                     <td>${user.fullName}</td>
                     <td>${user.username}</td>
-                    <td>${user.email}</td>
-                    <td>${user.gender}</td>
+                    <!--<td>${user.email}</td>-->
+                    <!--<td>${user.gender}</td>-->
                     <td>
                         <c:choose>
                             <c:when test="${not empty user.division}">
@@ -79,7 +79,7 @@
                         </c:choose>
                     </td>
                     <td>${user.role}</td>
-                    <td>${user.isActive ? 'Yes' : 'No'}</td>
+                    <!--<td>${user.isActive ? 'Yes' : 'No'}</td>-->
                     <td>
                         <c:choose>
                             <c:when test="${not empty user.manager}">
@@ -91,8 +91,38 @@
                         </c:choose>
                     </td>
                     <td>
+                        <c:choose>
+                            <c:when test="${user.role == 'Employee'}">
+                                <form action="promote" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="${user.userId}"/>
+                                    <button type="submit" class="button">Promote</button>
+                                </form>
+                            </c:when>
+                            <c:when test="${user.role == 'Manager'}">
+                                <form action="promote" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="${user.userId}"/>
+                                    <button type="submit" class="button">Promote</button>
+                                </form>
+                                <form action="demote" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="${user.userId}"/>
+                                    <button type="submit" class="button">Demote</button>
+                                </form>
+                            </c:when>
+                            <c:when test="${user.role == 'Director'}">
+                                <form action="demote" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="${user.userId}"/>
+                                    <button type="submit" class="button">Demote</button>
+                                </form>
+                            </c:when>
+                        </c:choose>
+                        | 
+                        <form action="changeDivision" method="get" style="display: inline;">
+                            <input type="hidden" name="id" value="${user.userId}"/>
+                            <button type="submit" class="button">Move Division</button>
+                        </form>
+                        | 
                         <a href="edit?id=${user.userId}">Edit</a>
-                         | 
+                        | 
                         <form action="delete" method="post" style="display: inline;">
                             <input type="hidden" name="id" value="${user.userId}"/>
                             <a href="#" onclick="if(confirm('Are you sure you want to delete this user?')) { this.parentElement.submit(); } return false;">Delete</a>

@@ -14,204 +14,173 @@ import java.util.stream.Collectors;
 
 @WebServlet("/user/edit")
 public class UserEditServlet extends BaseUserServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String id = request.getParameter("id");
         User user = userDao.findById(id);
+        
         if (user == null) {
-            request.setAttribute("error", "User not found");
-            response.sendRedirect("list");
-        } else {
-            // Get all divisions for dropdown
-            List<Division> divisions = divisionDao.list();
-            request.setAttribute("divisions", divisions);
-
-            // Get managers and directors from the same division
-            List<User> managers = userDao.list().stream()
-                    .filter(u -> (ROLE_MANAGER.equals(u.getRole()) || ROLE_DIRECTOR.equals(u.getRole())))
-                    .filter(u -> !u.getUserId().equals(id)) // Exclude current user
-                    .filter(u -> u.getDivisionId().equals(user.getDivisionId())) // Only same division
-                    .collect(Collectors.toList());
-            request.setAttribute("managers", managers);
-
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+            handleError(request, response, "User not found");
+            return;
         }
+
+        showEditForm(request, response, user);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String userId = request.getParameter("userId");
-        String fullName = request.getParameter("fullName");
-        String username = request.getParameter("username");
-        String email = request.getParameter("email");
-        String gender = request.getParameter("gender");
-        String divisionIdStr = request.getParameter("divisionId");
-        String role = request.getParameter("role");
-        String isActiveStr = request.getParameter("isActive");
-        String managerId = null;
         User existingUser = userDao.findById(userId);
-
-        // Basic validation
-        if (fullName == null || fullName.trim().isEmpty() || fullName.length() > 100) {
-            request.setAttribute("error", "Full name is required and must not exceed 100 characters");
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
-            return;
-        }
-        if (username == null || username.trim().isEmpty() || username.length() > 50) {
-            request.setAttribute("error", "Username is required and must not exceed 50 characters");
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
-            return;
-        }
-        if (email == null || email.trim().isEmpty() || email.length() > 100
-                || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-            request.setAttribute("error", "Valid email is required and must not exceed 100 characters");
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
-            return;
-        }
-        if (gender != null && !gender.isEmpty() && !gender.matches("^[MF]$")) {
-            request.setAttribute("error", "Gender must be 'M' or 'F'");
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+        
+        if (existingUser == null) {
+            handleError(request, response, "User not found");
             return;
         }
 
-        Integer divisionId = null;
-        if (divisionIdStr != null && !divisionIdStr.trim().isEmpty()) {
-            try {
-                divisionId = Integer.parseInt(divisionIdStr);
-            } catch (NumberFormatException e) {
-                request.setAttribute("error", "Invalid Division ID format");
-                request.setAttribute("user", existingUser);
-                request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
-                return;
-            }
-        }
-
-        if (role == null || role.trim().isEmpty()) {
-            request.setAttribute("error", "Role is required");
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+        // Validate input
+        if (!validateInput(request, response, existingUser)) {
             return;
         }
 
-        // Check if role change is valid (only one level)
-        if (!role.equals(existingUser.getRole()) && !isValidRoleTransition(existingUser.getRole(), role)) {
-            request.setAttribute("error",
-                    "Invalid role change. You can only promote or demote by one level at a time.");
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
-            return;
-        }
-
-        // Check for duplicate username/email, excluding current user
-        if (userDao.existsByUsernameOrEmail(username, email) && 
-            !username.equals(existingUser.getUsername()) && 
-            !email.equals(existingUser.getEmail())) {
-            request.setAttribute("error", "Username '" + username + "' or email '" + email + "' already exists");
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
-            return;
-        }
-
-        boolean isActive = Boolean.parseBoolean(isActiveStr);
+        // Process the update
         EntityManager em = userDao.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         
         try {
             tx.begin();
-            
-            // Get current division
-            Division division = divisionDao.get(divisionId);
-            
-            // Handle role changes and division changes
-            if (!role.equals(existingUser.getRole()) || !divisionId.equals(existingUser.getDivisionId())) {
-                if (role.equals(ROLE_DIRECTOR)) {
-                    // Promoting to Director or moving to new division as director
-                    try {
-                        // Step 1: Handle current director in new division
-                        if (division.getDivisionDirector() != null) {
-                            User currentDirector = userDao.findById(division.getDivisionDirector());
-                            if (currentDirector != null && !currentDirector.getUserId().equals(userId)) {
-                                // Demote current director to manager
-                                currentDirector.setRole(ROLE_MANAGER);
-                                em.merge(currentDirector);
-                            }
-                        }
-
-                        // Step 2: Update division's director
-                        division.setDivisionDirector(userId);
-                        em.merge(division);
-
-                        // Step 3: Update all users in new division to be managed by new director
-                        em.createQuery("UPDATE User u SET u.managerId = :newDirectorId " +
-                                "WHERE u.divisionId = :divisionId " +
-                                "AND u.userId != :newDirectorId")
-                                .setParameter("newDirectorId", userId)
-                                .setParameter("divisionId", division.getDivisionId())
-                                .executeUpdate();
-
-                        // Step 4: Set new director's manager to null
-                        managerId = null;
-
-                    } catch (Exception e) {
-                        System.err.println("Error in director promotion: " + e.getMessage());
-                        e.printStackTrace();
-                        throw new RuntimeException("Failed to promote user to director: " + e.getMessage());
-                    }
-                } else if (role.equals(ROLE_EMPLOYEE)) {
-                    // If becoming an employee, use the provided manager ID or default to division director
-                    managerId = request.getParameter("managerId");
-                    if (managerId == null || managerId.trim().isEmpty()) {
-                        managerId = division.getDivisionDirector();
-                    }
-                } else {
-                    // For any other role or division change, set manager to new division's director
-                    managerId = division.getDivisionDirector();
-                }
-            } else {
-                // No role or division change, just update manager based on role
-                if (role.equals(ROLE_DIRECTOR)) {
-                    managerId = null; // Directors have no manager
-                } else if (role.equals(ROLE_EMPLOYEE)) {
-                    // For employees, use the provided manager ID or default to division director
-                    managerId = request.getParameter("managerId");
-                    if (managerId == null || managerId.trim().isEmpty()) {
-                        managerId = division.getDivisionDirector();
-                    }
-                } else {
-                    managerId = division.getDivisionDirector(); // Managers are managed by director
-                }
-            }
-
-            // Update user
-            existingUser.setFullName(fullName);
-            existingUser.setUsername(username);
-            existingUser.setEmail(email);
-            existingUser.setGender(gender != null && !gender.isEmpty() ? gender : null);
-            existingUser.setDivisionId(divisionId);
-            existingUser.setRole(role);
-            existingUser.setIsActive(isActive);
-            existingUser.setManagerId(managerId);
-            
-            em.merge(existingUser);
+            updateUser(em, request, existingUser);
             tx.commit();
-            
             response.sendRedirect("list");
         } catch (Exception e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            request.setAttribute("error", "Failed to update user: " + e.getMessage());
-            request.setAttribute("user", existingUser);
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+            handleError(request, response, "Failed to update user: " + e.getMessage());
         } finally {
             em.close();
         }
     }
-} 
+
+    private void showEditForm(HttpServletRequest request, HttpServletResponse response, User user) 
+            throws ServletException, IOException {
+        // Get all divisions for dropdown
+        List<Division> divisions = divisionDao.list();
+        request.setAttribute("divisions", divisions);
+
+        // Get managers and directors from the same division
+        List<User> managers = getManagersInDivision(user);
+        request.setAttribute("managers", managers);
+
+        request.setAttribute("user", user);
+        request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+    }
+
+    private List<User> getManagersInDivision(User user) {
+        return userDao.list().stream()
+                .filter(u -> (ROLE_MANAGER.equals(u.getRole()) || ROLE_DIRECTOR.equals(u.getRole())))
+                .filter(u -> !u.getUserId().equals(user.getUserId())) // Exclude current user
+                .filter(u -> u.getDivisionId().equals(user.getDivisionId())) // Only same division
+                .collect(Collectors.toList());
+    }
+
+    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage) 
+            throws IOException {
+        request.setAttribute("error", errorMessage);
+        response.sendRedirect("list");
+    }
+
+    private boolean validateInput(HttpServletRequest request, HttpServletResponse response, User existingUser) 
+            throws ServletException, IOException {
+        String fullName = request.getParameter("fullName");
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+        String gender = request.getParameter("gender");
+
+        if (!validateFullName(request, response, existingUser, fullName)) return false;
+        if (!validateUsername(request, response, existingUser, username)) return false;
+        if (!validateEmail(request, response, existingUser, email)) return false;
+        if (!validateGender(request, response, existingUser, gender)) return false;
+        if (!validateUniqueUsernameEmail(request, response, existingUser, username, email)) return false;
+
+        return true;
+    }
+
+    private boolean validateFullName(HttpServletRequest request, HttpServletResponse response, User existingUser, String fullName) 
+            throws ServletException, IOException {
+        if (fullName == null || fullName.trim().isEmpty() || fullName.length() > 100) {
+            handleValidationError(request, response, existingUser, "Full name is required and must not exceed 100 characters");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateUsername(HttpServletRequest request, HttpServletResponse response, User existingUser, String username) 
+            throws ServletException, IOException {
+        if (username == null || username.trim().isEmpty() || username.length() > 50) {
+            handleValidationError(request, response, existingUser, "Username is required and must not exceed 50 characters");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateEmail(HttpServletRequest request, HttpServletResponse response, User existingUser, String email) 
+            throws ServletException, IOException {
+        if (email == null || email.trim().isEmpty() || email.length() > 100
+                || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            handleValidationError(request, response, existingUser, "Valid email is required and must not exceed 100 characters");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateGender(HttpServletRequest request, HttpServletResponse response, User existingUser, String gender) 
+            throws ServletException, IOException {
+        if (gender != null && !gender.isEmpty() && !gender.matches("^[MF]$")) {
+            handleValidationError(request, response, existingUser, "Gender must be 'M' or 'F'");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateUniqueUsernameEmail(HttpServletRequest request, HttpServletResponse response, User existingUser, 
+            String username, String email) throws ServletException, IOException {
+        if (userDao.existsByUsernameOrEmail(username, email) 
+                && !username.equals(existingUser.getUsername()) 
+                && !email.equals(existingUser.getEmail())) {
+            handleValidationError(request, response, existingUser, 
+                    "Username '" + username + "' or email '" + email + "' already exists");
+            return false;
+        }
+        return true;
+    }
+
+    private void handleValidationError(HttpServletRequest request, HttpServletResponse response, User user, String errorMessage) 
+            throws ServletException, IOException {
+        request.setAttribute("error", errorMessage);
+        request.setAttribute("user", user);
+        request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+    }
+
+    private void updateUser(EntityManager em, HttpServletRequest request, User existingUser) {
+        String fullName = request.getParameter("fullName");
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+        String gender = request.getParameter("gender");
+        String isActiveStr = request.getParameter("isActive");
+        String managerIdStr = request.getParameter("managerId");
+        boolean isActive = Boolean.parseBoolean(isActiveStr);
+
+        // Update user
+        existingUser.setFullName(fullName);
+        existingUser.setUsername(username);
+        existingUser.setEmail(email);
+        existingUser.setGender(gender != null && !gender.isEmpty() ? gender : null);
+        existingUser.setIsActive(isActive);
+        existingUser.setManagerId(managerIdStr);
+        
+        em.merge(existingUser);
+    }
+}

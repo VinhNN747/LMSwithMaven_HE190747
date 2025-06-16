@@ -1,9 +1,12 @@
 com\entity\Division.class
+com\controller\user_controller\UserDemoteServlet.class
+com\controller\user_controller\UserPromoteServlet.class
 com\controller\user_controller\UserCreateServlet.class
 com\controller\user_controller\UserListServlet.class
 com\entity\LeaveRequest.class
 com\controller\user_controller\UserEditServlet.class
 com\mycompany\jpahibernatetesting\JakartaRestConfiguration.class
+com\controller\user_controller\UserChangeDivisionServlet.class
 com\controller\user_controller\BaseUserServlet.class
 com\dao\BaseDao.class
 com\controller\division_controller\BaseDivisionServlet.class

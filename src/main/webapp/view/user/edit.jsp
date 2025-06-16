@@ -95,15 +95,17 @@
                         </c:forEach>
                     </select>
                 </div>
-                <div>
-                    <label>Role:</label>
-                    <select name="role" id="role" onchange="toggleManagerField()" required>
-                        <option value="">Select Role</option>
-                        <option value="Employee" ${user.role == 'Employee' ? 'selected' : ''}>Employee</option>
-                        <option value="Director" ${user.role == 'Director' ? 'selected' : ''}>Director</option>
-                        <option value="Manager" ${user.role == 'Manager' ? 'selected' : ''}>Manager</option>
-                    </select>
-                </div>
+                <input type="hidden" name="role" value="${user.role}"/>
+
+                <!--                <div>
+                                    <label>Role:</label>
+                                    <select name="role" id="role" onchange="toggleManagerField()" required>
+                                        <option value="">Select Role</option>
+                                        <option value="Employee" ${user.role == 'Employee' ? 'selected' : ''}>Employee</option>
+                                        <option value="Director" ${user.role == 'Director' ? 'selected' : ''}>Director</option>
+                                        <option value="Manager" ${user.role == 'Manager' ? 'selected' : ''}>Manager</option>
+                                    </select>
+                                </div>-->
                 <div>
                     <label>Active:</label>
                     <select name="isActive">
@@ -125,7 +127,7 @@
                 </div>
                 <div style="margin-top: 20px;">
                     <input type="submit" value="Save"/>
-                    
+
                     <a href="list">Cancel</a>
                 </div>
             </form>
