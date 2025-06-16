@@ -5,6 +5,7 @@
 package com.dao;
 
 import com.entity.User;
+import com.entity.Division;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
@@ -69,9 +70,22 @@ public class UserDao extends BaseDao<User> {
             if (user != null) {
                 User managedUser = em.find(User.class, user.getUserId());
 
-                // Nullify managerId references in other users
-                em.createQuery("UPDATE User u SET u.managerId = NULL WHERE u.managerId = :userId")
+                // Get the division director before nullifying references
+                String divisionDirector = null;
+                if (managedUser.getDivisionId() != null) {
+                    Division division = em.find(Division.class, managedUser.getDivisionId());
+                    if (division != null) {
+                        divisionDirector = division.getDivisionDirector();
+                    }
+                }
+
+                // Update managerId references in other users to point to division director
+                em.createQuery("UPDATE User u SET u.managerId = :divisionDirector " +
+                        "WHERE u.managerId = :userId " +
+                        "AND u.divisionId = :divisionId")
+                        .setParameter("divisionDirector", divisionDirector)
                         .setParameter("userId", managedUser.getUserId())
+                        .setParameter("divisionId", managedUser.getDivisionId())
                         .executeUpdate();
 
                 // Nullify divisionDirector in Division if this user is a director

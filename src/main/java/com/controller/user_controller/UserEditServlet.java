@@ -164,6 +164,12 @@ public class UserEditServlet extends BaseUserServlet {
                         e.printStackTrace();
                         throw new RuntimeException("Failed to promote user to director: " + e.getMessage());
                     }
+                } else if (role.equals(ROLE_EMPLOYEE)) {
+                    // If becoming an employee, use the provided manager ID or default to division director
+                    managerId = request.getParameter("managerId");
+                    if (managerId == null || managerId.trim().isEmpty()) {
+                        managerId = division.getDivisionDirector();
+                    }
                 } else {
                     // For any other role or division change, set manager to new division's director
                     managerId = division.getDivisionDirector();
