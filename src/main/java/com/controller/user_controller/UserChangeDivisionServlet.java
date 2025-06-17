@@ -3,14 +3,20 @@ package com.controller.user_controller;
 import com.entity.Division;
 import com.entity.User;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
+/**
+ * Handles user division changes within the organization: - For regular users:
+ * Updates division and manager - For leads: Handles their subordinates'
+ * management - For heads: Handles division leadership transfer
+ *
+ * The servlet ensures proper management of organizational structure and
+ * maintains the integrity of management relationships.
+ */
 @WebServlet("/user/changeDivision")
 public class UserChangeDivisionServlet extends BaseUserServlet {
 
@@ -25,16 +31,16 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
             return;
         }
 
-        showDivisionChangeForm(request, response, user);
+        showChangeDivisionForm(request, response, user);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String id = request.getParameter("id");
+        String userId = request.getParameter("userId");
         String newDivisionIdStr = request.getParameter("divisionId");
-        User user = userDao.findById(id);
 
+        User user = userDao.findById(userId);
         if (user == null) {
             handleError(request, response, "User not found");
             return;
@@ -46,37 +52,41 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
             return;
         }
 
-        if (newDivisionId.equals(user.getDivisionId())) {
-            response.sendRedirect("list");
+        Division newDivision = divisionDao.get(newDivisionId);
+        if (newDivision == null) {
+            handleError(request, response, "Division not found");
             return;
         }
 
         EntityManager em = userDao.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-
         try {
-            tx.begin();
-            changeUserDivision(em, user, newDivisionId);
-            tx.commit();
+            executeInTransaction(em, () -> {
+                changeUserDivision(em, user, newDivision);
+            });
             response.sendRedirect("list");
         } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
             handleError(request, response, "Failed to change division: " + e.getMessage());
         } finally {
             em.close();
         }
     }
 
-    private void showDivisionChangeForm(HttpServletRequest request, HttpServletResponse response, User user)
+    /**
+     * Displays the division change form with: - Current user information - List
+     * of available divisions
+     */
+    private void showChangeDivisionForm(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
-        List<Division> divisions = divisionDao.list();
-        request.setAttribute("divisions", divisions);
         request.setAttribute("user", user);
+        request.setAttribute("divisions", divisionDao.list());
         request.getRequestDispatcher("/view/user/changeDivision.jsp").forward(request, response);
     }
 
+    /**
+     * Parses and validates the division ID from the request parameter
+     *
+     * @return Integer division ID or null if invalid
+     */
     private Integer parseDivisionId(String divisionIdStr) {
         if (divisionIdStr == null || divisionIdStr.trim().isEmpty()) {
             return null;
@@ -88,108 +98,71 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
         }
     }
 
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
-            throws IOException {
-        request.setAttribute("error", errorMessage);
-        response.sendRedirect("list");
-    }
+    /**
+     * Handles the division change process:
+     * - For heads: Demotes existing head, updates division, and handles management
+     * - For regular users: Updates division and manager
+     */
+    private void changeUserDivision(EntityManager em, User user, Division newDivision) {
+        // If user is a head, handle division head change
+        if (ROLE_HEAD.equals(user.getRole())) {
+            // First handle the old division
+            Division oldDivision = divisionDao.get(user.getDivisionId());
+            if (oldDivision != null) {
+                // Remove user as head of old division
+                oldDivision.setDivisionHead(null);
+                em.merge(oldDivision);
 
-    private void changeUserDivision(EntityManager em, User user, Integer newDivisionId) {
-        Division oldDivision = divisionDao.get(user.getDivisionId());
-        Division newDivision = divisionDao.get(newDivisionId);
+                // Update users in old division to have no manager
+                em.createQuery("UPDATE User u SET u.managerId = NULL "
+                        + "WHERE u.divisionId = :divisionId "
+                        + "AND u.managerId = :headId")
+                        .setParameter("divisionId", oldDivision.getDivisionId())
+                        .setParameter("headId", user.getUserId())
+                        .executeUpdate();
+            }
 
-        if (user.getRole().equals(ROLE_HEAD)) {
-            handleHeadDivisionChange(em, user, oldDivision, newDivision);
+            // Then handle the new division
+            // First demote the existing head of the new division if any
+            String existingHeadId = newDivision.getDivisionHead();
+            if (existingHeadId != null) {
+                User existingHead = em.find(User.class, existingHeadId);
+                if (existingHead != null) {
+                    // Demote existing head to lead
+                    existingHead.setRole(ROLE_LEAD);
+                    em.merge(existingHead);
+                }
+            }
+
+            // Update the new division's head
+            newDivision.setDivisionHead(user.getUserId());
+            em.merge(newDivision);
+
+            // Update the moving head's division
+            user.setDivisionId(newDivision.getDivisionId());
+            em.merge(user);
+
+            // Update management relationships in the new division
+            updateDivisionUsers(em, user, newDivision);
+
+            user.setRole(ROLE_HEAD);
+            em.merge(user);
         } else {
+            // For regular users, just update division and manager
             handleRegularUserDivisionChange(em, user, newDivision);
         }
     }
 
-    private void handleHeadDivisionChange(EntityManager em, User user, Division oldDivision, Division newDivision) {
-        try {
-            removeOldDivisionHead(em, oldDivision);
-            handleNewDivisionHead(em, user, newDivision);
-            setNewDivisionHead(em, user, newDivision);
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    private void removeOldDivisionHead(EntityManager em, Division oldDivision) {
-        String oldDivHeadId = oldDivision.getDivisionHead();
-        if (oldDivHeadId != null) {
-            em.createQuery("UPDATE User u SET u.managerId = NULL "
-                    + "WHERE u.divisionId = :divisionId "
-                    + "AND u.managerId = :headId")
-                    .setParameter("divisionId", oldDivision.getDivisionId())
-                    .setParameter("headId", oldDivHeadId)
-                    .executeUpdate();
-            em.flush();
-        }
-        oldDivision.setDivisionHead(null);
-        em.merge(oldDivision);
-        em.flush();
-    }
-
-    private void handleNewDivisionHead(EntityManager em, User user, Division newDivision) {
-        String newDivHeadId = newDivision.getDivisionHead();
-        if (newDivHeadId == null) {
-            return;
-        }
-
-        try {
-            User oldHead = em.find(User.class, newDivHeadId);
-            if (oldHead == null || oldHead.getUserId().equals(user.getUserId())) {
-                return;
-            }
-            demoteOldHead(em, oldHead, newDivision);
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    private void demoteOldHead(EntityManager em, User oldHead, Division newDivision) {
-        oldHead.setRole(ROLE_LEAD);
-        oldHead.setManagerId(null);
-        em.merge(oldHead);
-        em.flush();
-
-        em.createQuery("UPDATE User u SET u.managerId = NULL "
-                + "WHERE u.divisionId = :divisionId "
-                + "AND u.role = :managerRole")
-                .setParameter("divisionId", newDivision.getDivisionId())
-                .setParameter("managerRole", ROLE_LEAD)
-                .executeUpdate();
-        em.flush();
-    }
-
-    private void setNewDivisionHead(EntityManager em, User user, Division newDivision) {
-        // Set new division head
-        newDivision.setDivisionHead(user.getUserId());
-        em.merge(newDivision);
-        em.flush();
-
-        // Update head's information
-        user.setManagerId(null);
-        user.setDivisionId(newDivision.getDivisionId());
-        em.merge(user);
-        em.flush();
-
-        // Set all users in the division who don't have a manager to be managed by the new head
-        em.createQuery("UPDATE User u SET u.managerId = :headId "
-                + "WHERE u.divisionId = :divisionId "
-                + "AND u.managerId IS NULL "
-                + "AND u.userId != :headId")  // Don't set the head as their own manager
-                .setParameter("headId", user.getUserId())
-                .setParameter("divisionId", newDivision.getDivisionId())
-                .executeUpdate();
-        em.flush();
-    }
-
+    /**
+     * Handles division change for regular users and leads: - For leads:
+     * Reassigns their subordinates to division head - Updates user's division
+     * and manager - Maintains management hierarchy
+     */
     private void handleRegularUserDivisionChange(EntityManager em, User user, Division newDivision) {
         // If the user is a lead, handle their subordinates first
-        if (user.getRole().equals(ROLE_LEAD)) {
-            // Update any users who were managed by this lead to be managed by the division head
+        if (ROLE_LEAD.equals(user.getRole())) {
+            // Update any users who were managed by this lead to be managed by the division
+            // head
             em.createQuery("UPDATE User u SET u.managerId = :headId "
                     + "WHERE u.divisionId = :divisionId "
                     + "AND u.managerId = :userId")

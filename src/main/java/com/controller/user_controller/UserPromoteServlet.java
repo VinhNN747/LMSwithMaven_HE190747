@@ -3,13 +3,20 @@ package com.controller.user_controller;
 import com.entity.Division;
 import com.entity.User;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Handles user promotion within the organizational hierarchy:
+ * - Employee -> Lead: Basic promotion to management role
+ * - Lead -> Head: Promotion to division leadership
+ * 
+ * The servlet ensures proper role transitions and handles all necessary
+ * updates to division structure and management relationships.
+ */
 @WebServlet("/user/promote")
 public class UserPromoteServlet extends BaseUserServlet {
 
@@ -31,23 +38,24 @@ public class UserPromoteServlet extends BaseUserServlet {
         }
 
         EntityManager em = userDao.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-
         try {
-            tx.begin();
-            promoteUser(em, user, newRole);
-            tx.commit();
+            executeInTransaction(em, () -> {
+                promoteUser(em, user, newRole);
+            });
             response.sendRedirect("list");
         } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
             handleError(request, response, "Failed to promote user: " + e.getMessage());
         } finally {
             em.close();
         }
     }
 
+    /**
+     * Determines the next role in the hierarchy based on current role:
+     * Employee -> Lead
+     * Lead -> Head
+     * Head -> null (cannot be promoted further)
+     */
     private String determineNewRole(String currentRole) {
         switch (currentRole) {
             case ROLE_EMPLOYEE:
@@ -59,15 +67,20 @@ public class UserPromoteServlet extends BaseUserServlet {
         }
     }
 
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
-            throws IOException {
-        request.setAttribute("error", errorMessage);
-        response.sendRedirect("list");
-    }
-
+    /**
+     * Handles the promotion process:
+     * 1. For Head promotion:
+     *    - Updates division structure
+     *    - Handles existing head
+     *    - Updates management relationships
+     * 2. For Lead promotion:
+     *    - Sets manager to division head
+     * 3. Updates user's role
+     */
     private void promoteUser(EntityManager em, User user, String newRole) {
         if (newRole.equals(ROLE_HEAD)) {
-            handleHeadPromotion(em, user);
+            Division division = divisionDao.get(user.getDivisionId());
+            handleDivisionHeadChange(em, user, division);
         } else if (newRole.equals(ROLE_LEAD)) {
             handleManagerPromotion(em, user);
         }
@@ -77,47 +90,11 @@ public class UserPromoteServlet extends BaseUserServlet {
         em.merge(user);
     }
 
-    private void handleHeadPromotion(EntityManager em, User user) {
-        Division division = divisionDao.get(user.getDivisionId());
-        String oldHeadId = division.getDivisionHead();
-
-        if (oldHeadId != null) {
-            handleExistingHead(em, oldHeadId, user.getUserId());
-        }
-
-        // Reassign all users in division to be managed by new head
-        updateDivisionUsers(em, user, division);
-        // Update division's head
-        division.setDivisionHead(user.getUserId());
-        em.merge(division);
-        // Set new head's manager to null
-        user.setManagerId(null);
-    }
-
-    private void handleExistingHead(EntityManager em, String oldHeadId, String newHeadId) {
-        User oldHead = userDao.findById(oldHeadId);
-        if (oldHead != null && !oldHead.getUserId().equals(newHeadId)) {
-            // Demote old head to manager
-            oldHead.setRole(ROLE_LEAD);
-            oldHead.setManagerId(newHeadId);
-            em.merge(oldHead);
-        }
-    }
-
-    private void updateDivisionUsers(EntityManager em, User newHead, Division division) {
-        String oldHeadId = division.getDivisionHead();
-        em.createQuery("UPDATE User u SET u.managerId = :newHeadId "
-                + "WHERE u.divisionId = :divisionId "
-                + "AND u.userId != :newHeadId "
-                + "AND u.role != :headRole "
-                + "AND (u.managerId IS NULL OR u.managerId = :oldHeadId)")
-                .setParameter("newHeadId", newHead.getUserId())
-                .setParameter("divisionId", division.getDivisionId())
-                .setParameter("headRole", ROLE_HEAD)
-                .setParameter("oldHeadId", oldHeadId)
-                .executeUpdate();
-    }
-
+    /**
+     * Handles promotion to Lead role:
+     * - Sets the user's manager to their division head
+     * - Maintains the management hierarchy
+     */
     private void handleManagerPromotion(EntityManager em, User user) {
         // For manager promotion, set manager to division head
         Division division = divisionDao.get(user.getDivisionId());

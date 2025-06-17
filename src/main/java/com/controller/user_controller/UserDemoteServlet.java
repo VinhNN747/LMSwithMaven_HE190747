@@ -59,12 +59,6 @@ public class UserDemoteServlet extends BaseUserServlet {
         }
     }
 
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
-            throws IOException {
-        request.setAttribute("error", errorMessage);
-        response.sendRedirect("list");
-    }
-
     private void demoteUser(EntityManager em, User user, String newRole) {
         if (user.getRole().equals(ROLE_HEAD)) {
             handleHeadDemotion(em, user);

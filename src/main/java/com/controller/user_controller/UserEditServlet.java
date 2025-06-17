@@ -3,7 +3,6 @@ package com.controller.user_controller;
 import com.entity.Division;
 import com.entity.User;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,17 +46,12 @@ public class UserEditServlet extends BaseUserServlet {
 
         // Process the update
         EntityManager em = userDao.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        
         try {
-            tx.begin();
-            updateUser(em, request, existingUser);
-            tx.commit();
+            executeInTransaction(em, () -> {
+                updateUser(em, request, existingUser);
+            });
             response.sendRedirect("list");
         } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
             handleError(request, response, "Failed to update user: " + e.getMessage());
         } finally {
             em.close();
@@ -86,12 +80,6 @@ public class UserEditServlet extends BaseUserServlet {
                 .collect(Collectors.toList());
     }
 
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage) 
-            throws IOException {
-        request.setAttribute("error", errorMessage);
-        response.sendRedirect("list");
-    }
-
     private boolean validateInput(HttpServletRequest request, HttpServletResponse response, User existingUser) 
             throws ServletException, IOException {
         String fullName = request.getParameter("fullName");
@@ -99,61 +87,28 @@ public class UserEditServlet extends BaseUserServlet {
         String email = request.getParameter("email");
         String gender = request.getParameter("gender");
 
-        if (!validateFullName(request, response, existingUser, fullName)) return false;
-        if (!validateUsername(request, response, existingUser, username)) return false;
-        if (!validateEmail(request, response, existingUser, email)) return false;
-        if (!validateGender(request, response, existingUser, gender)) return false;
-        if (!validateUniqueUsernameEmail(request, response, existingUser, username, email)) return false;
-
-        return true;
-    }
-
-    private boolean validateFullName(HttpServletRequest request, HttpServletResponse response, User existingUser, String fullName) 
-            throws ServletException, IOException {
-        if (fullName == null || fullName.trim().isEmpty() || fullName.length() > 100) {
+        if (!validateFullName(fullName)) {
             handleValidationError(request, response, existingUser, "Full name is required and must not exceed 100 characters");
             return false;
         }
-        return true;
-    }
-
-    private boolean validateUsername(HttpServletRequest request, HttpServletResponse response, User existingUser, String username) 
-            throws ServletException, IOException {
-        if (username == null || username.trim().isEmpty() || username.length() > 50) {
+        if (!validateUsername(username)) {
             handleValidationError(request, response, existingUser, "Username is required and must not exceed 50 characters");
             return false;
         }
-        return true;
-    }
-
-    private boolean validateEmail(HttpServletRequest request, HttpServletResponse response, User existingUser, String email) 
-            throws ServletException, IOException {
-        if (email == null || email.trim().isEmpty() || email.length() > 100
-                || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+        if (!validateEmail(email)) {
             handleValidationError(request, response, existingUser, "Valid email is required and must not exceed 100 characters");
             return false;
         }
-        return true;
-    }
-
-    private boolean validateGender(HttpServletRequest request, HttpServletResponse response, User existingUser, String gender) 
-            throws ServletException, IOException {
-        if (gender != null && !gender.isEmpty() && !gender.matches("^[MF]$")) {
+        if (!validateGender(gender)) {
             handleValidationError(request, response, existingUser, "Gender must be 'M' or 'F'");
             return false;
         }
-        return true;
-    }
-
-    private boolean validateUniqueUsernameEmail(HttpServletRequest request, HttpServletResponse response, User existingUser, 
-            String username, String email) throws ServletException, IOException {
-        if (userDao.existsByUsernameOrEmail(username, email) 
-                && !username.equals(existingUser.getUsername()) 
-                && !email.equals(existingUser.getEmail())) {
+        if (!validateUniqueUsernameEmail(username, email, existingUser)) {
             handleValidationError(request, response, existingUser, 
                     "Username '" + username + "' or email '" + email + "' already exists");
             return false;
         }
+
         return true;
     }
 

@@ -48,7 +48,7 @@
                 <p class="error">${error}</p>
             </c:if>
             <form action="changeDivision" method="post">
-                <input type="hidden" name="id" value="${user.userId}"/>
+                <input type="hidden" name="userId" value="${user.userId}"/>
                 <div>
                     <label>New Division:</label>
                     <select name="divisionId" required>
