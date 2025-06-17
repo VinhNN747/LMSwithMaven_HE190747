@@ -179,7 +179,11 @@ public class UserEditServlet extends BaseUserServlet {
         existingUser.setEmail(email);
         existingUser.setGender(gender != null && !gender.isEmpty() ? gender : null);
         existingUser.setIsActive(isActive);
-        existingUser.setManagerId(managerIdStr);
+        
+        // Only update managerId if it's not null
+        if (managerIdStr != null && !managerIdStr.isEmpty()) {
+            existingUser.setManagerId(managerIdStr);
+        }
         
         em.merge(existingUser);
     }

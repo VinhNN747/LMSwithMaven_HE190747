@@ -73,9 +73,7 @@ public class UserPromoteServlet extends BaseUserServlet {
         }
 
         // Update user's role
-        System.out.println("set role");
         user.setRole(newRole);
-        System.out.println("successfully");
         em.merge(user);
     }
 
