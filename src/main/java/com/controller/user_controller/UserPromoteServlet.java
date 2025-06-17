@@ -73,7 +73,9 @@ public class UserPromoteServlet extends BaseUserServlet {
         }
 
         // Update user's role
+        System.out.println("set role");
         user.setRole(newRole);
+        System.out.println("successfully");
         em.merge(user);
     }
 
@@ -85,13 +87,11 @@ public class UserPromoteServlet extends BaseUserServlet {
             handleExistingHead(em, oldHeadId, user.getUserId());
         }
 
+        // Reassign all users in division to be managed by new head
+        updateDivisionUsers(em, user, division);
         // Update division's head
         division.setDivisionHead(user.getUserId());
         em.merge(division);
-
-        // Reassign all users in division to be managed by new head
-        updateDivisionUsers(em, user, division);
-
         // Set new head's manager to null
         user.setManagerId(null);
     }
@@ -107,14 +107,16 @@ public class UserPromoteServlet extends BaseUserServlet {
     }
 
     private void updateDivisionUsers(EntityManager em, User newHead, Division division) {
+        String oldHeadId = division.getDivisionHead();
         em.createQuery("UPDATE User u SET u.managerId = :newHeadId "
                 + "WHERE u.divisionId = :divisionId "
                 + "AND u.userId != :newHeadId "
-                + "AND u.role != :headRole"
-                + "AND u.managerId != NULL")
+                + "AND u.role != :headRole "
+                + "AND (u.managerId IS NULL OR u.managerId = :oldHeadId)")
                 .setParameter("newHeadId", newHead.getUserId())
                 .setParameter("divisionId", division.getDivisionId())
                 .setParameter("headRole", ROLE_HEAD)
+                .setParameter("oldHeadId", oldHeadId)
                 .executeUpdate();
     }
 
