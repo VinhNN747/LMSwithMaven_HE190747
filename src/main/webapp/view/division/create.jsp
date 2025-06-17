@@ -53,8 +53,8 @@
                     <input type="text" name="divisionName" maxlength="50" required/>
                 </div>
                 <div>
-                    <label>Director ID:</label>
-                    <input type="text" name="divisionDirector" maxlength="10"/>
+                    <label>Head ID:</label>
+                    <input type="text" name="divisionHead" maxlength="10"/>
                 </div>
                 <div style="margin-top: 20px;">
                     <input type="submit" value="Save"/>

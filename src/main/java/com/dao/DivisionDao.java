@@ -51,20 +51,20 @@ public class DivisionDao extends BaseDao<Division> {
             tx.begin();
             Division existingDivision = em.find(Division.class, division.getDivisionId());
             if (existingDivision != null) {
-                if (!division.getDivisionDirector().equals(existingDivision.getDivisionDirector())) {
+                if (!division.getDivisionHead().equals(existingDivision.getDivisionHead())) {
                     em.createQuery("UPDATE User u SET u.managerId = :newDirectorId "
                             + "WHERE u.divisionId = :divisionId "
                             + "AND (u.managerId IS NULL OR u.managerId = :oldDirectorId) "
                             + "AND u.userId != :newDirectorId")
-                            .setParameter("newDirectorId", division.getDivisionDirector())
-                            .setParameter("oldDirectorId", existingDivision.getDivisionDirector())
+                            .setParameter("newDirectorId", division.getDivisionHead())
+                            .setParameter("oldDirectorId", existingDivision.getDivisionHead())
                             .setParameter("divisionId", division.getDivisionId())
                             .executeUpdate();
                 }
                 
                 existingDivision.setDivisionName(division.getDivisionName());
-                existingDivision.setDivisionDirector(division.getDivisionDirector());
-                existingDivision.setDirector(division.getDirector());
+                existingDivision.setDivisionHead(division.getDivisionHead());
+                existingDivision.setHead(division.getHead());
                 em.merge(existingDivision);
             }
             tx.commit();

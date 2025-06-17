@@ -52,7 +52,7 @@
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Director</th>
+                <th>Head</th>
                 <th>Actions</th>
             </tr>
             <c:forEach var="division" items="${divisions}">
@@ -61,11 +61,11 @@
                     <td>${division.divisionName}</td>
                     <td>
                         <c:choose>
-                            <c:when test="${not empty division.director}">
-                                ${division.director.fullName}
+                            <c:when test="${not empty division.head}">
+                                ${division.head.fullName}
                             </c:when>
                             <c:otherwise>
-                                ${division.director}
+                                ${division.head}
                             </c:otherwise>
                         </c:choose>
                     </td>

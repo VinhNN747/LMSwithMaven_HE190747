@@ -75,7 +75,7 @@ public class UserDao extends BaseDao<User> {
                 if (managedUser.getDivisionId() != null) {
                     Division division = em.find(Division.class, managedUser.getDivisionId());
                     if (division != null) {
-                        divisionDirector = division.getDivisionDirector();
+                        divisionDirector = division.getDivisionHead();
                     }
                 }
 

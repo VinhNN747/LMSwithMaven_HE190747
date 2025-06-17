@@ -54,8 +54,35 @@
                     <input type="text" name="divisionName" value="${division.divisionName}" maxlength="50" required/>
                 </div>
                 <div>
-                    <label>Director ID:</label>
-                    <input type="text" name="divisionDirector" value="${division.divisionDirector}" maxlength="10"/>
+                    <label>Head:</label>
+                    <c:choose>
+                        <c:when test="${not empty division.divisionHead}">
+                            <c:set var="currentHeadUser" value="${null}"/>
+                            <c:forEach items="${allLeadsAndHeads}" var="user">
+                                <c:if test="${user.userId == division.divisionHead}">
+                                    <c:set var="currentHeadUser" value="${user}"/>
+                                </c:if>
+                            </c:forEach>
+                            <c:if test="${not empty currentHeadUser}">
+                                <span>${currentHeadUser.fullName} (${currentHeadUser.role})</span>
+                            </c:if>
+                            <c:if test="${empty currentHeadUser}">
+                                <span>Current Head ID: ${division.divisionHead} (User not found or not eligible)</span>
+                            </c:if>
+                        </c:when>
+                        <c:otherwise>
+                            <span>No Head Assigned</span>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                <div>
+                    <label>Change Head To:</label>
+                    <select name="newDivisionHeadId">
+                        <option value="">-- Select New Head --</option>
+                        <c:forEach items="${allLeadsAndHeads}" var="user">
+                            <option value="${user.userId}">${user.fullName} (${user.role} - ${user.division.divisionName})</option>
+                        </c:forEach>
+                    </select>
                 </div>
                 <div style="margin-top: 20px;">
                     <input type="submit" value="Save"/>

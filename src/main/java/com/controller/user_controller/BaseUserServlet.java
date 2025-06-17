@@ -11,8 +11,8 @@ public abstract class BaseUserServlet extends HttpServlet {
     
     // Role hierarchy constants
     protected static final String ROLE_EMPLOYEE = "Employee";
-    protected static final String ROLE_MANAGER = "Manager";
-    protected static final String ROLE_DIRECTOR = "Director";
+    protected static final String ROLE_LEAD = "Lead";
+    protected static final String ROLE_HEAD = "Head";
 
     @Override
     public void init() throws ServletException {
@@ -36,9 +36,9 @@ public abstract class BaseUserServlet extends HttpServlet {
         switch (role) {
             case ROLE_EMPLOYEE:
                 return 1;
-            case ROLE_MANAGER:
+            case ROLE_LEAD:
                 return 2;
-            case ROLE_DIRECTOR:
+            case ROLE_HEAD:
                 return 3;
             default:
                 return 0;

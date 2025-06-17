@@ -12,12 +12,13 @@ import java.io.IOException;
 
 @WebServlet("/user/promote")
 public class UserPromoteServlet extends BaseUserServlet {
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String id = request.getParameter("id");
         User user = userDao.findById(id);
-        
+
         if (user == null) {
             handleError(request, response, "User not found");
             return;
@@ -31,7 +32,7 @@ public class UserPromoteServlet extends BaseUserServlet {
 
         EntityManager em = userDao.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-        
+
         try {
             tx.begin();
             promoteUser(em, user, newRole);
@@ -50,76 +51,77 @@ public class UserPromoteServlet extends BaseUserServlet {
     private String determineNewRole(String currentRole) {
         switch (currentRole) {
             case ROLE_EMPLOYEE:
-                return ROLE_MANAGER;
-            case ROLE_MANAGER:
-                return ROLE_DIRECTOR;
+                return ROLE_LEAD;
+            case ROLE_LEAD:
+                return ROLE_HEAD;
             default:
                 return null;
         }
     }
 
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage) 
+    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
             throws IOException {
         request.setAttribute("error", errorMessage);
         response.sendRedirect("list");
     }
 
     private void promoteUser(EntityManager em, User user, String newRole) {
-        if (newRole.equals(ROLE_DIRECTOR)) {
-            handleDirectorPromotion(em, user);
-        } else if (newRole.equals(ROLE_MANAGER)) {
+        if (newRole.equals(ROLE_HEAD)) {
+            handleHeadPromotion(em, user);
+        } else if (newRole.equals(ROLE_LEAD)) {
             handleManagerPromotion(em, user);
         }
-        
+
         // Update user's role
         user.setRole(newRole);
         em.merge(user);
     }
 
-    private void handleDirectorPromotion(EntityManager em, User user) {
+    private void handleHeadPromotion(EntityManager em, User user) {
         Division division = divisionDao.get(user.getDivisionId());
-        String oldDirectorId = division.getDivisionDirector();
-        
-        if (oldDirectorId != null) {
-            handleExistingDirector(em, oldDirectorId, user.getUserId());
+        String oldHeadId = division.getDivisionHead();
+
+        if (oldHeadId != null) {
+            handleExistingHead(em, oldHeadId, user.getUserId());
         }
 
-        // Update division's director
-        division.setDivisionDirector(user.getUserId());
+        // Update division's head
+        division.setDivisionHead(user.getUserId());
         em.merge(division);
 
-        // Reassign all users in division to be managed by new director
+        // Reassign all users in division to be managed by new head
         updateDivisionUsers(em, user, division);
 
-        // Set new director's manager to null
+        // Set new head's manager to null
         user.setManagerId(null);
     }
 
-    private void handleExistingDirector(EntityManager em, String oldDirectorId, String newDirectorId) {
-        User oldDirector = userDao.findById(oldDirectorId);
-        if (oldDirector != null && !oldDirector.getUserId().equals(newDirectorId)) {
-            // Demote old director to manager
-            oldDirector.setRole(ROLE_MANAGER);
-            oldDirector.setManagerId(newDirectorId);
-            em.merge(oldDirector);
+    private void handleExistingHead(EntityManager em, String oldHeadId, String newHeadId) {
+        User oldHead = userDao.findById(oldHeadId);
+        if (oldHead != null && !oldHead.getUserId().equals(newHeadId)) {
+            // Demote old head to manager
+            oldHead.setRole(ROLE_LEAD);
+            oldHead.setManagerId(newHeadId);
+            em.merge(oldHead);
         }
     }
 
-    private void updateDivisionUsers(EntityManager em, User newDirector, Division division) {
-        em.createQuery("UPDATE User u SET u.managerId = :newDirectorId " +
-                "WHERE u.divisionId = :divisionId " +
-                "AND u.userId != :newDirectorId " +
-                "AND u.role != :directorRole")
-                .setParameter("newDirectorId", newDirector.getUserId())
+    private void updateDivisionUsers(EntityManager em, User newHead, Division division) {
+        em.createQuery("UPDATE User u SET u.managerId = :newHeadId "
+                + "WHERE u.divisionId = :divisionId "
+                + "AND u.userId != :newHeadId "
+                + "AND u.role != :headRole"
+                + "AND u.managerId != NULL")
+                .setParameter("newHeadId", newHead.getUserId())
                 .setParameter("divisionId", division.getDivisionId())
-                .setParameter("directorRole", ROLE_DIRECTOR)
+                .setParameter("headRole", ROLE_HEAD)
                 .executeUpdate();
     }
 
     private void handleManagerPromotion(EntityManager em, User user) {
-        // For manager promotion, set manager to division director
+        // For manager promotion, set manager to division head
         Division division = divisionDao.get(user.getDivisionId());
-        String directorId = division.getDivisionDirector();
-        user.setManagerId(directorId);
+        String headId = division.getDivisionHead();
+        user.setManagerId(headId);
     }
-} 
+}

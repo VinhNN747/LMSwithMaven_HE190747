@@ -50,9 +50,9 @@ public class UserDemoteServlet extends BaseUserServlet {
 
     private String determineNewRole(String currentRole) {
         switch (currentRole) {
-            case ROLE_DIRECTOR:
-                return ROLE_MANAGER;
-            case ROLE_MANAGER:
+            case ROLE_HEAD:
+                return ROLE_LEAD;
+            case ROLE_LEAD:
                 return ROLE_EMPLOYEE;
             default:
                 return null;
@@ -66,9 +66,9 @@ public class UserDemoteServlet extends BaseUserServlet {
     }
 
     private void demoteUser(EntityManager em, User user, String newRole) {
-        if (user.getRole().equals(ROLE_DIRECTOR)) {
-            handleDirectorDemotion(em, user);
-        } else if (user.getRole().equals(ROLE_MANAGER)) {
+        if (user.getRole().equals(ROLE_HEAD)) {
+            handleHeadDemotion(em, user);
+        } else if (user.getRole().equals(ROLE_LEAD)) {
             handleManagerDemotion(em, user);
         }
 
@@ -77,37 +77,37 @@ public class UserDemoteServlet extends BaseUserServlet {
         em.merge(user);
     }
 
-    private void handleDirectorDemotion(EntityManager em, User user) {
+    private void handleHeadDemotion(EntityManager em, User user) {
         Division division = divisionDao.get(user.getDivisionId());
 
-        // Clear division director
-        division.setDivisionDirector(null);
+        // Clear division head
+        division.setDivisionHead(null);
         em.merge(division);
 
-        // Set all managers' managerId to null (they will be managed by the new director)
+        // Set all managers' managerId to null (they will be managed by the new head)
         em.createQuery("UPDATE User u SET u.managerId = NULL "
                 + "WHERE u.divisionId = :divisionId "
                 + "AND u.role = :managerRole")
                 .setParameter("divisionId", user.getDivisionId())
-                .setParameter("managerRole", ROLE_MANAGER)
+                .setParameter("managerRole", ROLE_LEAD)
                 .executeUpdate();
 
-        // Keep all employees currently managed by this director under their management
+        // Keep all employees currently managed by this head under their management
         // The user's role will be changed to manager but their managerId will remain null
         user.setManagerId(null);
     }
 
     private void handleManagerDemotion(EntityManager em, User user) {
-        // For manager demotion, set manager to division director
+        // For manager demotion, set manager to division head
         Division division = divisionDao.get(user.getDivisionId());
-        String directorId = division.getDivisionDirector();
-        user.setManagerId(directorId);
+        String headId = division.getDivisionHead();
+        user.setManagerId(headId);
 
-        // Update all employees who were managed by this manager to be managed by the director
-        em.createQuery("UPDATE User u SET u.managerId = :directorId "
+        // Update all employees who were managed by this manager to be managed by the head
+        em.createQuery("UPDATE User u SET u.managerId = :headId "
                 + "WHERE u.managerId = :oldManagerId "
                 + "AND u.divisionId = :divisionId ")
-                .setParameter("directorId", directorId)
+                .setParameter("headId", headId)
                 .setParameter("oldManagerId", user.getUserId())
                 .setParameter("divisionId", user.getDivisionId())
                 .executeUpdate();

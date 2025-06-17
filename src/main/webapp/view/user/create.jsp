@@ -81,8 +81,8 @@
                     <label>Role:</label>
                     <select name="role">
                         <option value="Employee">Employee</option>
-                        <option value="Manager">Manager</option>
-                        <option value="Director">Director</option>
+                        <option value="Lead">Lead</option>
+                        <option value="Head">Head</option>
                     </select>
                 </div>
                 <div>

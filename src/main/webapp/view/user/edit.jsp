@@ -44,7 +44,7 @@
             }
         </style>
         <script>
-            function toggleManagerField() {
+            function toggleLeadField() {
                 var roleSelect = document.getElementById('role');
                 var managerDiv = document.getElementById('managerDiv');
                 if (roleSelect.value === 'Employee') {
@@ -99,11 +99,11 @@
 
                 <!--                <div>
                                     <label>Role:</label>
-                                    <select name="role" id="role" onchange="toggleManagerField()" required>
+                                    <select name="role" id="role" onchange="toggleLeadField()" required>
                                         <option value="">Select Role</option>
                                         <option value="Employee" ${user.role == 'Employee' ? 'selected' : ''}>Employee</option>
-                                        <option value="Director" ${user.role == 'Director' ? 'selected' : ''}>Director</option>
-                                        <option value="Manager" ${user.role == 'Manager' ? 'selected' : ''}>Manager</option>
+                                        <option value="Head" ${user.role == 'Head' ? 'selected' : ''}>Head</option>
+                                        <option value="Lead" ${user.role == 'Lead' ? 'selected' : ''}>Lead</option>
                                     </select>
                                 </div>-->
                 <div>
@@ -114,9 +114,9 @@
                     </select>
                 </div>
                 <div id="managerDiv" class="${user.role != 'Employee' ? 'hidden' : ''}">
-                    <label>Manager:</label>
+                    <label>Lead:</label>
                     <select name="managerId">
-                        <option value="">Select Manager</option>
+                        <option value="">Select Lead</option>
                         <c:forEach items="${managers}" var="manager">
                             <option value="${manager.userId}" 
                                     ${user.managerId == manager.userId ? 'selected' : ''}>
@@ -134,7 +134,7 @@
         </div>
         <script>
             // Initialize manager field visibility on page load
-            toggleManagerField();
+            toggleLeadField();
         </script>
     </body>
 </html>

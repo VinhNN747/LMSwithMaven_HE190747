@@ -70,7 +70,7 @@ public class UserEditServlet extends BaseUserServlet {
         List<Division> divisions = divisionDao.list();
         request.setAttribute("divisions", divisions);
 
-        // Get managers and directors from the same division
+        // Get managers and heads from the same division
         List<User> managers = getManagersInDivision(user);
         request.setAttribute("managers", managers);
 
@@ -80,7 +80,7 @@ public class UserEditServlet extends BaseUserServlet {
 
     private List<User> getManagersInDivision(User user) {
         return userDao.list().stream()
-                .filter(u -> (ROLE_MANAGER.equals(u.getRole()) || ROLE_DIRECTOR.equals(u.getRole())))
+                .filter(u -> (ROLE_LEAD.equals(u.getRole()) || ROLE_HEAD.equals(u.getRole())))
                 .filter(u -> !u.getUserId().equals(user.getUserId())) // Exclude current user
                 .filter(u -> u.getDivisionId().equals(user.getDivisionId())) // Only same division
                 .collect(Collectors.toList());

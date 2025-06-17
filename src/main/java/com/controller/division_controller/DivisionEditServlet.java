@@ -1,11 +1,14 @@
 package com.controller.division_controller;
 
 import com.entity.Division;
+import com.entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet("/division/edit")
 public class DivisionEditServlet extends BaseDivisionServlet {
@@ -18,7 +21,12 @@ public class DivisionEditServlet extends BaseDivisionServlet {
             request.setAttribute("error", "Division not found");
             response.sendRedirect("list");
         } else {
+            List<User> allLeadsAndHeads = userDao.list().stream()
+                    .filter(user -> (user.getRole().equals(ROLE_LEAD) || user.getRole().equals(ROLE_HEAD)))
+                    .collect(Collectors.toList());
+
             request.setAttribute("division", division);
+            request.setAttribute("allLeadsAndHeads", allLeadsAndHeads);
             request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
         }
     }
@@ -28,7 +36,7 @@ public class DivisionEditServlet extends BaseDivisionServlet {
             throws ServletException, IOException {
         Integer id = Integer.parseInt(request.getParameter("divisionId"));
         String divisionName = request.getParameter("divisionName");
-        String divisionDirector = request.getParameter("divisionDirector");
+        String divisionHead = request.getParameter("divisionHead");
 
         // Validation
         if (divisionName == null || divisionName.trim().isEmpty()) {
@@ -43,8 +51,8 @@ public class DivisionEditServlet extends BaseDivisionServlet {
             request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
             return;
         }
-        if (divisionDirector != null && divisionDirector.length() > 10) {
-            request.setAttribute("error", "Director ID must not exceed 10 characters");
+        if (divisionHead != null && divisionHead.length() > 10) {
+            request.setAttribute("error", "Head ID must not exceed 10 characters");
             request.setAttribute("division", divisionDao.findById(id));
             request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
             return;
@@ -53,7 +61,7 @@ public class DivisionEditServlet extends BaseDivisionServlet {
         Division division = new Division();
         division.setDivisionId(id);
         division.setDivisionName(divisionName);
-        division.setDivisionDirector(divisionDirector != null && !divisionDirector.isEmpty() ? divisionDirector : null);
+        division.setDivisionHead(divisionHead != null && !divisionHead.isEmpty() ? divisionHead : null);
 
         try {
             divisionDao.edit(division);
@@ -65,3 +73,6 @@ public class DivisionEditServlet extends BaseDivisionServlet {
         }
     }
 } 
+
+
+

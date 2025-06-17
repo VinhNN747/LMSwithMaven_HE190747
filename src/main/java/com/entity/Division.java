@@ -25,13 +25,13 @@ public class Division {
     private String divisionName;
 
     @Size(max = 10)
-    @Column(name = "DivisionDirector")
-    private String divisionDirector;
+    @Column(name = "DivisionHead")
+    private String divisionHead;
 
-    // Navigation property for the director
+    // Navigation property for the directorz
     @ManyToOne
-    @JoinColumn(name = "DivisionDirector", referencedColumnName = "UserID", insertable = false, updatable = false)
-    private User director;
+    @JoinColumn(name = "DivisionHead", referencedColumnName = "UserID", insertable = false, updatable = false)
+    private User head;
 
     // Navigation property for users in this division
     @OneToMany(mappedBy = "division", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -54,20 +54,20 @@ public class Division {
         this.divisionName = divisionName;
     }
 
-    public String getDivisionDirector() {
-        return divisionDirector;
+    public String getDivisionHead() {
+        return divisionHead;
     }
 
-    public void setDivisionDirector(String divisionDirector) {
-        this.divisionDirector = divisionDirector;
+    public void setDivisionHead(String divisionHead) {
+        this.divisionHead = divisionHead;
     }
 
-    public User getDirector() {
-        return director;
+    public User getHead() {
+        return head;
     }
 
-    public void setDirector(User director) {
-        this.director = director;
+    public void setHead(User head) {
+        this.head = head;
     }
 
     public List<User> getUsers() {

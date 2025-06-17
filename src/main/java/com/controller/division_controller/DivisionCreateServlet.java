@@ -19,7 +19,7 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String divisionName = request.getParameter("divisionName");
-        String divisionDirector = request.getParameter("divisionDirector");
+        String divisionHead = request.getParameter("divisionHead");
 
         // Validation
         if (divisionName == null || divisionName.trim().isEmpty()) {
@@ -32,8 +32,8 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
             request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
             return;
         }
-        if (divisionDirector != null && divisionDirector.length() > 10) {
-            request.setAttribute("error", "Director ID must not exceed 10 characters");
+        if (divisionHead != null && divisionHead.length() > 10) {
+            request.setAttribute("error", "Head ID must not exceed 10 characters");
             request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
             return;
         }
@@ -45,7 +45,7 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
 
         Division division = new Division();
         division.setDivisionName(divisionName);
-        division.setDivisionDirector(divisionDirector != null && !divisionDirector.isEmpty() ? divisionDirector : null);
+        division.setDivisionHead(divisionHead != null && !divisionHead.isEmpty() ? divisionHead : null);
 
         try {
             divisionDao.create(division);

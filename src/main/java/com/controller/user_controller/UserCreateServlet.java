@@ -83,18 +83,18 @@ public class UserCreateServlet extends BaseUserServlet {
             return;
         }
 
-        if (role.trim().equals(ROLE_DIRECTOR)) {
-            if (division.getDirector() != null) {
-                request.setAttribute("error", "This division has already had a director");
+        if (role.trim().equals(ROLE_HEAD)) {
+            if (division.getHead() != null) {
+                request.setAttribute("error", "This division has already had a head");
                 request.setAttribute("divisions", divisionDao.list());
                 request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
                 return;
             } else {
-                division.setDivisionDirector(id);
+                division.setDivisionHead(id);
                 isNewDirector = true;
             }
         } else {
-            managerId = divisionDao.get(divisionId).getDivisionDirector();
+            managerId = divisionDao.get(divisionId).getDivisionHead();
         }
 
         boolean isActive = Boolean.parseBoolean(isActiveStr);

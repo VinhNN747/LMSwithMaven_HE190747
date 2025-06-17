@@ -98,98 +98,111 @@ public class UserChangeDivisionServlet extends BaseUserServlet {
         Division oldDivision = divisionDao.get(user.getDivisionId());
         Division newDivision = divisionDao.get(newDivisionId);
 
-        if (user.getRole().equals(ROLE_DIRECTOR)) {
-            handleDirectorDivisionChange(em, user, oldDivision, newDivision);
+        if (user.getRole().equals(ROLE_HEAD)) {
+            handleHeadDivisionChange(em, user, oldDivision, newDivision);
         } else {
             handleRegularUserDivisionChange(em, user, newDivision);
         }
     }
 
-    private void handleDirectorDivisionChange(EntityManager em, User user, Division oldDivision, Division newDivision) {
+    private void handleHeadDivisionChange(EntityManager em, User user, Division oldDivision, Division newDivision) {
         try {
-            removeOldDivisionDirector(em, oldDivision);
-            handleNewDivisionDirector(em, user, newDivision);
-            setNewDivisionDirector(em, user, newDivision);
+            removeOldDivisionHead(em, oldDivision);
+            handleNewDivisionHead(em, user, newDivision);
+            setNewDivisionHead(em, user, newDivision);
         } catch (Exception e) {
             throw e;
         }
     }
 
-    private void removeOldDivisionDirector(EntityManager em, Division oldDivision) {
-        String oldDivDirectorId = oldDivision.getDivisionDirector();
-        if (oldDivDirectorId != null) {
+    private void removeOldDivisionHead(EntityManager em, Division oldDivision) {
+        String oldDivHeadId = oldDivision.getDivisionHead();
+        if (oldDivHeadId != null) {
             em.createQuery("UPDATE User u SET u.managerId = NULL "
                     + "WHERE u.divisionId = :divisionId "
-                    + "AND u.managerId = :directorId")
+                    + "AND u.managerId = :headId")
                     .setParameter("divisionId", oldDivision.getDivisionId())
-                    .setParameter("directorId", oldDivDirectorId)
+                    .setParameter("headId", oldDivHeadId)
                     .executeUpdate();
             em.flush();
         }
-        oldDivision.setDivisionDirector(null);
+        oldDivision.setDivisionHead(null);
         em.merge(oldDivision);
         em.flush();
     }
 
-    private void handleNewDivisionDirector(EntityManager em, User user, Division newDivision) {
-        String newDivDirectorId = newDivision.getDivisionDirector();
-        if (newDivDirectorId == null) {
+    private void handleNewDivisionHead(EntityManager em, User user, Division newDivision) {
+        String newDivHeadId = newDivision.getDivisionHead();
+        if (newDivHeadId == null) {
             return;
         }
 
         try {
-            User oldDirector = em.find(User.class, newDivDirectorId);
-            if (oldDirector == null || oldDirector.getUserId().equals(user.getUserId())) {
+            User oldHead = em.find(User.class, newDivHeadId);
+            if (oldHead == null || oldHead.getUserId().equals(user.getUserId())) {
                 return;
             }
-            demoteOldDirector(em, oldDirector, newDivision);
+            demoteOldHead(em, oldHead, newDivision);
         } catch (Exception e) {
             throw e;
         }
     }
 
-    private void demoteOldDirector(EntityManager em, User oldDirector, Division newDivision) {
-        oldDirector.setRole(ROLE_MANAGER);
-        oldDirector.setManagerId(null);
-        em.merge(oldDirector);
+    private void demoteOldHead(EntityManager em, User oldHead, Division newDivision) {
+        oldHead.setRole(ROLE_LEAD);
+        oldHead.setManagerId(null);
+        em.merge(oldHead);
         em.flush();
 
         em.createQuery("UPDATE User u SET u.managerId = NULL "
                 + "WHERE u.divisionId = :divisionId "
                 + "AND u.role = :managerRole")
                 .setParameter("divisionId", newDivision.getDivisionId())
-                .setParameter("managerRole", ROLE_MANAGER)
+                .setParameter("managerRole", ROLE_LEAD)
                 .executeUpdate();
         em.flush();
     }
 
-    private void setNewDivisionDirector(EntityManager em, User user, Division newDivision) {
-        // Set new division director
-        newDivision.setDivisionDirector(user.getUserId());
+    private void setNewDivisionHead(EntityManager em, User user, Division newDivision) {
+        // Set new division head
+        newDivision.setDivisionHead(user.getUserId());
         em.merge(newDivision);
         em.flush();
 
-        // Update director's information
+        // Update head's information
         user.setManagerId(null);
         user.setDivisionId(newDivision.getDivisionId());
         em.merge(user);
         em.flush();
 
-        // Set all users in the division who don't have a manager to be managed by the new director
-        em.createQuery("UPDATE User u SET u.managerId = :directorId "
+        // Set all users in the division who don't have a manager to be managed by the new head
+        em.createQuery("UPDATE User u SET u.managerId = :headId "
                 + "WHERE u.divisionId = :divisionId "
                 + "AND u.managerId IS NULL "
-                + "AND u.userId != :directorId")  // Don't set the director as their own manager
-                .setParameter("directorId", user.getUserId())
+                + "AND u.userId != :headId")  // Don't set the head as their own manager
+                .setParameter("headId", user.getUserId())
                 .setParameter("divisionId", newDivision.getDivisionId())
                 .executeUpdate();
         em.flush();
     }
 
     private void handleRegularUserDivisionChange(EntityManager em, User user, Division newDivision) {
-        // For regular users (employees and managers), just update their division and manager
+        // If the user is a lead, handle their subordinates first
+        if (user.getRole().equals(ROLE_LEAD)) {
+            // Update any users who were managed by this lead to be managed by the division head
+            em.createQuery("UPDATE User u SET u.managerId = :headId "
+                    + "WHERE u.divisionId = :divisionId "
+                    + "AND u.managerId = :userId")
+                    .setParameter("headId", user.getManagerId())
+                    .setParameter("divisionId", user.getDivisionId())
+                    .setParameter("userId", user.getUserId())
+                    .executeUpdate();
+            em.flush();
+        }
+
+        // Update the user's division and manager
         user.setDivisionId(newDivision.getDivisionId());
-        user.setManagerId(newDivision.getDivisionDirector());
+        user.setManagerId(newDivision.getDivisionHead());
         em.merge(user);
     }
 }
