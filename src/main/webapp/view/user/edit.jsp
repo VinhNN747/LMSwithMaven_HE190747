@@ -83,29 +83,10 @@
                         <option value="F" ${user.gender == 'F' ? 'selected' : ''}>Female</option>
                     </select>
                 </div>
-                <div>
-                    <label>Division:</label>
-                    <select name="divisionId" required>
-                        <option value="">Select Division</option>
-                        <c:forEach items="${divisions}" var="division">
-                            <option value="${division.divisionId}" 
-                                    ${user.divisionId == division.divisionId ? 'selected' : ''}>
-                                ${division.divisionName}
-                            </option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <input type="hidden" name="role" value="${user.role}"/>
 
-                <!--                <div>
-                                    <label>Role:</label>
-                                    <select name="role" id="role" onchange="toggleLeadField()" required>
-                                        <option value="">Select Role</option>
-                                        <option value="Employee" ${user.role == 'Employee' ? 'selected' : ''}>Employee</option>
-                                        <option value="Head" ${user.role == 'Head' ? 'selected' : ''}>Head</option>
-                                        <option value="Lead" ${user.role == 'Lead' ? 'selected' : ''}>Lead</option>
-                                    </select>
-                                </div>-->
+                <input type="hidden" name="role" value="${user.role}"/>
+                <input type="hidden" name="divisionId" value="${division.divisionId}"/>
+
                 <div>
                     <label>Active:</label>
                     <select name="isActive">

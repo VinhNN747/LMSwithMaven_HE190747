@@ -19,7 +19,7 @@ public class UserEditServlet extends BaseUserServlet {
             throws ServletException, IOException {
         String id = request.getParameter("id");
         User user = userDao.findById(id);
-        
+
         if (user == null) {
             handleError(request, response, "User not found");
             return;
@@ -58,7 +58,7 @@ public class UserEditServlet extends BaseUserServlet {
         }
     }
 
-    private void showEditForm(HttpServletRequest request, HttpServletResponse response, User user) 
+    private void showEditForm(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
         // Get all divisions for dropdown
         List<Division> divisions = divisionDao.list();
@@ -80,7 +80,7 @@ public class UserEditServlet extends BaseUserServlet {
                 .collect(Collectors.toList());
     }
 
-    private boolean validateInput(HttpServletRequest request, HttpServletResponse response, User existingUser) 
+    private boolean validateInput(HttpServletRequest request, HttpServletResponse response, User existingUser)
             throws ServletException, IOException {
         String fullName = request.getParameter("fullName");
         String username = request.getParameter("username");
@@ -103,16 +103,23 @@ public class UserEditServlet extends BaseUserServlet {
             handleValidationError(request, response, existingUser, "Gender must be 'M' or 'F'");
             return false;
         }
-        if (!validateUniqueUsernameEmail(username, email, existingUser)) {
-            handleValidationError(request, response, existingUser, 
-                    "Username '" + username + "' or email '" + email + "' already exists");
-            return false;
+        if ((username != null && !username.equals(existingUser.getUsername()))) {
+            if (!validateUniqueUsername(username, existingUser)) {
+                handleValidationError(request, response, existingUser, "Username '" + username + "' already exists");
+                return false;
+            }
+        }
+        if ((email != null && !email.equals(existingUser.getEmail()))) {
+            if (!validateUniqueEmail(email, existingUser)) {
+                handleValidationError(request, response, existingUser, "Email '" + email + "' already exists");
+                return false;
+            }
         }
 
         return true;
     }
 
-    private void handleValidationError(HttpServletRequest request, HttpServletResponse response, User user, String errorMessage) 
+    private void handleValidationError(HttpServletRequest request, HttpServletResponse response, User user, String errorMessage)
             throws ServletException, IOException {
         request.setAttribute("error", errorMessage);
         request.setAttribute("user", user);
@@ -134,12 +141,12 @@ public class UserEditServlet extends BaseUserServlet {
         existingUser.setEmail(email);
         existingUser.setGender(gender != null && !gender.isEmpty() ? gender : null);
         existingUser.setIsActive(isActive);
-        
+
         // Only update managerId if it's not null
         if (managerIdStr != null && !managerIdStr.isEmpty()) {
             existingUser.setManagerId(managerIdStr);
         }
-        
+
         em.merge(existingUser);
     }
 }

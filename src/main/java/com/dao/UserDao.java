@@ -80,9 +80,9 @@ public class UserDao extends BaseDao<User> {
                 }
 
                 // Update managerId references in other users to point to division director
-                em.createQuery("UPDATE User u SET u.managerId = :divisionDirector " +
-                        "WHERE u.managerId = :userId " +
-                        "AND u.divisionId = :divisionId")
+                em.createQuery("UPDATE User u SET u.managerId = :divisionDirector "
+                        + "WHERE u.managerId = :userId "
+                        + "AND u.divisionId = :divisionId")
                         .setParameter("divisionDirector", divisionDirector)
                         .setParameter("userId", managedUser.getUserId())
                         .setParameter("divisionId", managedUser.getDivisionId())
@@ -107,12 +107,23 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public boolean existsByUsernameOrEmail(String username, String email) {
+    public boolean existsByEmail(String email) {
         EntityManager em = getEntityManager();
         try {
-            Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.username) = LOWER(:username) OR LOWER(u.email) = LOWER(:email)", Long.class)
-                    .setParameter("username", username)
+            Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.email) = LOWER(:email)", Long.class)
                     .setParameter("email", email)
+                    .getSingleResult();
+            return count > 0;
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean existsByUsername(String username) {
+        EntityManager em = getEntityManager();
+        try {
+            Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.username) = LOWER(:username)", Long.class)
+                    .setParameter("username", username)
                     .getSingleResult();
             return count > 0;
         } finally {

@@ -72,6 +72,11 @@ public class UserCreateServlet extends BaseUserServlet {
                 request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
                 return;
             }
+        } else {
+            request.setAttribute("error", "Division is required");
+            request.setAttribute("divisions", divisionDao.list());
+            request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
+            return;
         }
 
         boolean isNewDirector = false;
@@ -99,8 +104,14 @@ public class UserCreateServlet extends BaseUserServlet {
 
         boolean isActive = Boolean.parseBoolean(isActiveStr);
 
-        if (userDao.existsByUsernameOrEmail(username, email)) {
-            request.setAttribute("error", "Username '" + username + "' or email '" + email + "' already exists");
+        if (userDao.existsByEmail(email)) {
+            request.setAttribute("error", "Email '" + email + "' already exists");
+            request.setAttribute("divisions", divisionDao.list());
+            request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
+            return;
+        }
+        if (userDao.existsByUsername(username)) {
+            request.setAttribute("error", "Username '" + username + "' already exists");
             request.setAttribute("divisions", divisionDao.list());
             request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
             return;
