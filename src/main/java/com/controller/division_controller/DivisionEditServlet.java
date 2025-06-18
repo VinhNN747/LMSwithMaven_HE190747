@@ -49,7 +49,13 @@ public class DivisionEditServlet extends BaseDivisionServlet {
         Division division = new Division();
         division.setDivisionId(id);
         division.setDivisionName(divisionName);
-        division.setDivisionHead(divisionHead != null && !divisionHead.isEmpty() ? divisionHead : null);
+        
+        // Preserve existing head if no new head is specified
+        if (divisionHead != null && !divisionHead.isEmpty()) {
+            division.setDivisionHead(divisionHead);
+        } else {
+            division.setDivisionHead(existingDivision.getDivisionHead());
+        }
 
         try {
             divisionDao.edit(division);
