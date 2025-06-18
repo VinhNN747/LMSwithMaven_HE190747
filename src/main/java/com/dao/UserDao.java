@@ -9,6 +9,7 @@ import com.entity.Division;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
+import java.util.Objects;
 
 public class UserDao extends BaseDao<User> {
 
@@ -69,31 +70,35 @@ public class UserDao extends BaseDao<User> {
             tx.begin();
             if (user != null) {
                 User managedUser = em.find(User.class, user.getUserId());
+                if (managedUser == null) {
+                    throw new RuntimeException("User not found in database");
+                }
 
-                // Get the division director before nullifying references
-                String divisionDirector = null;
+                // Handle division head removal if this user is a division head
                 if (managedUser.getDivisionId() != null) {
                     Division division = em.find(Division.class, managedUser.getDivisionId());
-                    if (division != null) {
-                        divisionDirector = division.getDivisionHead();
+                    if (division != null && Objects.equals(division.getDivisionHead(), managedUser.getUserId())) {
+                        // This user is a division head, remove them from the division
+                        division.setDivisionHead(null);
+                        em.merge(division);
                     }
                 }
 
-                // Update managerId references in other users to point to division director
-                em.createQuery("UPDATE User u SET u.managerId = :divisionDirector "
-                        + "WHERE u.managerId = :userId "
-                        + "AND u.divisionId = :divisionId")
-                        .setParameter("divisionDirector", divisionDirector)
-                        .setParameter("userId", managedUser.getUserId())
-                        .setParameter("divisionId", managedUser.getDivisionId())
-                        .executeUpdate();
+                // Update managerId references in other users to point to division head or null
+                if (managedUser.getDivisionId() != null) {
+                    Division division = em.find(Division.class, managedUser.getDivisionId());
+                    String newManagerId = (division != null) ? division.getDivisionHead() : null;
+                    
+                    em.createQuery("UPDATE User u SET u.managerId = :newManagerId "
+                            + "WHERE u.managerId = :userId "
+                            + "AND u.divisionId = :divisionId")
+                            .setParameter("newManagerId", newManagerId)
+                            .setParameter("userId", managedUser.getUserId())
+                            .setParameter("divisionId", managedUser.getDivisionId())
+                            .executeUpdate();
+                }
 
-                // Nullify divisionDirector in Division if this user is a director
-                em.createQuery("UPDATE Division d SET d.divisionDirector = NULL WHERE d.divisionDirector = :userId")
-                        .setParameter("userId", managedUser.getUserId())
-                        .executeUpdate();
-
-                // Merge and remove the user
+                // Remove the user
                 em.remove(managedUser);
             }
             tx.commit();

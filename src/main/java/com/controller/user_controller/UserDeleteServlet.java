@@ -13,17 +13,33 @@ public class UserDeleteServlet extends BaseUserServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String id = request.getParameter("id");
+        
+        if (id == null || id.trim().isEmpty()) {
+            request.setAttribute("error", "User ID is required");
+            response.sendRedirect("list");
+            return;
+        }
+        
         User user = userDao.findById(id);
         if (user == null) {
-            request.setAttribute("error", "User not found");
-        } else {
-            try {
-                userDao.delete(user);
-            } catch (Exception e) {
-                request.setAttribute("error",
-                        "Cannot delete user: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
-            }
+            request.setAttribute("error", "User not found with ID: " + id);
+            response.sendRedirect("list");
+            return;
         }
+        
+        try {
+            userDao.delete(user);
+//            request.setAttribute("success", "User '" + user.getFullName() + "' has been deleted successfully");
+        } catch (Exception e) {
+            String errorMessage = "Cannot delete user '" + user.getFullName() + "': ";
+            if (e.getCause() != null) {
+                errorMessage += e.getCause().getMessage();
+            } else {
+                errorMessage += e.getMessage();
+            }
+            request.setAttribute("error", errorMessage);
+        }
+        
         response.sendRedirect("list");
     }
 } 
