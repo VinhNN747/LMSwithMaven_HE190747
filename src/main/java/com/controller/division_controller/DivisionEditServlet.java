@@ -8,10 +8,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @WebServlet("/division/edit")
 public class DivisionEditServlet extends BaseDivisionServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -22,7 +24,7 @@ public class DivisionEditServlet extends BaseDivisionServlet {
             response.sendRedirect("list");
         } else {
             List<User> allLeadsAndHeads = userDao.list().stream()
-                    .filter(user -> (user.getRole().equals(ROLE_LEAD) || user.getRole().equals(ROLE_HEAD)))
+                    .filter(user -> ((user.getRole().equals(ROLE_LEAD) && Objects.equals(user.getDivisionId(), id)) || user.getRole().equals(ROLE_HEAD)))
                     .collect(Collectors.toList());
 
             request.setAttribute("division", division);
@@ -37,24 +39,10 @@ public class DivisionEditServlet extends BaseDivisionServlet {
         Integer id = Integer.parseInt(request.getParameter("divisionId"));
         String divisionName = request.getParameter("divisionName");
         String divisionHead = request.getParameter("divisionHead");
+        Division existingDivision = divisionDao.findById(id);
 
-        // Validation
-        if (divisionName == null || divisionName.trim().isEmpty()) {
-            request.setAttribute("error", "Division name cannot be empty");
-            request.setAttribute("division", divisionDao.findById(id));
-            request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
-            return;
-        }
-        if (divisionName.length() > 50) {
-            request.setAttribute("error", "Division name must not exceed 50 characters");
-            request.setAttribute("division", divisionDao.findById(id));
-            request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
-            return;
-        }
-        if (divisionHead != null && divisionHead.length() > 10) {
-            request.setAttribute("error", "Head ID must not exceed 10 characters");
-            request.setAttribute("division", divisionDao.findById(id));
-            request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
+        // Validate input
+        if (!validateInput(request, response, divisionName, divisionHead, existingDivision)) {
             return;
         }
 
@@ -72,7 +60,34 @@ public class DivisionEditServlet extends BaseDivisionServlet {
             request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
         }
     }
-} 
 
+    private boolean validateInput(HttpServletRequest request, HttpServletResponse response, String divisionName, String divisionHead, Division existingDivision)
+            throws ServletException, IOException {
+        
+        if (!validateDivisionName(divisionName)) {
+            handleValidationError(request, response, existingDivision, "Division name is required and must not exceed " + MAX_DIVISION_NAME_LENGTH + " characters");
+            return false;
+        }
+        
+        if (!validateDivisionHead(divisionHead)) {
+            handleValidationError(request, response, existingDivision, "Head ID must not exceed " + MAX_DIVISION_HEAD_LENGTH + " characters");
+            return false;
+        }
+        
+        if ((divisionName != null && !Objects.equals(divisionName, existingDivision.getDivisionName()))) {
+            if (!validateUniqueDivisionName(divisionName, existingDivision)) {
+                handleValidationError(request, response, existingDivision, "Division name '" + divisionName + "' already exists");
+                return false;
+            }
+        }
 
+        return true;
+    }
 
+    private void handleValidationError(HttpServletRequest request, HttpServletResponse response, Division division, String errorMessage)
+            throws ServletException, IOException {
+        request.setAttribute("error", errorMessage);
+        request.setAttribute("division", division);
+        request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
+    }
+}

@@ -9,6 +9,7 @@ import java.io.IOException;
 
 @WebServlet("/division/create")
 public class DivisionCreateServlet extends BaseDivisionServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -21,25 +22,8 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
         String divisionName = request.getParameter("divisionName");
         String divisionHead = request.getParameter("divisionHead");
 
-        // Validation
-        if (divisionName == null || divisionName.trim().isEmpty()) {
-            request.setAttribute("error", "Division name cannot be empty");
-            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
-            return;
-        }
-        if (divisionName.length() > 50) {
-            request.setAttribute("error", "Division name must not exceed 50 characters");
-            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
-            return;
-        }
-        if (divisionHead != null && divisionHead.length() > 10) {
-            request.setAttribute("error", "Head ID must not exceed 10 characters");
-            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
-            return;
-        }
-        if (divisionDao.existsByName(divisionName)) {
-            request.setAttribute("error", "A division with the name '" + divisionName + "' already exists");
-            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
+        // Validate input
+        if (!validateInput(request, response, divisionName, divisionHead)) {
             return;
         }
 
@@ -55,4 +39,28 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
             request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
         }
     }
-} 
+
+    private boolean validateInput(HttpServletRequest request, HttpServletResponse response, String divisionName, String divisionHead)
+            throws ServletException, IOException {
+        
+        if (!validateDivisionName(divisionName)) {
+            request.setAttribute("error", "Division name is required and must not exceed " + MAX_DIVISION_NAME_LENGTH + " characters");
+            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
+            return false;
+        }
+        
+        if (!validateDivisionHead(divisionHead)) {
+            request.setAttribute("error", "Head ID must not exceed " + MAX_DIVISION_HEAD_LENGTH + " characters");
+            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
+            return false;
+        }
+        
+        if (divisionDao.existsByName(divisionName)) {
+            request.setAttribute("error", "A division with the name '" + divisionName + "' already exists");
+            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
+            return false;
+        }
+
+        return true;
+    }
+}

@@ -4,6 +4,7 @@ import com.entity.Division;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
+import java.util.Objects;
 
 public class DivisionDao extends BaseDao<Division> {
 
@@ -51,7 +52,7 @@ public class DivisionDao extends BaseDao<Division> {
             tx.begin();
             Division existingDivision = em.find(Division.class, division.getDivisionId());
             if (existingDivision != null) {
-                if (!division.getDivisionHead().equals(existingDivision.getDivisionHead())) {
+                if (!Objects.equals(division.getDivisionHead(), existingDivision.getDivisionHead())) {
                     em.createQuery("UPDATE User u SET u.managerId = :newDirectorId "
                             + "WHERE u.divisionId = :divisionId "
                             + "AND (u.managerId IS NULL OR u.managerId = :oldDirectorId) "
