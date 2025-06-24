@@ -6,6 +6,7 @@ package com.dao;
 
 import com.entity.User;
 import com.entity.Division;
+import com.entity.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
@@ -87,8 +88,8 @@ public class UserDao extends BaseDao<User> {
                 // Update managerId references in other users to point to division head or null
                 if (managedUser.getDivisionId() != null) {
                     Division division = em.find(Division.class, managedUser.getDivisionId());
-                    String newManagerId = (division != null) ? division.getDivisionHead() : null;
-                    
+                    Integer newManagerId = (division != null) ? division.getDivisionHead() : null;
+
                     em.createQuery("UPDATE User u SET u.managerId = :newManagerId "
                             + "WHERE u.managerId = :userId "
                             + "AND u.divisionId = :divisionId")
@@ -127,7 +128,8 @@ public class UserDao extends BaseDao<User> {
     public boolean existsByUsername(String username) {
         EntityManager em = getEntityManager();
         try {
-            Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.username) = LOWER(:username)", Long.class)
+            Long count = em
+                    .createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.username) = LOWER(:username)", Long.class)
                     .setParameter("username", username)
                     .getSingleResult();
             return count > 0;
@@ -136,7 +138,7 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public User findById(String id) {
+    public User getById(Integer id) {
         EntityManager em = getEntityManager();
         try {
             return em.find(User.class, id);
@@ -145,7 +147,7 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public boolean existsById(String id) {
+    public boolean existsById(Integer id) {
         EntityManager em = getEntityManager();
         try {
             Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.userId = :id", Long.class)
@@ -169,30 +171,61 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public int getMaxIndexForAcronym(String acronym) {
+    public User getByUsernameAndPassword(String username, String password) {
         EntityManager em = getEntityManager();
         try {
-            // Query to get all UserIDs starting with the acronym
-            List<String> userIds = em.createQuery("SELECT u.userId FROM User u WHERE UPPER(u.userId) LIKE :acronymPattern", String.class)
-                    .setParameter("acronymPattern", acronym.toUpperCase() + "%")
+            List<User> users = em
+                    .createQuery("SELECT u FROM User u WHERE u.username = :username AND u.password = :password",
+                            User.class)
+                    .setParameter("username", username)
+                    .setParameter("password", password)
                     .getResultList();
+            return users.isEmpty() ? null : users.get(0);
+        } finally {
+            em.close();
+        }
+    }
 
-            // Extract the numeric suffix and find the maximum
-            int maxIndex = 0;
-            for (String userId : userIds) {
-                // Ensure userId is long enough to have a numeric suffix
-                if (userId.length() > acronym.length()) {
-                    try {
-                        String suffix = userId.substring(acronym.length());
-                        int index = Integer.parseInt(suffix);
-                        maxIndex = Math.max(maxIndex, index);
-                    } catch (NumberFormatException e) {
-                        // Skip invalid suffixes
-                        continue;
-                    }
-                }
-            }
-            return maxIndex;
+    public List<Role> getUserRoles(Integer userId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT ur.role FROM UserRole ur WHERE ur.userId = :userId",
+                    Role.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<String> getUserFeatureEndpoints(Integer userId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT rf.feature.endpoint FROM UserRole ur "
+                    + "JOIN RoleFeature rf ON ur.roleId = rf.roleId "
+                    + "WHERE ur.userId = :userId AND rf.feature.endpoint IS NOT NULL",
+                    String.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean hasPermission(Integer userId, String endpoint) {
+        EntityManager em = getEntityManager();
+        try {
+            Long count = em.createQuery(
+                    "SELECT COUNT(rf) FROM UserRole ur "
+                    + "JOIN RoleFeature rf ON ur.roleId = rf.roleId "
+                    + "WHERE ur.userId = :userId AND rf.feature.endpoint = :endpoint",
+                    Long.class)
+                    .setParameter("userId", userId)
+                    .setParameter("endpoint", endpoint)
+                    .getSingleResult();
+            return count > 0;
         } finally {
             em.close();
         }

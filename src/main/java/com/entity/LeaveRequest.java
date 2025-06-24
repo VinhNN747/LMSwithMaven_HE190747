@@ -14,23 +14,18 @@ import java.io.Serializable;
 public class LeaveRequest {
 
     @Id
-    @Size(max = 20)
-    @Column(name = "LeaveRqID")
-    private String leaveRqId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "LeaveRequestID")
+    private Integer leaveRequestId;
 
-    @Size(max = 10)
     @Column(name = "SenderID")
-    private String senderId;
+    private Integer senderId;
 
-    @Size(max = 10)
     @Column(name = "ApproverID")
-    private String approverId;
-
-    @Column(name = "Reason", columnDefinition = "NVARCHAR(MAX)")
-    private String reason;
+    private Integer approverId;
 
     @NotNull
-    @Size(max = 20)
+    @Size(max = 50)
     @Column(name = "Status", nullable = false)
     private String status = "Pending";
 
@@ -45,36 +40,28 @@ public class LeaveRequest {
     private User approver;
 
     // Getters and Setters
-    public String getLeaveRqId() {
-        return leaveRqId;
+    public Integer getLeaveRequestId() {
+        return leaveRequestId;
     }
 
-    public void setLeaveRqId(String leaveRqId) {
-        this.leaveRqId = leaveRqId;
+    public void setLeaveRequestId(Integer leaveRequestId) {
+        this.leaveRequestId = leaveRequestId;
     }
 
-    public String getSenderId() {
+    public Integer getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(String senderId) {
+    public void setSenderId(Integer senderId) {
         this.senderId = senderId;
     }
 
-    public String getApproverId() {
+    public Integer getApproverId() {
         return approverId;
     }
 
-    public void setApproverId(String approverId) {
+    public void setApproverId(Integer approverId) {
         this.approverId = approverId;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     public String getStatus() {

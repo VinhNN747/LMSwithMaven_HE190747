@@ -24,9 +24,8 @@ public class Division {
     @Column(name = "DivisionName", nullable = false)
     private String divisionName;
 
-    @Size(max = 10)
     @Column(name = "DivisionHead")
-    private String divisionHead;
+    private Integer divisionHead;
 
     // Navigation property for the directorz
     @ManyToOne
@@ -54,11 +53,11 @@ public class Division {
         this.divisionName = divisionName;
     }
 
-    public String getDivisionHead() {
+    public Integer getDivisionHead() {
         return divisionHead;
     }
 
-    public void setDivisionHead(String divisionHead) {
+    public void setDivisionHead(Integer divisionHead) {
         this.divisionHead = divisionHead;
     }
 

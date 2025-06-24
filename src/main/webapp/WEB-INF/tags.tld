@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+        version="2.1">
+    
+    <tlib-version>1.0</tlib-version>
+    <short-name>auth</short-name>
+    <uri>http://example.com/auth</uri>
+    
+    <tag>
+        <name>authorize</name>
+        <tag-class>com.taglib.AuthorizationTag</tag-class>
+        <body-content>JSP</body-content>
+        <description>Authorization tag for role and permission checking</description>
+        
+        <attribute>
+            <name>role</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>Role name to check</description>
+        </attribute>
+        
+        <attribute>
+            <name>permission</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>Permission/endpoint to check</description>
+        </attribute>
+        
+        <attribute>
+            <name>var</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>Variable name to store the result</description>
+        </attribute>
+    </tag>
+</taglib> 

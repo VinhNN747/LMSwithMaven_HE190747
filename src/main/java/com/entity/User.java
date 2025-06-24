@@ -18,12 +18,12 @@ import java.util.List;
 public class User {
 
     @Id
-    @Size(max = 10)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UserID")
-    private String userId;
+    private Integer userId;
 
     @NotNull
-    @Size(max = 100)
+    @Size(max = 50)
     @Column(name = "FullName", nullable = false)
     private String fullName;
 
@@ -33,31 +33,23 @@ public class User {
     private String username;
 
     @NotNull
-    @Size(max = 100)
+    @Size(max = 255)
+    @Column(name = "Password", nullable = false)
+    private String password;
+
+    @NotNull
     @Email
     @Column(name = "Email", nullable = false, unique = true)
     private String email;
 
-    @Pattern(regexp = "^[MF]$", message = "Gender must be 'M' or 'F'")
-    @Size(max = 1)
-    @Column(name = "Gender", length = 1)
-    private String gender;
-
     @Column(name = "DivisionID")
     private Integer divisionId;
 
-    @NotNull
-    @Size(max = 100)
-    @Column(name = "Role", nullable = false)
-    private String role = "Employee";
+    @Column(name = "Gender")
+    private Boolean gender;
 
-    @NotNull
-    @Column(name = "IsActive", nullable = false)
-    private Boolean isActive = true;
-
-    @Size(max = 10)
     @Column(name = "ManagerID")
-    private String managerId;
+    private Integer managerId;
 
     // Navigation property for the division
     @ManyToOne
@@ -81,12 +73,16 @@ public class User {
     @OneToMany(mappedBy = "approver", cascade = CascadeType.ALL)
     private List<LeaveRequest> receivedLeaveRequests = new ArrayList<>();
 
+    // Navigation property for user roles
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserRole> userRoles = new ArrayList<>();
+
     // Getters and Setters
-    public String getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -114,14 +110,6 @@ public class User {
         this.email = email;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
     public Integer getDivisionId() {
         return divisionId;
     }
@@ -130,28 +118,28 @@ public class User {
         this.divisionId = divisionId;
     }
 
-    public String getRole() {
-        return role;
+    public Boolean getGender() {
+        return gender;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setGender(Boolean gender) {
+        this.gender = gender;
     }
 
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public String getManagerId() {
+    public Integer getManagerId() {
         return managerId;
     }
 
-    public void setManagerId(String managerId) {
+    public void setManagerId(Integer managerId) {
         this.managerId = managerId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Division getDivision() {
@@ -194,16 +182,24 @@ public class User {
         this.receivedLeaveRequests = receivedLeaveRequests;
     }
 
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
+    }
+
     // Hibernate requires a no-arg constructor
     public User() {
     }
 
     // Constructor for convenience
-    public User(String userId, String fullName, String username, String email, String role) {
+    public User(Integer userId, String fullName, String username, String email, Integer managerId) {
         this.userId = userId;
         this.fullName = fullName;
         this.username = username;
         this.email = email;
-        this.role = role;
+        this.managerId = managerId;
     }
 }
