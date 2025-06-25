@@ -5,39 +5,47 @@
 package com.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "LeaveRequest")
-public class LeaveRequest {
+public class LeaveRequest implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LeaveRequestID")
     private Integer leaveRequestId;
 
-    @Column(name = "SenderID")
+    // Navigation attribute for sender (User)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SenderID", referencedColumnName = "UserID", insertable = false, updatable = false)
+    private User sender;
+
+    // Navigation attribute for approver (User)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ApproverID", referencedColumnName = "UserID", insertable = false, updatable = false)
+    private User approver;
+
+    @Column(name = "SenderID", nullable = false)
     private Integer senderId;
 
     @Column(name = "ApproverID")
     private Integer approverId;
 
-    @NotNull
-    @Size(max = 50)
-    @Column(name = "Status", nullable = false)
-    private String status = "Pending";
+    @Column(name = "Status", length = 50)
+    private String status;
 
-    // Navigation property for the sender
-    @ManyToOne
-    @JoinColumn(name = "SenderID", referencedColumnName = "UserID", insertable = false, updatable = false)
-    private User sender;
+    @Column(name = "Reason", columnDefinition = "nvarchar(max)")
+    private String reason;
 
-    // Navigation property for the approver
-    @ManyToOne
-    @JoinColumn(name = "ApproverID", referencedColumnName = "UserID", insertable = false, updatable = false)
-    private User approver;
+    @Column(name = "StartDate", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
+
+    @Column(name = "EndDate", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
 
     // Getters and Setters
     public Integer getLeaveRequestId() {
@@ -70,6 +78,30 @@ public class LeaveRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public User getSender() {

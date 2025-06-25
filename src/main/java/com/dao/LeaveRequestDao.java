@@ -29,6 +29,19 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
         }
     }
 
+    public List<LeaveRequest> listOf(int userId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr LEFT JOIN FETCH lr.approver WHERE lr.senderId = :userId",
+                    LeaveRequest.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     @Override
     public void create(LeaveRequest lr) {
         EntityManager em = getEntityManager();

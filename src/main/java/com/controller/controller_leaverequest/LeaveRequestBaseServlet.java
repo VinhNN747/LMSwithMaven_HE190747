@@ -5,24 +5,22 @@
 package com.controller.controller_leaverequest;
 
 import com.controller.controller_authorization.AuthorizationServlet;
-import com.entity.User;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.dao.LeaveRequestDao;
+import java.util.Date;
 
 /**
  *
  * @author vinhnnpc
  */
-public class LeaveRequestBaseServlet extends AuthorizationServlet {
+public abstract class LeaveRequestBaseServlet extends AuthorizationServlet {
 
-    @Override
-    protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+    LeaveRequestDao ldb = new LeaveRequestDao();
 
-    @Override
-    protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    protected boolean isDateIntervalValid(Date start, Date end) {
+        if (start == null || end == null) {
+            return false;
+        }
+        return !start.after(end);
     }
 
 }

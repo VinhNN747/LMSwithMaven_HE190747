@@ -42,7 +42,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("user", user);
             session.setAttribute("permissions", permissions);
             session.setAttribute("roles", roles);
-            resp.sendRedirect(req.getContextPath() + "/view/dashboard.jsp");
+            resp.sendRedirect(req.getContextPath() + "/dashboard");
         } else {
             req.setAttribute("error", "Invalid username or password");
             req.getRequestDispatcher("/view/auth/login.jsp").forward(req, resp);

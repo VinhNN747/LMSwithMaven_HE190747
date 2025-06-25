@@ -6,6 +6,7 @@ package com.controller.controller_user;
 
 import com.entity.Division;
 import com.entity.User;
+import com.entity.UserRole;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -86,6 +87,31 @@ public class UserCreateServlet extends UserBaseServlet {
         try {
             // Create the user
             udb.create(newUser);
+
+            // Assign Employee role (RoleID = 1) to the new user
+            // Fetch the userId (should be set after persist)
+            Integer newUserId = newUser.getUserId();
+            if (newUserId != null) {
+                UserRole userRole = new UserRole();
+                userRole.setUserId(newUserId);
+                userRole.setRoleId(1); // 1 = Employee
+
+                // Persist UserRole using the same EntityManager pattern as UserDao
+                jakarta.persistence.EntityManager em = udb.getEntityManager();
+                jakarta.persistence.EntityTransaction tx = em.getTransaction();
+                try {
+                    tx.begin();
+                    em.persist(userRole);
+                    tx.commit();
+                } catch (Exception e) {
+                    if (tx.isActive()) {
+                        tx.rollback();
+                    }
+                    throw e;
+                } finally {
+                    em.close();
+                }
+            }
 
             // Redirect to user list on success
             response.sendRedirect(request.getContextPath() + "/user/list");
