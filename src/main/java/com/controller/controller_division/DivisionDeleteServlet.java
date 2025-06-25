@@ -1,22 +1,26 @@
 package com.controller.controller_division;
 
 import com.entity.Division;
-import jakarta.servlet.ServletException;
+import com.entity.User;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
-@WebServlet("/division/delete")
+@WebServlet(name = "DivisionDeleteServlet", urlPatterns = "/division/delete")
 public class DivisionDeleteServlet extends BaseDivisionServlet {
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        Integer id = Integer.parseInt(request.getParameter("id"));
-        Division division = divisionDao.findById(id);
+    protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
+        Integer id = Integer.valueOf(request.getParameter("id"));
+        Division division = ddb.findById(id);
         if (division != null) {
             try {
-                divisionDao.delete(division);
+                ddb.delete(division);
             } catch (Exception e) {
                 request.setAttribute("error", "Cannot delete division: " + e.getMessage());
             }
@@ -25,4 +29,4 @@ public class DivisionDeleteServlet extends BaseDivisionServlet {
         }
         response.sendRedirect("list");
     }
-} 
+}

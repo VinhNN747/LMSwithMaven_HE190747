@@ -4,81 +4,73 @@
 <html>
     <head>
         <title>Division List</title>
-        <style>
-            table {
-                border-collapse: collapse;
-                width: 80%;
-                margin: 20px auto;
-            }
-            th, td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-            }
-            th {
-                background-color: #f2f2f2;
-            }
-            tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
-            a {
-                text-decoration: none;
-                color: #0066cc;
-            }
-            a:hover {
-                text-decoration: underline;
-            }
-            .button {
-                padding: 5px 10px;
-                background-color: #0066cc;
-                color: white;
-                border-radius: 3px;
-            }
-            .error {
-                color: red;
-                text-align: center;
-            }
-        </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
-        <h2 style="text-align: center;">Division List</h2>
-        <c:if test="${not empty error}">
-            <p class="error">${error}</p>
-        </c:if>
-        <div style="text-align: center; margin-bottom: 10px;">
-            <a href="create" class="button">Add New Division</a>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/view/dashboard.jsp">LMS Dashboard</a>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        Welcome, ${sessionScope.user.fullName}
+                    </span>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <h2 class="page-title">Division Management</h2>
+
+            <c:if test="${not empty error}">
+                <p class="error">${error}</p>
+            </c:if>
+
+            <div class="mb-3">
+                <a href="${pageContext.request.contextPath}/division/create" class="btn btn-primary">Add New Division</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Division Head</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="division" items="${divisions}">
+                            <tr>
+                                <td>${division.divisionId}</td>
+                                <td>${division.divisionName}</td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty division.head}">
+                                            ${division.head.fullName}
+                                        </c:when>
+                                        <c:otherwise>
+                                            N/A
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <a href="edit?id=${division.divisionId}" class="btn btn-sm btn-secondary">Edit</a>
+                                    <form action="delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this division?');">
+                                        <input type="hidden" name="id" value="${division.divisionId}"/>
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Head</th>
-                <th>Actions</th>
-            </tr>
-            <c:forEach var="division" items="${divisions}">
-                <tr>
-                    <td>${division.divisionId}</td>
-                    <td>${division.divisionName}</td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${not empty division.head}">
-                                ${division.head.fullName}
-                            </c:when>
-                            <c:otherwise>
-                                ${division.head}
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
-                    <td>
-                        <a href="edit?id=${division.divisionId}">Edit</a>
-                         | 
-                        <form action="delete" method="post" style="display: inline;">
-                            <input type="hidden" name="id" value="${division.divisionId}"/>
-                            <a href="#" onclick="if(confirm('Are you sure you want to delete this division?')) { this.parentElement.submit(); } return false;">Delete</a>
-                        </form>
-                    </td>
-                </tr>
-            </c:forEach>
-        </table>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

@@ -4,100 +4,79 @@
 <html>
     <head>
         <title>Add New User</title>
-        <style>
-            .form-container {
-                width: 50%;
-                margin: 20px auto;
-                padding: 20px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-            }
-            label {
-                display: inline-block;
-                width: 120px;
-                margin-bottom: 10px;
-            }
-            input[type="text"], input[type="email"], select {
-                width: 200px;
-                padding: 5px;
-                border: 1px solid #ddd;
-                border-radius: 3px;
-            }
-            input[type="submit"] {
-                padding: 8px 20px;
-                background-color: #0066cc;
-                color: white;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-            }
-            input[type="submit"]:hover {
-                background-color: #0052a3;
-            }
-            .error {
-                color: red;
-                margin-bottom: 10px;
-                text-align: center;
-            }
-        </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
-        <div class="form-container">
-            <h2>Add New User</h2>
-            <c:if test="${not empty error}">
-                <p class="error">${error}</p>
-            </c:if>
-            <form action="create" method="post">
-                <div>
-                    <label>Full Name:</label>
-                    <input type="text" name="fullName" maxlength="100" required/>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/view/dashboard.jsp">LMS Dashboard</a>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        Welcome, ${sessionScope.user.fullName}
+                    </span>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
                 </div>
-                <div>
-                    <label>Username:</label>
-                    <input type="text" name="username" maxlength="50" required/>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Add New User</h4>
+                        </div>
+                        <div class="card-body">
+                            <c:if test="${not empty error}">
+                                <p class="error">${error}</p>
+                            </c:if>
+                            <form action="create" method="post">
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label">Full Name:</label>
+                                    <input type="text" id="fullName" name="fullName" class="form-control" maxlength="100" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username:</label>
+                                    <input type="text" id="username" name="username" class="form-control" maxlength="50" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password:</label>
+                                    <input type="text" id="password" name="password" class="form-control" maxlength="50" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email:</label>
+                                    <input type="email" id="email" name="email" class="form-control" maxlength="100" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="gender" class="form-label">Gender:</label>
+                                    <select id="gender" name="gender" class="form-select">
+                                        <option value="">Select Gender</option>
+                                        <option value="true">Male</option>
+                                        <option value="false">Female</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="divisionId" class="form-label">Division:</label>
+                                    <select id="divisionId" name="divisionId" class="form-select">
+                                        <option value="">Select a division</option>
+                                        <c:forEach items="${requestScope.divisions}" var="d">
+                                            <option value="${d.divisionId}">${d.divisionName}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save User</button>
+                                <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary">Cancel</a>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label>Email:</label>
-                    <input type="email" name="email" maxlength="100" required/>
-                </div>
-                <div>
-                    <label>Gender:</label>
-                    <select name="gender">
-                        <option value="">Select Gender</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                    </select>
-                </div>
-                <div>                    
-                    <label>Division:</label>
-                    <select name="divisionId">
-                        <option value="">Select a division</option>
-                        <c:forEach items="${requestScope.divisions}" var="d">
-                            <option value="${d.divisionId}">${d.divisionName}</option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div>
-                    <label>Role:</label>
-                    <select name="role">
-                        <option value="Employee">Employee</option>
-                        <option value="Lead">Lead</option>
-                        <option value="Head">Head</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Active:</label>
-                    <select name="isActive">
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                    </select>
-                </div>
-                <div style="margin-top: 20px;">
-                    <input type="submit" value="Save"/>
-                    
-                    <a href="list">Cancel</a>
-                </div>
-            </form>
+            </div>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

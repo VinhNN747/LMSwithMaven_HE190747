@@ -5,147 +5,106 @@
 
     <head>
         <title>User List</title>
-        <style>
-            table {
-                border-collapse: collapse;
-                width: 90%;
-                margin: 20px auto;
-            }
-
-            th,
-            td {
-                border: 2px solid #b9b7b7;
-                padding: 8px;
-                text-align: left;
-            }
-
-            th {
-                background-color: #d7d5d5;
-            }
-
-            /*                tr:nth-child(even) {
-                                background-color: #f9f9f9;
-                            }*/
-
-            a {
-                text-decoration: none;
-                color: #0066cc;
-            }
-
-            a:hover {
-                text-decoration: underline;
-            }
-
-            .button {
-                padding: 5px 10px;
-                background-color: #0066cc;
-                color: white;
-                border-radius: 3px;
-            }
-
-            .error {
-                color: red;
-                text-align: center;
-            }
-
-            /* Role-based colors */
-            .role-employee {
-                background-color: #d0e4ff; /* Light blue, more saturated */
-            }
-
-            .role-lead {
-                background-color: #a8ccff; /* Medium blue */
-            }
-
-            .role-head {
-                background-color: #5ca0ff; /* Deeper blue */
-                color: white;
-            }
-
-            .role-head a {
-                color: white;
-            }
-
-            .role-head .button {
-                background-color: white;
-                color: #0056b3;
-                border: 1px solid #0056b3;
-            }
-
-            .role-head .button:hover {
-                background-color: #d0e4ff;
-                color: #0056b3;
-            }
-
-        </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     </head>
 
     <body>
-        <h2 style="text-align: center;">User List</h2>
-        <c:if test="${not empty error}">
-            <p class="error">${error}</p>
-        </c:if>
-        <div style="text-align: center; margin-bottom: 10px;">
-            <a href="create" class="button">Add New User</a>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/view/dashboard.jsp">LMS Dashboard</a>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        Welcome, ${sessionScope.user.fullName}
+                    </span>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <h2 class="page-title">User Management</h2>
+            
+            <c:if test="${not empty error}">
+                <p class="error">${error}</p>
+            </c:if>
+
+            <div class="mb-3">
+                <a href="${pageContext.request.contextPath}/user/create" class="btn btn-primary">Add New User</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Gender</th>
+                            <th>Division</th>
+                            <th>Roles</th>
+                            <th>Manager</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="user" items="${users}">
+                            <tr>
+                                <td>${user.userId}</td>
+                                <td>${user.fullName}</td>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${user.gender == true}">Male</c:when>
+                                        <c:when test="${user.gender == false}">Female</c:when>
+                                        <c:otherwise>Unknown</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty user.division}">
+                                            ${user.division.divisionName}
+                                        </c:when>
+                                        <c:otherwise>
+                                            N/A
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:forEach var="userRole" items="${user.userRoles}">
+                                        <span class="badge bg-dark text-white me-1">${userRole.role.roleName}</span>
+                                    </c:forEach>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty user.manager}">
+                                            ${user.manager.fullName}
+                                        </c:when>
+                                        <c:otherwise>
+                                            N/A
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <a href="edit?id=${user.userId}" class="btn btn-sm btn-secondary">Edit</a>
+                                    <a href="${pageContext.request.contextPath}/user/changedivision?id=${user.userId}" class="btn btn-sm btn-warning ms-1">Change Division</a>
+                                    <form action="delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        <input type="hidden" name="id" value="${user.userId}" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Full Name</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Gender</th>
-                <th>Division</th>
-                <th>Manager</th>
-                <th>Actions</th>
-            </tr>
-            <c:forEach var="user" items="${users}">
-                <tr>
-                    <td>${user.userId}</td>
-                    <td>${user.fullName}</td>
-                    <td>${user.username}</td>
-                    <td>${user.email}</td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${user.gender == true}">Male</c:when>
-                            <c:when test="${user.gender == false}">Female</c:when>
-                            <c:otherwise>Unknown</c:otherwise>
-                        </c:choose>
-                    </td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${not empty user.division}">
-                                ${user.division.divisionName}
-                            </c:when>
-                            <c:otherwise>
-                                ${user.divisionId}
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${not empty user.manager}">
-                                ${user.manager.fullName}
-                            </c:when>
-                            <c:otherwise>
-                                ${user.managerId}
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
-                    <td>
-                        <a href="edit?id=${user.userId}">Edit</a> |
-                        <form action="delete" method="post" style="display: inline;">
-                            <input type="hidden" name="id" value="${user.userId}" />
-                            <a href="#"
-                               onclick="if (confirm('Are you sure you want to delete this user?')) {
-                                        this.parentElement.submit();
-                                    }
-                                    return false;">Delete</a>
-                        </form>
-                    </td>
-                </tr>
-            </c:forEach>
-        </table>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 
 </html>

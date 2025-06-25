@@ -15,15 +15,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Abstract base class for servlets that require authorization.
- * Provides role-based access control using database-driven permissions.
- * 
- * Features:
- * - Permission caching for performance
- * - Comprehensive logging and audit trails
- * - Proper error handling
- * - Security best practices
- * 
+ * Abstract base class for servlets that require authorization. Provides
+ * role-based access control using database-driven permissions.
+ *
+ * Features: - Permission caching for performance - Comprehensive logging and
+ * audit trails - Proper error handling - Security best practices
+ *
  * @author vinhnnpc
  */
 public abstract class AuthorizationServlet extends AuthenticationServlet {
@@ -31,7 +28,7 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
     private static final Logger LOGGER = Logger.getLogger(AuthorizationServlet.class.getName());
     private static final ConcurrentHashMap<String, Boolean> PERMISSION_CACHE = new ConcurrentHashMap<>();
     private static final int CACHE_TTL_MINUTES = 30; // Cache permissions for 30 minutes
-    
+
     private final UserDao userDao = new UserDao();
 
     @Override
@@ -63,9 +60,9 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
     }
 
     /**
-     * Checks if the user is authorized to access the requested resource.
-     * Uses caching to improve performance.
-     * 
+     * Checks if the user is authorized to access the requested resource. Uses
+     * caching to improve performance.
+     *
      * @param request the HTTP request
      * @param user the authenticated user
      * @return true if authorized, false otherwise
@@ -84,7 +81,7 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
 
         // Create cache key
         String cacheKey = user.getUserId() + ":" + currentPath;
-        
+
         // Check cache first
         Boolean cachedResult = PERMISSION_CACHE.get(cacheKey);
         if (cachedResult != null) {
@@ -94,33 +91,33 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
 
         // Check database
         boolean hasPermission = userDao.hasPermission(user.getUserId(), currentPath);
-        
+
         // Cache the result
         PERMISSION_CACHE.put(cacheKey, hasPermission);
-        
+
         // Log authorization decision
-        LOGGER.info("Authorization check for user: " + user.getUserId() + 
-                   ", path: " + currentPath + ", result: " + hasPermission);
-        
+        LOGGER.info("Authorization check for user: " + user.getUserId()
+                + ", path: " + currentPath + ", result: " + hasPermission);
+
         return hasPermission;
     }
 
     /**
-     * Handles unauthorized access attempts.
-     * Logs the attempt and sends appropriate error response.
+     * Handles unauthorized access attempts. Logs the attempt and sends
+     * appropriate error response.
      */
     private void handleUnauthorizedAccess(HttpServletRequest request, HttpServletResponse response, User user) {
         String currentPath = request.getServletPath();
         String userAgent = request.getHeader("User-Agent");
         String remoteAddr = request.getRemoteAddr();
-        
-        LOGGER.warning("Unauthorized access attempt - User: " + user.getUserId() + 
-                      ", Path: " + currentPath + ", IP: " + remoteAddr + 
-                      ", User-Agent: " + userAgent);
-        
+
+        LOGGER.warning("Unauthorized access attempt - User: " + user.getUserId()
+                + ", Path: " + currentPath + ", IP: " + remoteAddr
+                + ", User-Agent: " + userAgent);
+
         try {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, 
-                             "You are not authorized to access this resource.");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "You are not authorized to access this resource.");
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Error sending unauthorized response", ex);
         }
@@ -138,7 +135,8 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
     }
 
     /**
-     * Clears the permission cache. Can be called periodically or when permissions change.
+     * Clears the permission cache. Can be called periodically or when
+     * permissions change.
      */
     public static void clearPermissionCache() {
         PERMISSION_CACHE.clear();
@@ -146,16 +144,16 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
     }
 
     /**
-     * Abstract method to be implemented by subclasses for GET requests.
-     * This method will be called only if the user is authorized.
+     * Abstract method to be implemented by subclasses for GET requests. This
+     * method will be called only if the user is authorized.
      */
-    protected abstract void processGet(HttpServletRequest request, HttpServletResponse response, User user) 
+    protected abstract void processGet(HttpServletRequest request, HttpServletResponse response, User user)
             throws Exception;
 
     /**
-     * Abstract method to be implemented by subclasses for POST requests.
-     * This method will be called only if the user is authorized.
+     * Abstract method to be implemented by subclasses for POST requests. This
+     * method will be called only if the user is authorized.
      */
-    protected abstract void processPost(HttpServletRequest request, HttpServletResponse response, User user) 
+    protected abstract void processPost(HttpServletRequest request, HttpServletResponse response, User user)
             throws Exception;
-} 
+}

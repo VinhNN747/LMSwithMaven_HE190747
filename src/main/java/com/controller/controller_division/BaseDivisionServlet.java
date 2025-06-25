@@ -1,64 +1,33 @@
 package com.controller.controller_division;
 
+import com.controller.controller_authorization.AuthorizationServlet;
 import com.dao.DivisionDao;
-import com.dao.UserDao;
 import com.entity.Division;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Objects;
 
-public abstract class BaseDivisionServlet extends HttpServlet {
 
-    protected DivisionDao divisionDao;
-    protected UserDao userDao;
+public abstract class BaseDivisionServlet extends AuthorizationServlet {
 
-    // Role hierarchy constants
-    protected static final String ROLE_EMPLOYEE = "Employee";
-    protected static final String ROLE_LEAD = "Lead";
-    protected static final String ROLE_HEAD = "Head";
+    protected DivisionDao ddb = new DivisionDao();
 
-    // Validation constants
-    protected static final int MAX_DIVISION_NAME_LENGTH = 50;
-    protected static final int MAX_DIVISION_HEAD_LENGTH = 10;
-
-    @Override
-    public void init() throws ServletException {
-        divisionDao = new DivisionDao();
-        userDao = new UserDao();
-    }
-
-    protected void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
-            throws IOException {
-        request.setAttribute("error", errorMessage);
-        response.sendRedirect("list");
-    }
-
-    protected boolean validateUniqueDivisionName(String divisionName, Division existingDivision) {
-        if (existingDivision != null) {
-            return !divisionDao.existsByName(divisionName) || Objects.equals(existingDivision.getDivisionName(), divisionName);
+    protected String validateDivision(Division division) {
+        if (division == null) {
+            return "Division can not be null";
         }
-        return !divisionDao.existsByName(divisionName);
+        if (!isValidDivisioName(division.getDivisionName())) {
+            return "Division name invalid";
+        }
+        if (!isUniqueDivisionName(division.getDivisionName())) {
+            return "Division name has already been taken";
+        }
+        return null;
     }
 
-    /**
-     * Validates division name field
-     * @param divisionName the division name to validate
-     * @return true if valid, false otherwise
-     */
-    protected boolean validateDivisionName(String divisionName) {
-        return divisionName != null && !divisionName.trim().isEmpty() && divisionName.length() <= MAX_DIVISION_NAME_LENGTH;
+    private boolean isValidDivisioName(String divisionName) {
+        return divisionName != null && !divisionName.trim().isEmpty();
     }
 
-    /**
-     * Validates division head field
-     * @param divisionHead the division head to validate
-     * @return true if valid, false otherwise
-     */
-    protected boolean validateDivisionHead(String divisionHead) {
-        return divisionHead == null || divisionHead.length() <= MAX_DIVISION_HEAD_LENGTH;
+    private boolean isUniqueDivisionName(String divisionName) {
+        return !ddb.existsByName(divisionName);
     }
 
 }

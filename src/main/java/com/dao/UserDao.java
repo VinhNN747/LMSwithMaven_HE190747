@@ -22,7 +22,7 @@ public class UserDao extends BaseDao<User> {
     public List<User> list() {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT u FROM User u", User.class).getResultList();
+            return em.createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role", User.class).getResultList();
         } finally {
             em.close();
         }
@@ -58,6 +58,7 @@ public class UserDao extends BaseDao<User> {
             if (tx.isActive()) {
                 tx.rollback();
             }
+            throw e;
         } finally {
             em.close();
         }

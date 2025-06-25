@@ -4,92 +4,77 @@
 <html>
     <head>
         <title>Edit Division</title>
-        <style>
-            .form-container {
-                width: 50%;
-                margin: 20px auto;
-                padding: 20px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-            }
-            label {
-                display: inline-block;
-                width: 120px;
-                margin-bottom: 10px;
-            }
-            input[type="text"], input[type="number"] {
-                width: 200px;
-                padding: 5px;
-                border: 1px solid #ddd;
-                border-radius: 3px;
-            }
-            input[type="submit"] {
-                padding: 8px 20px;
-                background-color: #0066cc;
-                color: white;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-            }
-            input[type="submit"]:hover {
-                background-color: #0052a3;
-            }
-            .error {
-                color: red;
-                margin-bottom: 10px;
-                text-align: center;
-            }
-        </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
-        <div class="form-container">
-            <h2>Edit Division</h2>
-            <c:if test="${not empty error}">
-                <p class="error">${error}</p>
-            </c:if>
-            <form action="edit" method="post">
-                <input type="hidden" name="divisionId" value="${division.divisionId}"/>
-                <div>
-                    <label>Division Name:</label>
-                    <input type="text" name="divisionName" value="${division.divisionName}" maxlength="50" required/>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/view/dashboard.jsp">LMS Dashboard</a>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        Welcome, ${sessionScope.user.fullName}
+                    </span>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
                 </div>
-                <div>
-                    <label>Head:</label>
-                    <c:choose>
-                        <c:when test="${not empty division.divisionHead}">
-                            <c:set var="currentHeadUser" value="${null}"/>
-                            <c:forEach items="${allLeadsAndHeads}" var="user">
-                                <c:if test="${user.userId == division.divisionHead}">
-                                    <c:set var="currentHeadUser" value="${user}"/>
-                                </c:if>
-                            </c:forEach>
-                            <c:if test="${not empty currentHeadUser}">
-                                <span>${currentHeadUser.fullName} (${currentHeadUser.role})</span>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Edit Division: ${division.divisionName}</h4>
+                        </div>
+                        <div class="card-body">
+                            <c:if test="${not empty error}">
+                                <p class="error">${error}</p>
                             </c:if>
-                            <c:if test="${empty currentHeadUser}">
-                                <span>Current Head ID: ${division.divisionHead} (User not found or not eligible)</span>
-                            </c:if>
-                        </c:when>
-                        <c:otherwise>
-                            <span>No Head Assigned</span>
-                        </c:otherwise>
-                    </c:choose>
+                            <form action="edit" method="post">
+                                <input type="hidden" name="divisionId" value="${division.divisionId}"/>
+                                
+                                <div class="mb-3">
+                                    <label for="divisionName" class="form-label">Division Name:</label>
+                                    <input type="text" id="divisionName" name="divisionName" class="form-control" value="${division.divisionName}" maxlength="50" required/>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Current Head:</label>
+                                    <div>
+                                        <c:choose>
+                                            <c:when test="${not empty division.head}">
+                                                <span class="form-control-plaintext">${division.head.fullName}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="form-control-plaintext">No Head Assigned</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="newDivisionHeadId" class="form-label">Change Head To:</label>
+                                    <select id="newDivisionHeadId" name="newDivisionHeadId" class="form-select">
+                                        <option value="">-- Do Not Change --</option>
+                                        <c:forEach items="${eligibleHeads}" var="user">
+                                            <option value="${user.userId}">${user.fullName}</option>
+                                        </c:forEach>
+                                    </select>
+                                    <div class="form-text">Select a user to become the new head of this division.</div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <a href="${pageContext.request.contextPath}/division/list" class="btn btn-secondary">Cancel</a>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label>Change Head To:</label>
-                    <select name="newDivisionHeadId">
-                        <option value="">-- Select New Head --</option>
-                        <c:forEach items="${allLeadsAndHeads}" var="user">
-                            <option value="${user.userId}">${user.fullName} (${user.role} - ${user.division.divisionName})</option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div style="margin-top: 20px;">
-                    <input type="submit" value="Save"/>
-                     
-                    <a href="list">Cancel</a>
-                </div>
-            </form>
+            </div>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

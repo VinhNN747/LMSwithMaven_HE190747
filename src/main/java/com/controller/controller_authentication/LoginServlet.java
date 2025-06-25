@@ -4,7 +4,10 @@
  */
 package com.controller.controller_authentication;
 
+import com.dao.RoleDao;
 import com.dao.UserDao;
+import com.entity.Feature;
+import com.entity.Role;
 import com.entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,12 +16,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 /**
  *
  * @author vinhnnpc
  */
-@WebServlet(name = "LoginServlet",urlPatterns = "/login")
+@WebServlet(name = "LoginServlet", urlPatterns = "/login")
 public class LoginServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -33,7 +37,11 @@ public class LoginServlet extends HttpServlet {
         User user = userDao.getByUsernameAndPassword(username, password);
         if (user != null) {
             HttpSession session = req.getSession();
+            List<String> permissions = userDao.getUserFeatureEndpoints(user.getUserId());
+            List<Role> roles = userDao.getUserRoles(user.getUserId());
             session.setAttribute("user", user);
+            session.setAttribute("permissions", permissions);
+            session.setAttribute("roles", roles);
             resp.sendRedirect(req.getContextPath() + "/view/dashboard.jsp");
         } else {
             req.setAttribute("error", "Invalid username or password");

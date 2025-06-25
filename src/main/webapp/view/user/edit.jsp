@@ -4,118 +4,69 @@
 <html>
     <head>
         <title>Edit User</title>
-        <style>
-            .form-container {
-                width: 50%;
-                margin: 20px auto;
-                padding: 20px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-            }
-            label {
-                display: inline-block;
-                width: 120px;
-                margin-bottom: 10px;
-            }
-            input[type="text"], input[type="email"], select {
-                width: 200px;
-                padding: 5px;
-                border: 1px solid #ddd;
-                border-radius: 3px;
-            }
-            input[type="submit"] {
-                padding: 8px 20px;
-                background-color: #0066cc;
-                color: white;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-            }
-            input[type="submit"]:hover {
-                background-color: #0052a3;
-            }
-            .error {
-                color: red;
-                margin-bottom: 10px;
-                text-align: center;
-            }
-            .hidden {
-                display: none;
-            }
-        </style>
-        <script>
-            function toggleLeadField() {
-                var roleSelect = document.getElementById('role');
-                var managerDiv = document.getElementById('managerDiv');
-                if (roleSelect.value === 'Employee') {
-                    managerDiv.classList.remove('hidden');
-                } else {
-                    managerDiv.classList.add('hidden');
-                }
-            }
-        </script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
-        <div class="form-container">
-            <h2>Edit User</h2>
-            <c:if test="${not empty error}">
-                <p class="error">${error}</p>
-            </c:if>
-            <form action="edit" method="post">
-                <input type="hidden" name="userId" value="${user.userId}"/>
-                <div>
-                    <label>Full Name:</label>
-                    <input type="text" name="fullName" value="${user.fullName}" maxlength="100" required/>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/view/dashboard.jsp">LMS Dashboard</a>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        Welcome, ${sessionScope.user.fullName}
+                    </span>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
                 </div>
-                <div>
-                    <label>Username:</label>
-                    <input type="text" name="username" value="${user.username}" maxlength="50" required/>
-                </div>
-                <div>
-                    <label>Email:</label>
-                    <input type="email" name="email" value="${user.email}" maxlength="100" required/>
-                </div>
-                <div>
-                    <label>Gender:</label>
-                    <select name="gender">
-                        <option value="">Select Gender</option>
-                        <option value="M" ${user.gender == 'M' ? 'selected' : ''}>Male</option>
-                        <option value="F" ${user.gender == 'F' ? 'selected' : ''}>Female</option>
-                    </select>
-                </div>
+            </div>
+        </nav>
 
-                <input type="hidden" name="role" value="${user.role}"/>
-                <input type="hidden" name="divisionId" value="${division.divisionId}"/>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Edit User: ${user.fullName}</h4>
+                        </div>
+                        <div class="card-body">
+                            <c:if test="${not empty error}">
+                                <p class="error">${error}</p>
+                            </c:if>
+                            <form action="edit" method="post">
+                                <input type="hidden" name="userId" value="${user.userId}"/>
+                                
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label">Full Name:</label>
+                                    <input type="text" id="fullName" name="fullName" class="form-control" value="${user.fullName}" maxlength="100" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username:</label>
+                                    <input type="text" id="username" name="username" class="form-control" value="${user.username}" maxlength="50" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email:</label>
+                                    <input type="email" id="email" name="email" class="form-control" value="${user.email}" maxlength="100" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="gender" class="form-label">Gender:</label>
+                                    <select id="gender" name="gender" class="form-select">
+                                        <option value="">Select Gender</option>
+                                        <option value="true" ${user.gender != null && user.gender ? 'selected' : ''}>Male</option>
+                                        <option value="false" ${user.gender != null && !user.gender ? 'selected' : ''}>Female</option>
+                                    </select>
+                                </div>
 
-                <div>
-                    <label>Active:</label>
-                    <select name="isActive">
-                        <option value="true" ${user.isActive ? 'selected' : ''}>Yes</option>
-                        <option value="false" ${!user.isActive ? 'selected' : ''}>No</option>
-                    </select>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary">Cancel</a>
+                                <a href="${pageContext.request.contextPath}/user/changeDivision?userId=${user.userId}" class="btn btn-warning ms-2">Change Division</a>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div id="managerDiv" class="${user.role != 'Employee' ? 'hidden' : ''}">
-                    <label>Lead:</label>
-                    <select name="managerId">
-                        <option value="">Select Lead</option>
-                        <c:forEach items="${managers}" var="manager">
-                            <option value="${manager.userId}" 
-                                    ${user.managerId == manager.userId ? 'selected' : ''}>
-                                ${manager.fullName} (${manager.role})
-                            </option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div style="margin-top: 20px;">
-                    <input type="submit" value="Save"/>
-
-                    <a href="list">Cancel</a>
-                </div>
-            </form>
+            </div>
         </div>
-        <script>
-            // Initialize manager field visibility on page load
-            toggleLeadField();
-        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

@@ -11,7 +11,17 @@ import java.util.List;
 @WebServlet(urlPatterns = "/user/list")
 public class UserListServlet extends UserBaseServlet {
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
+        processRequest(request, response, user);
+    }
+
+    @Override
+    protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
+        processRequest(request, response, user);
+    }
+
+    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
         try {
             List<User> users = udb.list();
             request.setAttribute("users", users);

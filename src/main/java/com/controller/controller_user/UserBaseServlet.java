@@ -1,13 +1,11 @@
 package com.controller.controller_user;
 
+import com.controller.controller_authorization.AuthorizationServlet;
 import com.dao.DivisionDao;
 import com.dao.UserDao;
 import com.entity.User;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
-public class UserBaseServlet extends HttpServlet {
+public abstract class UserBaseServlet extends AuthorizationServlet {
 
     /**
      * Validates the basic fields of a new User entity. Returns null if valid,
@@ -30,10 +28,16 @@ public class UserBaseServlet extends HttpServlet {
             return "Invalid email format.";
         }
         if (!isPasswordValid(user.getPassword())) {
-            return "Password must be at least 6 characters.";
+            return "Password must be at least 1 characters.";
         }
         if (!isFullNameValid(user.getFullName())) {
             return "Full name is required.";
+        }
+        if (!isUniqueUsername(user.getUsername())) {
+            return "Username has already been taken";
+        }
+        if (!isUniqueEmail(user.getEmail())) {
+            return "Email has already been taken";
         }
         // Add more validations as needed
         return null;
@@ -52,25 +56,18 @@ public class UserBaseServlet extends HttpServlet {
     }
 
     protected boolean isPasswordValid(String password) {
-        return password != null && password.length() >= 6;
+        return password != null && password.length() >= 1;
     }
 
     protected boolean isFullNameValid(String fullName) {
         return fullName != null && !fullName.trim().isEmpty();
     }
 
-    /**
-     * Handles errors by setting an error message attribute and forwarding to an
-     * error page.
-     */
-    protected void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage,
-            String destination) {
-        try {
-            request.setAttribute("error", errorMessage);
-            request.getRequestDispatcher(destination).forward(request, response);
-        } catch (Exception e) {
-            // If forwarding fails, print stack trace (or log)
-            e.printStackTrace();
-        }
+    protected boolean isUniqueUsername(String userName) {
+        return !udb.existsByUsername(userName);
+    }
+
+    protected boolean isUniqueEmail(String email) {
+        return !udb.existsByEmail(email);
     }
 }

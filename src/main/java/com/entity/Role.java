@@ -7,6 +7,7 @@ import java.util.List;
 @Entity
 @Table(name = "Role")
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "RoleID")
@@ -18,8 +19,6 @@ public class Role {
     @Column(name = "RoleDescription", length = 50)
     private String roleDescription;
 
-    @Column(name = "RoleLevel")
-    private int roleLevel;
     // Navigation property for UserRole
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
     private List<UserRole> userRoles = new ArrayList<>();
@@ -67,10 +66,6 @@ public class Role {
 
     public void setRoleFeatures(List<RoleFeature> roleFeatures) {
         this.roleFeatures = roleFeatures;
-    }
-
-    public Integer getRoleLevel() {
-        return roleLevel;
     }
 
 }
