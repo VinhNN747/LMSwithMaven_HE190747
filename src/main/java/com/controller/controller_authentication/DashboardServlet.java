@@ -23,14 +23,33 @@ import java.util.logging.Logger;
 @WebServlet(name = "DashboardServlet", urlPatterns = "/dashboard")
 public class DashboardServlet extends AuthenticationServlet {
 
-    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
+    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
+            throws ServletException, IOException {
         // Fetch and set the current user's leave requests
         UserDao udb = new UserDao();
         if (user != null && !udb.getUserRoles(user.getUserId()).isEmpty()) {
             LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
             List<com.entity.LeaveRequest> myRequests = leaveRequestDao.listOf(user.getUserId());
             request.setAttribute("myRequests", myRequests);
+            System.out.println("Set myRequests: " + myRequests.size() + " requests for user " + user.getUserId());
 
+        }
+        if (user != null && (udb.getUserRoleNames(user.getUserId()).contains("Lead")
+                || udb.getUserRoleNames(user.getUserId()).contains("Head"))) {
+            System.out.println("User " + user.getUserId() + " has Lead or Head role, fetching subordinate requests");
+            LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
+            try {
+                List<com.entity.LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubs(user.getUserId());
+                request.setAttribute("subRequests", subsRequests);
+                System.out.println("Set subRequests: " + subsRequests.size() + " requests");
+            } catch (Exception e) {
+                Logger.getLogger(DashboardServlet.class.getName()).log(Level.WARNING,
+                        "Error fetching subordinate requests: " + e.getMessage(), e);
+                request.setAttribute("subRequests", new java.util.ArrayList<>());
+                System.err.println("Error fetching subordinate requests: " + e.getMessage());
+            }
+        } else {
+            System.out.println("User " + user.getUserId() + " does not have Lead or Head role");
         }
         request.getRequestDispatcher("/view/dashboard.jsp").forward(request, response);
     }

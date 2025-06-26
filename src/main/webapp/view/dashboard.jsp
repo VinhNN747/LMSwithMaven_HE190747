@@ -39,7 +39,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">LMS Dashboard</a>
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/dashboard">LMS Dashboard</a>
                 <div class="navbar-nav ms-auto">
                     <span class="navbar-text me-3">
                         Welcome, ${sessionScope.user.fullName}, Your role(s):
@@ -55,6 +55,7 @@
         <div class="container">
             <h2 class="page-title text-center">Welcome to the Leave Management System</h2>
 
+            <!-- Admin Dashboard -->
             <c:if test="${isAdmin}">
                 <div class="row">
                     <div class="col-md-4">
@@ -93,13 +94,50 @@
                 </div>
             </c:if>
 
-            <c:if test="${not isAdmin or null}">
+            <!-- Employee Dashboard -->
+            <c:if test="${isEmployee and not isAdmin and not isLead and not isHead}">
                 <div class="row mt-4">
                     <div class="col-md-6">
                         <%@ include file="/view/leaverequest/create.jsp" %>
                     </div>
                     <div class="col-md-6">
                         <%@ include file="/view/leaverequest/myrequests.jsp" %>
+                    </div>
+                </div>
+            </c:if>
+
+            <!-- Lead/Head Dashboard -->
+            <c:if test="${isLead or isHead}">
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <%@ include file="/view/leaverequest/create.jsp" %>
+                    </div>
+                    <div class="col-md-4">
+                        <%@ include file="/view/leaverequest/myrequests.jsp" %>
+                    </div>
+                    <div class="col-md-4">
+                        <%@ include file="/view/leaverequest/subsrequests.jsp" %>
+                    </div>
+                </div>
+            </c:if>
+
+            <!-- Fallback for users with no specific role -->
+            <c:if test="${not isAdmin and not isEmployee and not isLead and not isHead}">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                Welcome
+                            </div>
+                            <div class="card-body">
+                                <p>Welcome to the Leave Management System. Please contact your administrator to assign appropriate roles.</p>
+                                <p>Your current roles: 
+                                    <c:forEach var="role" items="${sessionScope.roles}">
+                                        <span class="badge">${role.roleName}</span>
+                                    </c:forEach>
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </c:if>

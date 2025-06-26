@@ -14,12 +14,14 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
             <div class="container-fluid">
-                <a class="navbar-brand" href="${pageContext.request.contextPath}/view/dashboard.jsp">LMS
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/dashboard">LMS
                     Dashboard</a>
                 <div class="navbar-nav ms-auto">
                     <span class="navbar-text me-3">
-                        Welcome, ${sessionScope.user.fullName}
-                    </span>
+                        Welcome, ${sessionScope.user.fullName}, Your role(s):
+                        <c:forEach var="role" items="${sessionScope.roles}">
+                            ${role.roleName}
+                        </c:forEach>                    </span>
                     <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
                 </div>
             </div>
@@ -33,8 +35,17 @@
                             <h4>My Leave Requests</h4>
                         </div>
                         <div class="card-body">
-
-                            <%@ include file="/view/leaverequest/myrequests-table.jsp" %>
+                            <c:choose>
+                                <c:when test="${empty myRequests}">
+                                    <div class="alert alert-info">You have not submitted any leave requests yet.</div>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set var="requests" value="${myRequests}" scope="request" />
+                                    <div class="card-body">
+                                        <%@ include file="/view/leaverequest/requests-table.jsp" %>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
 
                         </div>
                     </div>

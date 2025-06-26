@@ -22,7 +22,10 @@ public class UserDao extends BaseDao<User> {
     public List<User> list() {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role", User.class).getResultList();
+            return em
+                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role",
+                            User.class)
+                    .getResultList();
         } finally {
             em.close();
         }
@@ -227,6 +230,22 @@ public class UserDao extends BaseDao<User> {
                     .setParameter("endpoint", endpoint)
                     .getSingleResult();
             return count > 0;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<String> getUserRoleNames(Integer userId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT r.roleName "
+                    + "FROM UserRole ur "
+                    + "JOIN ur.role r "
+                    + "WHERE ur.userId = :userId",
+                    String.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
         } finally {
             em.close();
         }
