@@ -1,32 +1,11 @@
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
-
-    <head>
-        <title>My Leave Requests</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-    </head>
-
+    <%@ include file="/view/common_jsp_components/head.jspf" %>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="${pageContext.request.contextPath}/view/dashboard.jsp">LMS
-                    Dashboard</a>
-                <div class="navbar-nav ms-auto">
-                    <span class="navbar-text me-3">
-                        Welcome, ${sessionScope.user.fullName}, Your role(s):
-                        <c:forEach var="role" items="${sessionScope.roles}">
-                            ${role.roleName}
-                        </c:forEach>                    </span>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
-                </div>
-            </div>
-        </nav>
-
+        <%@ include file="/view/common_jsp_components/navbar.jspf" %>
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-10">
@@ -37,23 +16,76 @@
                         <div class="card-body">
                             <c:choose>
                                 <c:when test="${empty allRequests}">
-                                    <div class="alert alert-info">No leave requests found</div>
+                                    <div class="alert alert-info">
+                                        You have not submitted any leave requests yet.
+                                    </div>
                                 </c:when>
                                 <c:otherwise>
-                                    <c:set var="requests" value="${allRequests}" scope="request" />
-                                    <div class="card-body">
-                                        <%@ include file="/view/leaverequest/requests-table.jsp" %>
+                                    <div class="table-responsive">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Request ID</th>
+                                                        <th>Sender</th>
+                                                        <th>Start Date</th>
+                                                        <th>End Date</th>
+                                                        <th>Status</th>
+                                                        <th>Reason</th>
+                                                        <th>Approver</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <c:forEach var="req" items="${allRequests}">
+                                                        <tr>
+                                                            <td>${req.leaveRequestId}</td>
+                                                            <td>${req.sender}</td>
+                                                            <td>
+                                                                <fmt:formatDate
+                                                                    value="${req.startDate}"
+                                                                    pattern="yyyy-MM-dd"
+                                                                    />
+                                                            </td>
+                                                            <td>
+                                                                <fmt:formatDate
+                                                                    value="${req.endDate}"
+                                                                    pattern="yyyy-MM-dd"
+                                                                    />
+                                                            </td>
+                                                            <td>${req.status}</td>
+                                                            <td>${req.reason}</td>
+                                                            <td>
+                                                                <c:choose>
+                                                                    <c:when test="${not empty req.approver}">
+                                                                        ${req.approver.fullName}
+                                                                    </c:when>
+                                                                    <c:otherwise> N/A </c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                </tbody>
+                                            </table>
+                                            <c:if test="${myTotalPages > 1}">
+                                                <nav>
+                                                    <ul class="pagination">
+                                                        <c:forEach begin="1" end="${myTotalPages}" var="i">
+                                                            <li class="page-item ${i == myCurrentPage ? 'active' : ''}">
+                                                                <a class="page-link" href="?myPage=${i}">${i}</a>
+                                                            </li>
+                                                        </c:forEach>
+                                                    </ul>
+                                                </nav>
+                                            </c:if>
+                                        </div>
                                     </div>
                                 </c:otherwise>
                             </c:choose>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <%@ include file="/view/common_jsp_components/footer.jspf" %>
     </body>
-
 </html>

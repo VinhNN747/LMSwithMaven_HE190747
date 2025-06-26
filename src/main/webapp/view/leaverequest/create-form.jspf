@@ -1,0 +1,19 @@
+<c:if test="${not empty error}">
+    <div class="alert alert-danger">${error}</div>
+</c:if>
+<form action="${pageContext.request.contextPath}/leaverequest/create" method="post">
+    <div class="mb-3">
+        <label for="startDate" class="form-label">Start Date:</label>
+        <input type="date" id="startDate" name="startDate" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label for="endDate" class="form-label">End Date:</label>
+        <input type="date" id="endDate" name="endDate" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label for="reason" class="form-label">Reason:</label>
+        <textarea id="reason" name="reason" class="form-control" rows="3" maxlength="255" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Request</button>
+    <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-secondary">Cancel</a>
+</form> 

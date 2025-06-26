@@ -12,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,43 +26,74 @@ public class DashboardServlet extends AuthenticationServlet {
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
-        // Fetch and set the current user's leave requests
+        HttpSession session = request.getSession();
         UserDao udb = new UserDao();
-        if (user != null && !udb.getUserRoles(user.getUserId()).isEmpty()) {
-            LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
-            List<com.entity.LeaveRequest> myRequests = leaveRequestDao.listOf(user.getUserId());
-            request.setAttribute("myRequests", myRequests);
-            System.out.println("Set myRequests: " + myRequests.size() + " requests for user " + user.getUserId());
+        int userId = user.getUserId();
+        boolean canViewOwn = udb.hasPermission(userId, "/leaverequest/myrequests");
+        boolean canViewSubs = udb.hasPermission(userId, "/leaverequest/subs");
+        boolean canViewAll = udb.hasPermission(userId, "/leaverequest/list");
+        boolean canCreate = udb.hasPermission(userId, "/leaverequest/create");
+        LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
+        session.setAttribute("canViewOwn", canViewOwn);
+        session.setAttribute("canViewSubs", canViewSubs);
+        session.setAttribute("canViewAll", canViewAll);
+        session.setAttribute("canCreate", canCreate);
+
+        if (canViewOwn) {
+            List<com.entity.LeaveRequest> myRequests = leaveRequestDao.listOf(userId);
+            paginate(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", myRequests);
+        }
+        if (canViewSubs) {
+            List<com.entity.LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubs(userId);
+            paginate(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage", subsRequests);
+        }
+        if (canViewAll) {
 
         }
-        if (user != null && (udb.getUserRoleNames(user.getUserId()).contains("Lead")
-                || udb.getUserRoleNames(user.getUserId()).contains("Head"))) {
-            System.out.println("User " + user.getUserId() + " has Lead or Head role, fetching subordinate requests");
-            LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
-            try {
-                List<com.entity.LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubs(user.getUserId());
-                request.setAttribute("subRequests", subsRequests);
-                System.out.println("Set subRequests: " + subsRequests.size() + " requests");
-            } catch (Exception e) {
-                Logger.getLogger(DashboardServlet.class.getName()).log(Level.WARNING,
-                        "Error fetching subordinate requests: " + e.getMessage(), e);
-                request.setAttribute("subRequests", new java.util.ArrayList<>());
-                System.err.println("Error fetching subordinate requests: " + e.getMessage());
-            }
-        } else {
-            System.out.println("User " + user.getUserId() + " does not have Lead or Head role");
-        }
+
         request.getRequestDispatcher("/view/dashboard.jsp").forward(request, response);
+    }
+
+    private void paginate(HttpServletRequest request, String pageParam, String reqAttr, String totalPagesAttr,
+            String currentPageAttr, List<com.entity.LeaveRequest> allRequests) {
+
+        int page = 1;
+        int recordsPerPage = 3;
+        if (request.getParameter(pageParam) != null) {
+            try {
+                page = Integer.parseInt(request.getParameter(pageParam));
+            } catch (NumberFormatException e) {
+                page = 1; // Default to page 1 if param is not a number
+            }
+        }
+
+        int totalRecords = allRequests.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+        if (totalPages > 0 && page > totalPages) {
+            page = totalPages;
+        }
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        int startIndex = (page - 1) * recordsPerPage;
+        int endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
+
+        List<com.entity.LeaveRequest> pagedRequests = allRequests.subList(startIndex, endIndex);
+
+        request.setAttribute(reqAttr, pagedRequests);
+        request.setAttribute(totalPagesAttr, totalPages);
+        request.setAttribute(currentPageAttr, page);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response, User user) {
         try {
             processRequest(request, response, user);
-        } catch (ServletException ex) {
-            Logger.getLogger(DashboardServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(DashboardServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ServletException | IOException e) {
+            Logger.getLogger(DashboardServlet.class.getName()).log(Level.SEVERE, "Error in doGet", e);
         }
     }
 
@@ -69,10 +101,8 @@ public class DashboardServlet extends AuthenticationServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response, User user) {
         try {
             processRequest(request, response, user);
-        } catch (ServletException ex) {
-            Logger.getLogger(DashboardServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(DashboardServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ServletException | IOException e) {
+            Logger.getLogger(DashboardServlet.class.getName()).log(Level.SEVERE, "Error in doPost", e);
         }
     }
 
