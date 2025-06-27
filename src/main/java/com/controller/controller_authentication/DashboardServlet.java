@@ -7,6 +7,8 @@ package com.controller.controller_authentication;
 import com.entity.User;
 import com.dao.LeaveRequestDao;
 import com.dao.UserDao;
+import com.entity.LeaveRequest;
+import com.controller.PaginationUtil;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -40,52 +42,57 @@ public class DashboardServlet extends AuthenticationServlet {
         session.setAttribute("canCreate", canCreate);
 
         if (canViewOwn) {
-            List<com.entity.LeaveRequest> myRequests = leaveRequestDao.listOf(userId);
-            paginate(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", myRequests);
+            // Get current page for my requests
+            int myPage = 1;
+            if (request.getParameter("myPage") != null) {
+                try {
+                    myPage = Integer.parseInt(request.getParameter("myPage"));
+                } catch (NumberFormatException e) {
+                    myPage = 1;
+                }
+            }
+            
+            List<LeaveRequest> myRequests = leaveRequestDao.listOfPaginated(userId, myPage, 4);
+            long myTotalCount = leaveRequestDao.getTotalCountForUser(userId);
+            PaginationUtil.paginateFromDatabase(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", 
+                    myRequests, myTotalCount, 4);
         }
+        
         if (canViewSubs) {
-            List<com.entity.LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubs(userId);
-            paginate(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage", subsRequests);
+            // Get current page for subs requests
+            int subsPage = 1;
+            if (request.getParameter("subsPage") != null) {
+                try {
+                    subsPage = Integer.parseInt(request.getParameter("subsPage"));
+                } catch (NumberFormatException e) {
+                    subsPage = 1;
+                }
+            }
+            
+            List<LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubsPaginated(userId, subsPage, 4);
+            long subsTotalCount = leaveRequestDao.getTotalCountForSubs(userId);
+            PaginationUtil.paginateFromDatabase(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage", 
+                    subsRequests, subsTotalCount, 4);
         }
+        
         if (canViewAll) {
-
+            // Get current page for all requests
+            int allPage = 1;
+            if (request.getParameter("allPage") != null) {
+                try {
+                    allPage = Integer.parseInt(request.getParameter("allPage"));
+                } catch (NumberFormatException e) {
+                    allPage = 1;
+                }
+            }
+            
+            List<LeaveRequest> allRequests = leaveRequestDao.listPaginated(allPage, 5);
+            long allTotalCount = leaveRequestDao.getTotalCount();
+            PaginationUtil.paginateFromDatabase(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage", 
+                    allRequests, allTotalCount, 5);
         }
 
         request.getRequestDispatcher("/view/dashboard.jsp").forward(request, response);
-    }
-
-    private void paginate(HttpServletRequest request, String pageParam, String reqAttr, String totalPagesAttr,
-            String currentPageAttr, List<com.entity.LeaveRequest> allRequests) {
-
-        int page = 1;
-        int recordsPerPage = 3;
-        if (request.getParameter(pageParam) != null) {
-            try {
-                page = Integer.parseInt(request.getParameter(pageParam));
-            } catch (NumberFormatException e) {
-                page = 1; // Default to page 1 if param is not a number
-            }
-        }
-
-        int totalRecords = allRequests.size();
-        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-
-        if (totalPages > 0 && page > totalPages) {
-            page = totalPages;
-        }
-
-        if (page < 1) {
-            page = 1;
-        }
-
-        int startIndex = (page - 1) * recordsPerPage;
-        int endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
-
-        List<com.entity.LeaveRequest> pagedRequests = allRequests.subList(startIndex, endIndex);
-
-        request.setAttribute(reqAttr, pagedRequests);
-        request.setAttribute(totalPagesAttr, totalPages);
-        request.setAttribute(currentPageAttr, page);
     }
 
     @Override

@@ -23,9 +23,38 @@ public class UserDao extends BaseDao<User> {
         EntityManager em = getEntityManager();
         try {
             return em
-                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role",
+                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role ORDER BY u.fullName",
                             User.class)
                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get paginated list of users
+     */
+    public List<User> listPaginated(int page, int pageSize) {
+        EntityManager em = getEntityManager();
+        try {
+            return em
+                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role ORDER BY u.fullName",
+                            User.class)
+                    .setFirstResult((page - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get total count of users
+     */
+    public long getTotalCount() {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(u) FROM User u", Long.class).getSingleResult();
         } finally {
             em.close();
         }

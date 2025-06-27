@@ -2,14 +2,9 @@ package com.controller.controller_division;
 
 import com.entity.Division;
 import com.entity.User;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @WebServlet(name = "DivisionEditServlet", urlPatterns = "/division/edit")
 public class DivisionEditServlet extends BaseDivisionServlet {

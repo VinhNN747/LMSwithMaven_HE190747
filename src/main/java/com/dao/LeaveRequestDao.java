@@ -24,7 +24,34 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
     public List<LeaveRequest> list() {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT lr FROM LeaveRequest lr", LeaveRequest.class).getResultList();
+            return em.createQuery("SELECT lr FROM LeaveRequest lr ORDER BY lr.startDate DESC", LeaveRequest.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get paginated list of all leave requests
+     */
+    public List<LeaveRequest> listPaginated(int page, int pageSize) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT lr FROM LeaveRequest lr LEFT JOIN FETCH lr.sender LEFT JOIN FETCH lr.approver ORDER BY lr.startDate DESC", LeaveRequest.class)
+                    .setFirstResult((page - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get total count of all leave requests
+     */
+    public long getTotalCount() {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(lr) FROM LeaveRequest lr", Long.class).getSingleResult();
         } finally {
             em.close();
         }
@@ -34,10 +61,42 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
         EntityManager em = getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr LEFT JOIN FETCH lr.approver WHERE lr.senderId = :userId",
+                    "SELECT lr FROM LeaveRequest lr LEFT JOIN FETCH lr.approver WHERE lr.senderId = :userId ORDER BY lr.startDate DESC",
                     LeaveRequest.class)
                     .setParameter("userId", userId)
                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get paginated list of user's leave requests
+     */
+    public List<LeaveRequest> listOfPaginated(int userId, int page, int pageSize) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr LEFT JOIN FETCH lr.approver WHERE lr.senderId = :userId ORDER BY lr.startDate DESC",
+                    LeaveRequest.class)
+                    .setParameter("userId", userId)
+                    .setFirstResult((page - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get total count of user's leave requests
+     */
+    public long getTotalCountForUser(int userId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(lr) FROM LeaveRequest lr WHERE lr.senderId = :userId", Long.class)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
         } finally {
             em.close();
         }
@@ -65,6 +124,64 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
                     .getResultList();
         } catch (Exception e) {
             System.err.println("Error in leaveRequestsOfSubs: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get paginated list of subordinates' leave requests
+     */
+    public List<LeaveRequest> leaveRequestsOfSubsPaginated(int userId, int page, int pageSize) {
+        EntityManager em = getEntityManager();
+        try {
+            // First, get all subordinate IDs using a recursive approach
+            List<Integer> subordinateIds = getAllSubordinateIds(userId);
+
+            if (subordinateIds.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            // Then get leave requests from all subordinates with proper fetching
+            return em.createQuery(
+                    "SELECT lr FROM LeaveRequest lr "
+                    + "LEFT JOIN FETCH lr.approver "
+                    + "LEFT JOIN FETCH lr.sender "
+                    + "WHERE lr.senderId IN :subordinateIds "
+                    + "ORDER BY lr.startDate DESC",
+                    LeaveRequest.class)
+                    .setParameter("subordinateIds", subordinateIds)
+                    .setFirstResult((page - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        } catch (Exception e) {
+            System.err.println("Error in leaveRequestsOfSubsPaginated: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get total count of subordinates' leave requests
+     */
+    public long getTotalCountForSubs(int userId) {
+        EntityManager em = getEntityManager();
+        try {
+            List<Integer> subordinateIds = getAllSubordinateIds(userId);
+
+            if (subordinateIds.isEmpty()) {
+                return 0;
+            }
+
+            return em.createQuery("SELECT COUNT(lr) FROM LeaveRequest lr WHERE lr.senderId IN :subordinateIds", Long.class)
+                    .setParameter("subordinateIds", subordinateIds)
+                    .getSingleResult();
+        } catch (Exception e) {
+            System.err.println("Error in getTotalCountForSubs: " + e.getMessage());
             e.printStackTrace();
             throw e;
         } finally {

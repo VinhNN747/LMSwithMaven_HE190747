@@ -7,6 +7,7 @@ package com.controller.controller_leaverequest;
 import com.dao.LeaveRequestDao;
 import com.entity.LeaveRequest;
 import com.entity.User;
+import com.controller.PaginationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,11 +39,9 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
         if (session != null) {
             User userSession = (User) session.getAttribute("user");
             if (userSession != null) {
-                LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
-                List<LeaveRequest> allMyRequests = leaveRequestDao.listOf(userSession.getUserId());
-
+                // Get current page from request
                 int page = 1;
-                int recordsPerPage = 3;
+                int pageSize = 4;
                 if (request.getParameter("myPage") != null) {
                     try {
                         page = Integer.parseInt(request.getParameter("myPage"));
@@ -51,25 +50,12 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
                     }
                 }
 
-                int totalRecords = allMyRequests.size();
-                int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-
-                if (totalPages > 0 && page > totalPages) {
-                    page = totalPages;
-                }
-
-                if (page < 1) {
-                    page = 1;
-                }
-
-                int startIndex = (page - 1) * recordsPerPage;
-                int endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
-
-                List<LeaveRequest> pagedRequests = allMyRequests.subList(startIndex, endIndex);
-
-                request.setAttribute("myRequests", pagedRequests);
-                request.setAttribute("myTotalPages", totalPages);
-                request.setAttribute("myCurrentPage", page);
+                // Use database-level pagination for better performance
+                List<LeaveRequest> pagedRequests = ldb.listOfPaginated(userSession.getUserId(), page, pageSize);
+                long totalCount = ldb.getTotalCountForUser(userSession.getUserId());
+                
+                PaginationUtil.paginateFromDatabase(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", 
+                        pagedRequests, totalCount, pageSize);
             }
         }
         request.getRequestDispatcher("/view/leaverequest/myrequests.jsp").forward(request, response);

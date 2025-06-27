@@ -17,7 +17,7 @@
                             <c:choose>
                                 <c:when test="${empty allRequests}">
                                     <div class="alert alert-info">
-                                        You have not submitted any leave requests yet.
+                                        No leave requests found.
                                     </div>
                                 </c:when>
                                 <c:otherwise>
@@ -39,7 +39,12 @@
                                                     <c:forEach var="req" items="${allRequests}">
                                                         <tr>
                                                             <td>${req.leaveRequestId}</td>
-                                                            <td>${req.sender}</td>
+                                                            <td>
+                                                                <c:choose>
+                                                                    <c:when test="${not empty req.sender}">${req.sender.fullName}</c:when>
+                                                                    <c:otherwise>N/A</c:otherwise>
+                                                                </c:choose>
+                                                            </td>
                                                             <td>
                                                                 <fmt:formatDate
                                                                     value="${req.startDate}"
@@ -66,12 +71,12 @@
                                                     </c:forEach>
                                                 </tbody>
                                             </table>
-                                            <c:if test="${myTotalPages > 1}">
+                                            <c:if test="${allTotalPages > 1}">
                                                 <nav>
                                                     <ul class="pagination">
-                                                        <c:forEach begin="1" end="${myTotalPages}" var="i">
-                                                            <li class="page-item ${i == myCurrentPage ? 'active' : ''}">
-                                                                <a class="page-link" href="?myPage=${i}">${i}</a>
+                                                        <c:forEach begin="1" end="${allTotalPages}" var="i">
+                                                            <li class="page-item ${i == allCurrentPage ? 'active' : ''}">
+                                                                <a class="page-link" href="?allPage=${i}">${i}</a>
                                                             </li>
                                                         </c:forEach>
                                                     </ul>

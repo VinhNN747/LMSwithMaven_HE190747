@@ -4,9 +4,7 @@
  */
 package com.controller.controller_authentication;
 
-import com.dao.RoleDao;
 import com.dao.UserDao;
-import com.entity.Feature;
 import com.entity.Role;
 import com.entity.User;
 import jakarta.servlet.ServletException;

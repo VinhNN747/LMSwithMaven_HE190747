@@ -47,6 +47,17 @@
                         </c:forEach>
                     </tbody>
                 </table>
+                <c:if test="${divisionTotalPages > 1}">
+                    <nav>
+                        <ul class="pagination">
+                            <c:forEach begin="1" end="${divisionTotalPages}" var="i">
+                                <li class="page-item ${i == divisionCurrentPage ? 'active' : ''}">
+                                    <a class="page-link" href="?divisionPage=${i}">${i}</a>
+                                </li>
+                            </c:forEach>
+                        </ul>
+                    </nav>
+                </c:if>
             </div>
         </div>
         <%@ include file="/view/common_jsp_components/footer.jspf" %>

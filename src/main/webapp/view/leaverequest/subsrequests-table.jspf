@@ -11,15 +11,15 @@
             </tr>
         </thead>
         <tbody>
-            <c:forEach var="req" items="${subRequests}">
-                <tr>
-                    <td>
-                        <c:choose>
-                            <c:when test="${not empty req.sender}">${req.sender.fullName}</c:when>
-                            <c:otherwise> N/A </c:otherwise>
-                        </c:choose>
-                    </td>
-                    <td><fmt:formatDate value="${req.startDate}" pattern="yyyy-MM-dd" /></td>
+        <c:forEach var="req" items="${subRequests}">
+            <tr>
+                <td>
+            <c:choose>
+                <c:when test="${not empty req.sender}">${req.sender.fullName}</c:when>
+                <c:otherwise> N/A </c:otherwise>
+            </c:choose>
+            </td>
+            <td><fmt:formatDate value="${req.startDate}" pattern="yyyy-MM-dd" /></td>
             <td><fmt:formatDate value="${req.endDate}" pattern="yyyy-MM-dd" /></td>
             <td>${req.status}</td>
             <td>${req.reason}</td>

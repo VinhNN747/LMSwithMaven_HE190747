@@ -56,11 +56,13 @@
                                 <div
                                     class="card-body d-flex justify-content-center align-items-center"
                                     >
-                                    <a
-                                        href="${pageContext.request.contextPath}/leaverequest"
-                                        class="btn btn-primary"
-                                        >Manage Leave Requests</a
-                                    >
+                                    <c:if test="${sessionScope.canViewAll}">
+                                        <a
+                                            href="${pageContext.request.contextPath}/leaverequest/list"
+                                            class="btn btn-primary"
+                                            >Manage Leave Requests</a
+                                        >
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
