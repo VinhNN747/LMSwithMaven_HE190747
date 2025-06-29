@@ -19,8 +19,7 @@
                             <form action="edit" method="post">
                                 <input type="hidden" name="divisionId" value="${division.divisionId}" />
                                 <div class="mb-3">
-                                    <label for="divisionName" class="form-label">Division Name:</label>
-                                    <input type="text" id="divisionName" name="divisionName" class="form-control" value="${division.divisionName}" maxlength="50" required />
+                                    <input type="text" id="divisionName" name="divisionName" class="form-control" placeholder="Division Name" value="${division.divisionName}" maxlength="50" required />
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Current Head:</label>
@@ -34,16 +33,10 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="newDivisionHeadId" class="form-label">Change Head To:</label>
-                                    <select id="newDivisionHeadId" name="newDivisionHeadId" class="form-select">
-                                        <option value="">-- Do Not Change --</option>
-                                        <c:forEach items="${eligibleHeads}" var="user">
-                                            <option value="${user.userId}">${user.fullName}</option>
-                                        </c:forEach>
-                                    </select>
-                                    <div class="form-text">Select a user to become the new head of this division.</div>
+                                    <small class="form-text text-muted">
+                                        Division heads are managed through role assignments. To change the head, 
+                                        assign the "Division Head" role to a user in this division.
+                                    </small>
                                 </div>
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                                 <a href="${pageContext.request.contextPath}/division/list" class="btn btn-secondary">Cancel</a>

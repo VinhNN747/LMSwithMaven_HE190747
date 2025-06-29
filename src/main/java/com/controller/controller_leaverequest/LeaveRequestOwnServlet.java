@@ -53,8 +53,8 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
                 // Use database-level pagination for better performance
                 List<LeaveRequest> pagedRequests = ldb.listOfPaginated(userSession.getUserId(), page, pageSize);
                 long totalCount = ldb.getTotalCountForUser(userSession.getUserId());
-                
-                PaginationUtil.paginateFromDatabase(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", 
+
+                PaginationUtil.paginateFromDatabase(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage",
                         pagedRequests, totalCount, pageSize);
             }
         }

@@ -32,7 +32,7 @@ public class LeaveRequestAllServlet extends LeaveRequestBaseServlet {
         processRequest(request, response, user);
     }
 
-    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) 
+    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
         try {
             // Get current page from request
@@ -49,8 +49,8 @@ public class LeaveRequestAllServlet extends LeaveRequestBaseServlet {
             // Use database-level pagination for better performance
             List<LeaveRequest> pagedRequests = ldb.listPaginated(page, pageSize);
             long totalCount = ldb.getTotalCount();
-            
-            PaginationUtil.paginateFromDatabase(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage", 
+
+            PaginationUtil.paginateFromDatabase(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage",
                     pagedRequests, totalCount, pageSize);
 
             request.getRequestDispatcher("/view/leaverequest/allrequests.jsp").forward(request, response);

@@ -25,6 +25,7 @@ public class LeaveRequestCreateServlet extends LeaveRequestBaseServlet {
 
     @Override
     protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
+        String title = request.getParameter("title");
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
         String reason = request.getParameter("reason");
@@ -40,7 +41,11 @@ public class LeaveRequestCreateServlet extends LeaveRequestBaseServlet {
             request.getRequestDispatcher("/dashboard").forward(request, response);
             return;
         }
-
+        if (title == null || title.trim().isEmpty() || title.length() > 255) {
+            request.setAttribute("error", "Title is required and must be less than 255 characters.");
+            request.getRequestDispatcher("/dashboard").forward(request, response);
+            return;
+        }
         // Validate date interval
         if (!isDateIntervalValid(startDate, endDate)) {
             request.setAttribute("error", "Start date must be before or equal to end date.");
@@ -58,10 +63,9 @@ public class LeaveRequestCreateServlet extends LeaveRequestBaseServlet {
         // Create and persist the leave request
         LeaveRequest lr = new LeaveRequest();
         lr.setSenderId(user.getUserId());
-        lr.setApproverId(user.getManagerId());
-        lr.setStatus("Pending");
+        lr.setStatus("In Progress");
+        lr.setTitle(title.trim());
         lr.setReason(reason.trim());
-        // Assuming you have setStartDate and setEndDate in your entity
         lr.setStartDate(startDate);
         lr.setEndDate(endDate);
 

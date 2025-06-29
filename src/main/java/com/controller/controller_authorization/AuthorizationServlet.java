@@ -10,7 +10,6 @@ import com.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,7 +17,7 @@ import java.util.logging.Logger;
  * Abstract base class for servlets that require authorization. Provides
  * role-based access control using database-driven permissions.
  *
- * Features: - Permission caching for performance - Comprehensive logging and
+ * Features: - Real-time permission checking - Comprehensive logging and
  * audit trails - Proper error handling - Security best practices
  *
  * @author vinhnnpc
@@ -26,8 +25,6 @@ import java.util.logging.Logger;
 public abstract class AuthorizationServlet extends AuthenticationServlet {
 
     private static final Logger LOGGER = Logger.getLogger(AuthorizationServlet.class.getName());
-    private static final ConcurrentHashMap<String, Boolean> PERMISSION_CACHE = new ConcurrentHashMap<>();
-    private static final int CACHE_TTL_MINUTES = 30; // Cache permissions for 30 minutes
 
     private final UserDao userDao = new UserDao();
 
@@ -60,8 +57,8 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
     }
 
     /**
-     * Checks if the user is authorized to access the requested resource. Uses
-     * caching to improve performance.
+     * Checks if the user is authorized to access the requested resource.
+     * Performs real-time database check for each request.
      *
      * @param request the HTTP request
      * @param user the authenticated user
@@ -79,21 +76,8 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
             return false;
         }
 
-        // Create cache key
-        String cacheKey = user.getUserId() + ":" + currentPath;
-
-        // Check cache first
-        Boolean cachedResult = PERMISSION_CACHE.get(cacheKey);
-        if (cachedResult != null) {
-            LOGGER.fine("Permission cache hit for user: " + user.getUserId() + ", path: " + currentPath);
-            return cachedResult;
-        }
-
-        // Check database
+        // Check database for permission
         boolean hasPermission = userDao.hasPermission(user.getUserId(), currentPath);
-
-        // Cache the result
-        PERMISSION_CACHE.put(cacheKey, hasPermission);
 
         // Log authorization decision
         LOGGER.info("Authorization check for user: " + user.getUserId()
@@ -132,15 +116,6 @@ public abstract class AuthorizationServlet extends AuthenticationServlet {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Error sending error response", ex);
         }
-    }
-
-    /**
-     * Clears the permission cache. Can be called periodically or when
-     * permissions change.
-     */
-    public static void clearPermissionCache() {
-        PERMISSION_CACHE.clear();
-        LOGGER.info("Permission cache cleared");
     }
 
     /**

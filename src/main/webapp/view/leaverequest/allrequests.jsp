@@ -32,7 +32,7 @@
                                                         <th>End Date</th>
                                                         <th>Status</th>
                                                         <th>Reason</th>
-                                                        <th>Approver</th>
+                                                        <th>Reviewer</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -61,8 +61,8 @@
                                                             <td>${req.reason}</td>
                                                             <td>
                                                                 <c:choose>
-                                                                    <c:when test="${not empty req.approver}">
-                                                                        ${req.approver.fullName}
+                                                                    <c:when test="${not empty req.reviewer}">
+                                                                        ${req.reviewer.fullName}
                                                                     </c:when>
                                                                     <c:otherwise> N/A </c:otherwise>
                                                                 </c:choose>

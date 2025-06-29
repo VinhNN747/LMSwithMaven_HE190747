@@ -41,8 +41,8 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
         // Use database-level pagination for better performance
         List<LeaveRequest> pagedRequests = ldb.leaveRequestsOfSubsPaginated(user.getUserId(), page, pageSize);
         long totalCount = ldb.getTotalCountForSubs(user.getUserId());
-        
-        PaginationUtil.paginateFromDatabase(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage", 
+
+        PaginationUtil.paginateFromDatabase(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage",
                 pagedRequests, totalCount, pageSize);
 
         request.getRequestDispatcher("/view/leaverequest/subsrequests.jsp").forward(request, response);
@@ -50,7 +50,37 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
 
     @Override
     protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        String action = request.getParameter("action");
+        String requestIdStr = request.getParameter("requestId");
+        if (action != null && requestIdStr != null) {
+            try {
+                int requestId = Integer.parseInt(requestIdStr);
+                LeaveRequest lr = ldb.find(requestId);
+                if (lr != null) {
+                    if ("approve".equals(action)) {
+                        lr.setStatus("Approved");
+                    } else if ("reject".equals(action)) {
+                        lr.setStatus("Rejected");
+                    }
+                    lr.setReviewerId(user.getUserId());
+                    ldb.edit(lr);
+                }
+            } catch (NumberFormatException e) {
+                // Optionally log or handle error
+            }
+        }
+        String subsPage = request.getParameter("subsPage");
+        if (subsPage == null || !subsPage.matches("\\d+")) {
+            subsPage = "1";
+        }
+        response.sendRedirect(request.getContextPath() + "/dashboard?subsPage=" + subsPage + "&tab=subs");
+
+//        String redirect = request.getParameter("redirect");
+//        if (redirect != null && !redirect.isEmpty()) {
+//            response.sendRedirect(redirect);
+//        } else {
+//            response.sendRedirect(request.getContextPath() + "/leaverequest/subs?tab=subs");
+//        }
     }
 
 }

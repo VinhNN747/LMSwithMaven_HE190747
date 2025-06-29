@@ -24,23 +24,10 @@ public class UserListServlet extends UserBaseServlet {
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
         try {
-            // Get current page from request
-            int page = 1;
-            int pageSize = 10;
-            if (request.getParameter("userPage") != null) {
-                try {
-                    page = Integer.parseInt(request.getParameter("userPage"));
-                } catch (NumberFormatException e) {
-                    page = 1;
-                }
-            }
-
-            // Use database-level pagination for better performance
-            List<User> pagedUsers = udb.listPaginated(page, pageSize);
-            long totalCount = udb.getTotalCount();
+            List<User> allUsers = udb.list();
             
-            PaginationUtil.paginateFromDatabase(request, "userPage", "users", "userTotalPages", "userCurrentPage", 
-                    pagedUsers, totalCount, pageSize);
+            // Use centralized pagination method
+            PaginationUtil.paginate(request, "userPage", "users", "userTotalPages", "userCurrentPage", allUsers, 10);
             
             request.setAttribute("divisions", ddb.list());
             request.getRequestDispatcher("/view/user/list.jsp").forward(request, response);

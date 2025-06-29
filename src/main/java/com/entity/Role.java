@@ -19,6 +19,17 @@ public class Role {
     @Column(name = "RoleDescription", length = 50)
     private String roleDescription;
 
+    @Column(name = "RoleLevel")
+    private Integer roleLevel;
+
+    public Integer getRoleLevel() {
+        return roleLevel;
+    }
+
+    public void setRoleLevel(Integer roleLevel) {
+        this.roleLevel = roleLevel;
+    }
+
     // Navigation property for UserRole
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
     private List<UserRole> userRoles = new ArrayList<>();

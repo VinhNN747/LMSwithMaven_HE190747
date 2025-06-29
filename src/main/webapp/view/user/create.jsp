@@ -18,20 +18,16 @@
                             </c:if>
                             <form action="create" method="post">
                                 <div class="mb-3">
-                                    <label for="fullName" class="form-label">Full Name:</label>
-                                    <input type="text" id="fullName" name="fullName" class="form-control" maxlength="100" required/>
+                                    <input type="text" id="fullName" name="fullName" class="form-control" placeholder="Full Name" maxlength="100" required/>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="username" class="form-label">Username:</label>
-                                    <input type="text" id="username" name="username" class="form-control" maxlength="50" required/>
+                                    <input type="text" id="username" name="username" class="form-control" placeholder="Username" maxlength="50" required/>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Password:</label>
-                                    <input type="text" id="password" name="password" class="form-control" maxlength="50" required/>
+                                    <input type="text" id="password" name="password" class="form-control" placeholder="Password" maxlength="50" required/>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email:</label>
-                                    <input type="email" id="email" name="email" class="form-control" maxlength="100" required/>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="Email" maxlength="100" required/>
                                 </div>
                                 <div class="mb-3">
                                     <label for="gender" class="form-label">Gender:</label>

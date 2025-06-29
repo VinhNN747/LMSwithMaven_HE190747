@@ -7,10 +7,12 @@
     <c:set var="isHead" value="false" />
     <c:set var="hasOtherRole" value="false" />
     <c:forEach items="${sessionScope.roles}" var="role">
-        <c:if test="${role.roleName == 'ADMIN'}"
+        <c:if test="${role.roleName == 'Admin'}"
               ><c:set var="isAdmin" value="true"
                 /></c:if>
     </c:forEach>
+
+    <c:set var="activeTab" value="${param.tab != null ? param.tab : 'my'}" />
 
     <!DOCTYPE html>
     <html>
@@ -22,7 +24,7 @@
                 <!-- Admin View -->
                 <c:if test="${isAdmin}">
                     <div class="row h-100 g-2">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card p-2">
                                 <div class="card-header">User Management</div>
                                 <div
@@ -36,7 +38,21 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="card p-2">
+                                <div class="card-header">Role Management</div>
+                                <div
+                                    class="card-body d-flex justify-content-center align-items-center"
+                                    >
+                                    <a
+                                        href="${pageContext.request.contextPath}/role/list"
+                                        class="btn btn-primary"
+                                        >Manage Roles</a
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="card p-2">
                                 <div class="card-header">Division Management</div>
                                 <div
@@ -50,7 +66,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card p-2">
                                 <div class="card-header">Leave Management</div>
                                 <div
@@ -70,7 +86,7 @@
                 </c:if>
                 <div class="row h-100">
                     <c:if test="${sessionScope.canCreate}">
-                        <div class="col">
+                        <div class="col-4">
                             <div class="card mt-5">
                                 <div class="card-header">
                                     <h4>Submit Leave Request</h4>
@@ -80,16 +96,16 @@
                         </div>
                     </c:if>
                     <c:if test="${sessionScope.canViewOwn and not sessionScope.canViewSubs}">
-                        <div class="col">
+                        <div class="col-8">
                             <%@ include file="/view/leaverequest/myrequests.jsp" %>
                         </div>
                     </c:if>
                     <c:if test="${sessionScope.canViewOwn and sessionScope.canViewSubs}">
-                        <div class="col">
+                        <div class="col-8">
                             <ul class="nav nav-tabs" id="tabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button
-                                        class="nav-link active"
+                                        class="nav-link ${activeTab == 'my' ? 'active' : ''}"
                                         id="my-tab"
                                         data-bs-toggle="tab"
                                         data-bs-target="#my"
@@ -101,7 +117,7 @@
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button
-                                        class="nav-link"
+                                        class="nav-link ${activeTab == 'subs' ? 'active' : ''}"
                                         id="subs-tab"
                                         data-bs-toggle="tab"
                                         data-bs-target="#subs"
@@ -114,13 +130,13 @@
                             </ul>
                             <div class="tab-content">
                                 <div
-                                    class="tab-pane fade show active h-100"
+                                    class="tab-pane fade ${activeTab == 'my' ? 'show active' : ''} h-100"
                                     id="my"
                                     role="tabpanel"
                                     >
                                     <%@ include file="/view/leaverequest/myrequests-table.jspf" %>
                                 </div>
-                                <div class="tab-pane fade h-100" id="subs" role="tabpanel">
+                                <div class="tab-pane fade ${activeTab == 'subs' ? 'show active' : ''} h-100" id="subs" role="tabpanel">
                                     <%@ include file="/view/leaverequest/subsrequests-table.jspf" %>
                                 </div>
                             </div>

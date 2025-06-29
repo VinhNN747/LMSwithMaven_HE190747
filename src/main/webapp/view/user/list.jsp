@@ -10,6 +10,13 @@
             <c:if test="${not empty error}">
                 <p class="error">${error}</p>
             </c:if>
+            <c:if test="${not empty sessionScope.successMessage}">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    ${sessionScope.successMessage}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% session.removeAttribute("successMessage");%>
+            </c:if>
             <div class="mb-3">
                 <a href="${pageContext.request.contextPath}/user/create" class="btn btn-primary">Add New User</a>
             </div>
@@ -17,11 +24,11 @@
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <!--<th>ID</th>-->
                             <th>Full Name</th>
                             <th>Username</th>
-                            <th>Email</th>
-                            <th>Gender</th>
+<!--                            <th>Email</th>
+                            <th>Gender</th>-->
                             <th>Division</th>
                             <th>Roles</th>
                             <th>Manager</th>
@@ -31,17 +38,17 @@
                     <tbody>
                         <c:forEach var="user" items="${users}">
                             <tr>
-                                <td>${user.userId}</td>
+                                <!--<td>${user.userId}</td>-->
                                 <td>${user.fullName}</td>
                                 <td>${user.username}</td>
-                                <td>${user.email}</td>
+<!--                                <td>${user.email}</td>
                                 <td>
                                     <c:choose>
                                         <c:when test="${user.gender == true}">Male</c:when>
                                         <c:when test="${user.gender == false}">Female</c:when>
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>
-                                </td>
+                                </td>-->
                                 <td>
                                     <c:choose>
                                         <c:when test="${not empty user.division}">
@@ -70,6 +77,7 @@
                                 <td>
                                     <a href="edit?id=${user.userId}" class="btn btn-sm btn-secondary">Edit</a>
                                     <a href="${pageContext.request.contextPath}/user/changedivision?id=${user.userId}" class="btn btn-sm btn-warning ms-1">Change Division</a>
+                                    <a href="${pageContext.request.contextPath}/user/role?userId=${user.userId}" class="btn btn-sm btn-info ms-1">Change Role</a>
                                     <form action="delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                         <input type="hidden" name="id" value="${user.userId}" />
                                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>

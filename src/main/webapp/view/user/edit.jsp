@@ -20,24 +20,34 @@
                                 <input type="hidden" name="userId" value="${user.userId}"/>
                                 
                                 <div class="mb-3">
-                                    <label for="fullName" class="form-label">Full Name:</label>
-                                    <input type="text" id="fullName" name="fullName" class="form-control" value="${user.fullName}" maxlength="100" required/>
+                                    <input type="text" id="fullName" name="fullName" class="form-control" placeholder="Full Name" value="${user.fullName}" maxlength="100" required/>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="username" class="form-label">Username:</label>
-                                    <input type="text" id="username" name="username" class="form-control" value="${user.username}" maxlength="50" required/>
+                                    <input type="text" id="username" name="username" class="form-control" placeholder="Username" value="${user.username}" maxlength="50" required/>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email:</label>
-                                    <input type="email" id="email" name="email" class="form-control" value="${user.email}" maxlength="100" required/>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="Email" value="${user.email}" maxlength="100" required/>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="gender" class="form-label">Gender:</label>
                                     <select id="gender" name="gender" class="form-select">
                                         <option value="">Select Gender</option>
                                         <option value="true" ${user.gender != null && user.gender ? 'selected' : ''}>Male</option>
                                         <option value="false" ${user.gender != null && !user.gender ? 'selected' : ''}>Female</option>
                                     </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="managerId" class="form-label">Manager:</label>
+                                    <select id="managerId" name="managerId" class="form-select">
+                                        <option value="">No Manager</option>
+                                        <c:forEach items="${potentialManagers}" var="manager">
+                                            <option value="${manager.userId}" ${user.managerId != null && user.managerId.equals(manager.userId) ? 'selected' : ''}>
+                                                ${manager.fullName} (${manager.username})
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        Only users with higher role levels in the same division can be selected as managers.
+                                    </small>
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">Save Changes</button>

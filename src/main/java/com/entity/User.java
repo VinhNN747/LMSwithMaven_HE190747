@@ -70,7 +70,7 @@ public class User {
     private List<LeaveRequest> sentLeaveRequests = new ArrayList<>();
 
     // Navigation property for leave requests to be approved by this user
-    @OneToMany(mappedBy = "approver", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL)
     private List<LeaveRequest> receivedLeaveRequests = new ArrayList<>();
 
     // Navigation property for user roles

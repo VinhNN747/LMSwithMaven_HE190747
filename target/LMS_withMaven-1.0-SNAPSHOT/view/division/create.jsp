@@ -18,8 +18,7 @@
                             </c:if>
                             <form action="create" method="post">
                                 <div class="mb-3">
-                                    <label for="divisionName" class="form-label">Division Name:</label>
-                                    <input type="text" id="divisionName" name="divisionName" class="form-control" maxlength="50" required />
+                                    <input type="text" id="divisionName" name="divisionName" class="form-control" placeholder="Division Name" maxlength="50" required />
                                 </div>
                                 <button type="submit" class="btn btn-primary">Save Division</button>
                                 <a href="${pageContext.request.contextPath}/division/list" class="btn btn-secondary">Cancel</a>

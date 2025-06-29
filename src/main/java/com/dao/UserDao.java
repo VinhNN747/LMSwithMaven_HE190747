@@ -7,6 +7,7 @@ package com.dao;
 import com.entity.User;
 import com.entity.Division;
 import com.entity.Role;
+import com.entity.UserRole;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
@@ -23,38 +24,9 @@ public class UserDao extends BaseDao<User> {
         EntityManager em = getEntityManager();
         try {
             return em
-                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role ORDER BY u.fullName",
+                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role",
                             User.class)
                     .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Get paginated list of users
-     */
-    public List<User> listPaginated(int page, int pageSize) {
-        EntityManager em = getEntityManager();
-        try {
-            return em
-                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role ORDER BY u.fullName",
-                            User.class)
-                    .setFirstResult((page - 1) * pageSize)
-                    .setMaxResults(pageSize)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Get total count of users
-     */
-    public long getTotalCount() {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery("SELECT COUNT(u) FROM User u", Long.class).getSingleResult();
         } finally {
             em.close();
         }
@@ -274,6 +246,109 @@ public class UserDao extends BaseDao<User> {
                     + "WHERE ur.userId = :userId",
                     String.class)
                     .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Role getUserRole(Integer userId) {
+        EntityManager em = getEntityManager();
+        try {
+            List<Role> roles = em.createQuery(
+                    "SELECT ur.role FROM UserRole ur WHERE ur.userId = :userId",
+                    Role.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+            
+            return roles.isEmpty() ? null : roles.get(0);
+        } finally {
+            em.close();
+        }
+    }
+
+    public void updateUserRole(Integer userId, Integer newRoleId) {
+        EntityManager em = getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            
+            // Remove existing role
+            em.createQuery("DELETE FROM UserRole ur WHERE ur.userId = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            
+            // Add new role
+            UserRole userRole = new UserRole();
+            userRole.setUserId(userId);
+            userRole.setRoleId(newRoleId);
+            em.persist(userRole);
+            
+            tx.commit();
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void clearUserRole(Integer userId) {
+        EntityManager em = getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            em.createQuery("DELETE FROM UserRole ur WHERE ur.userId = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get all users who have the specified user as their manager
+     * @param managerId The ID of the manager
+     * @return List of users who have this manager
+     */
+    public List<User> getUsersByManagerId(Integer managerId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT u FROM User u WHERE u.managerId = :managerId",
+                    User.class)
+                    .setParameter("managerId", managerId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Get all users with a specific role level in a division
+     * @param roleLevel The role level to search for
+     * @param divisionId The division ID
+     * @return List of users with the specified role level in the division
+     */
+    public List<User> getUsersWithRoleLevelInDivision(Integer roleLevel, Integer divisionId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT u FROM User u " +
+                    "JOIN u.userRoles ur " +
+                    "JOIN ur.role r " +
+                    "WHERE u.divisionId = :divisionId AND r.roleLevel = :roleLevel",
+                    User.class)
+                    .setParameter("divisionId", divisionId)
+                    .setParameter("roleLevel", roleLevel)
                     .getResultList();
         } finally {
             em.close();

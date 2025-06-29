@@ -22,16 +22,16 @@ public class LeaveRequest implements Serializable {
     @JoinColumn(name = "SenderID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private User sender;
 
-    // Navigation attribute for approver (User)
+    // Navigation attribute for reviewer (User)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ApproverID", referencedColumnName = "UserID", insertable = false, updatable = false)
-    private User approver;
+    @JoinColumn(name = "ReviewerID", referencedColumnName = "UserID", insertable = false, updatable = false)
+    private User reviewer;
 
     @Column(name = "SenderID", nullable = false)
     private Integer senderId;
 
-    @Column(name = "ApproverID")
-    private Integer approverId;
+    @Column(name = "ReviewerID")
+    private Integer reviewerId;
 
     @Column(name = "Status", length = 50)
     private String status;
@@ -46,6 +46,17 @@ public class LeaveRequest implements Serializable {
     @Column(name = "EndDate", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date endDate;
+
+    @Column(name = "Title", columnDefinition = "nvarchar(max)")
+    private String title;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     // Getters and Setters
     public Integer getLeaveRequestId() {
@@ -64,12 +75,12 @@ public class LeaveRequest implements Serializable {
         this.senderId = senderId;
     }
 
-    public Integer getApproverId() {
-        return approverId;
+    public Integer getReviewerId() {
+        return reviewerId;
     }
 
-    public void setApproverId(Integer approverId) {
-        this.approverId = approverId;
+    public void setReviewerId(Integer reviewerId) {
+        this.reviewerId = reviewerId;
     }
 
     public String getStatus() {
@@ -112,11 +123,11 @@ public class LeaveRequest implements Serializable {
         this.sender = sender;
     }
 
-    public User getApprover() {
-        return approver;
+    public User getReviewer() {
+        return reviewer;
     }
 
-    public void setApprover(User approver) {
-        this.approver = approver;
+    public void setReviewer(User reviewer) {
+        this.reviewer = reviewer;
     }
 }
