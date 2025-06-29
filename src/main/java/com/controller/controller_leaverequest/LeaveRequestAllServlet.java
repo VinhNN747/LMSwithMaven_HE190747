@@ -35,23 +35,11 @@ public class LeaveRequestAllServlet extends LeaveRequestBaseServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
         try {
-            // Get current page from request
-            int page = 1;
-            int pageSize = 5;
-            if (request.getParameter("allPage") != null) {
-                try {
-                    page = Integer.parseInt(request.getParameter("allPage"));
-                } catch (NumberFormatException e) {
-                    page = 1;
-                }
-            }
-
-            // Use database-level pagination for better performance
-            List<LeaveRequest> pagedRequests = ldb.listPaginated(page, pageSize);
-            long totalCount = ldb.getTotalCount();
-
-            PaginationUtil.paginateFromDatabase(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage",
-                    pagedRequests, totalCount, pageSize);
+            // Get all requests and handle pagination in servlet
+            List<LeaveRequest> allRequests = ldb.list();
+            
+            PaginationUtil.paginate(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage",
+                    allRequests, 5);
 
             request.getRequestDispatcher("/view/leaverequest/allrequests.jsp").forward(request, response);
         } catch (Exception e) {

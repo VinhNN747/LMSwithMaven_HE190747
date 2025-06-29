@@ -124,7 +124,19 @@
                                         type="button"
                                         role="tab"
                                         >
-                                        Subordinates
+                                        All Subordinates
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button
+                                        class="nav-link ${activeTab == 'review' ? 'active' : ''}"
+                                        id="review-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#review"
+                                        type="button"
+                                        role="tab"
+                                        >
+                                        Review Requests
                                     </button>
                                 </li>
                             </ul>
@@ -134,10 +146,46 @@
                                     id="my"
                                     role="tabpanel"
                                     >
-                                    <%@ include file="/view/leaverequest/myrequests-table.jspf" %>
+                                    <div class="card mt-3">
+                                        <div class="card-header">
+                                            <h5>My Leave Requests</h5>
+                                            <small class="text-muted">View and manage your own leave requests</small>
+                                        </div>
+                                        <div class="card-body">
+                                            <%@ include file="/view/leaverequest/myrequests-table.jspf" %>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="tab-pane fade ${activeTab == 'subs' ? 'show active' : ''} h-100" id="subs" role="tabpanel">
-                                    <%@ include file="/view/leaverequest/subsrequests-table.jspf" %>
+                                    <div class="card mt-3">
+                                        <div class="card-header">
+                                            <h5>All Subordinates' Requests</h5>
+                                            <small class="text-muted">View all subordinates' leave requests (recursive)</small>
+                                        </div>
+                                        <div class="card-body">
+                                            <%@ include file="/view/leaverequest/subsrequests-table.jspf" %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade ${activeTab == 'review' ? 'show active' : ''} h-100" id="review" role="tabpanel">
+                                    <div class="card mt-3">
+                                        <div class="card-header">
+                                            <h5>Review Direct Subordinates' Requests</h5>
+                                            <small class="text-muted">Only direct subordinates' requests that need approval/denial</small>
+                                        </div>
+                                        <div class="card-body">
+                                            <c:choose>
+                                                <c:when test="${empty directSubRequests}">
+                                                    <div class="alert alert-info">
+                                                        You have no direct subordinates' leave requests to review.
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <%@ include file="/view/leaverequest/review-table.jspf" %>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

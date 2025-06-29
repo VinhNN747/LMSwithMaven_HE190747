@@ -3,7 +3,22 @@
         <a class="navbar-brand" href="${pageContext.request.contextPath}/dashboard">LMS Dashboard</a>
         <div class="navbar-nav ms-auto">
             <span class="navbar-text me-3">
-                Welcome, ${sessionScope.user.fullName}, Role(s):
+                Welcome, ${sessionScope.user.fullName}
+                <br>
+                <small class="text-light">
+                    Division: ${sessionScope.userDivision != null ? sessionScope.userDivision.divisionName : 'Not Assigned'} | 
+                    Manager: 
+                    <c:choose>
+                        <c:when test="${sessionScope.userManager != null}">
+                            ${sessionScope.userManager.fullName}
+                        </c:when>
+                        <c:otherwise>
+                            No Manager Assigned
+                        </c:otherwise>
+                    </c:choose>
+                </small>
+                <br>
+                Role(s):
                 <c:forEach var="role" items="${sessionScope.roles}">
                     <span class="badge bg-light text-dark">${role.roleName}</span>
                 </c:forEach>

@@ -39,23 +39,11 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
         if (session != null) {
             User userSession = (User) session.getAttribute("user");
             if (userSession != null) {
-                // Get current page from request
-                int page = 1;
-                int pageSize = 4;
-                if (request.getParameter("myPage") != null) {
-                    try {
-                        page = Integer.parseInt(request.getParameter("myPage"));
-                    } catch (NumberFormatException e) {
-                        page = 1;
-                    }
-                }
-
-                // Use database-level pagination for better performance
-                List<LeaveRequest> pagedRequests = ldb.listOfPaginated(userSession.getUserId(), page, pageSize);
-                long totalCount = ldb.getTotalCountForUser(userSession.getUserId());
-
-                PaginationUtil.paginateFromDatabase(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage",
-                        pagedRequests, totalCount, pageSize);
+                // Get user's requests and handle pagination in servlet
+                List<LeaveRequest> myRequests = ldb.listOf(userSession.getUserId());
+                
+                PaginationUtil.paginate(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage",
+                        myRequests, 4);
             }
         }
         request.getRequestDispatcher("/view/leaverequest/myrequests.jsp").forward(request, response);
@@ -66,5 +54,4 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
             throws ServletException, IOException {
         processRequest(request, response, null);
     }
-
 }

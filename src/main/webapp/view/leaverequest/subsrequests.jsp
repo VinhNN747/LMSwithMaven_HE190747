@@ -13,12 +13,13 @@
                 <div class="col">
                     <div class="card mt-5">
                         <div class="card-header">
-                            <h4>Leave Requests to Approve</h4>
+                            <h4>All Subordinates' Leave Requests</h4>
+                            <small class="text-muted">View all subordinates' requests (including subordinates of subordinates) for monitoring</small>
                         </div>
                         <c:choose>
                             <c:when test="${empty subRequests}">
                                 <div class="alert alert-info">
-                                    You have no leave requests to approve yet.
+                                    You have no subordinates' leave requests to view.
                                 </div>
                             </c:when>
                             <c:otherwise>

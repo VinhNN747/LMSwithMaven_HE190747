@@ -26,33 +26,6 @@ public class DivisionDao extends BaseDao<Division> {
         }
     }
 
-    /**
-     * Get paginated list of divisions
-     */
-    public List<Division> listPaginated(int page, int pageSize) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery("SELECT d FROM Division d ORDER BY d.divisionName", Division.class)
-                    .setFirstResult((page - 1) * pageSize)
-                    .setMaxResults(pageSize)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Get total count of divisions
-     */
-    public long getTotalCount() {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery("SELECT COUNT(d) FROM Division d", Long.class).getSingleResult();
-        } finally {
-            em.close();
-        }
-    }
-
     @Override
     public void create(Division division) {
         EntityManager em = getEntityManager();
@@ -147,25 +120,12 @@ public class DivisionDao extends BaseDao<Division> {
         }
     }
 
-    public List<Division> getActiveDivisions(int page, int pageSize) {
+    public List<Division> getActiveDivisions() {
         EntityManager em = getEntityManager();
         try {
             return em.createQuery("SELECT d FROM Division d WHERE d.divisionId IN " +
                     "(SELECT DISTINCT u.divisionId FROM User u WHERE u.isActive = true)", Division.class)
-                    .setFirstResult((page - 1) * pageSize)
-                    .setMaxResults(pageSize)
                     .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    public long countActiveDivisions() {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery("SELECT COUNT(DISTINCT d) FROM Division d WHERE d.divisionId IN " +
-                    "(SELECT DISTINCT u.divisionId FROM User u WHERE u.isActive = true)", Long.class)
-                    .getSingleResult();
         } finally {
             em.close();
         }

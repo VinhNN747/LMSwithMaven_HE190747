@@ -31,6 +31,19 @@ public class DashboardServlet extends AuthenticationServlet {
         HttpSession session = request.getSession();
         UserDao udb = new UserDao();
         int userId = user.getUserId();
+        
+        // Fetch user's division and manager information
+        User fullUser = udb.getById(userId);
+        session.setAttribute("userDivision", fullUser.getDivision());
+        
+        // Fetch manager information if user has a manager
+        if (fullUser.getManagerId() != null) {
+            User manager = udb.getById(fullUser.getManagerId());
+            session.setAttribute("userManager", manager);
+        } else {
+            session.setAttribute("userManager", null);
+        }
+        
         boolean canViewOwn = udb.hasPermission(userId, "/leaverequest/myrequests");
         boolean canViewSubs = udb.hasPermission(userId, "/leaverequest/subs");
         boolean canViewAll = udb.hasPermission(userId, "/leaverequest/list");
@@ -42,54 +55,22 @@ public class DashboardServlet extends AuthenticationServlet {
         session.setAttribute("canCreate", canCreate);
 
         if (canViewOwn) {
-            // Get current page for my requests
-            int myPage = 1;
-            if (request.getParameter("myPage") != null) {
-                try {
-                    myPage = Integer.parseInt(request.getParameter("myPage"));
-                } catch (NumberFormatException e) {
-                    myPage = 1;
-                }
-            }
-            
-            List<LeaveRequest> myRequests = leaveRequestDao.listOfPaginated(userId, myPage, 4);
-            long myTotalCount = leaveRequestDao.getTotalCountForUser(userId);
-            PaginationUtil.paginateFromDatabase(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", 
-                    myRequests, myTotalCount, 4);
+            List<LeaveRequest> myRequests = leaveRequestDao.listOf(userId);
+            PaginationUtil.paginate(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", myRequests, 4);
         }
-        
+
         if (canViewSubs) {
-            // Get current page for subs requests
-            int subsPage = 1;
-            if (request.getParameter("subsPage") != null) {
-                try {
-                    subsPage = Integer.parseInt(request.getParameter("subsPage"));
-                } catch (NumberFormatException e) {
-                    subsPage = 1;
-                }
-            }
+            List<LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubs(userId);
+            PaginationUtil.paginate(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage", subsRequests, 4);
             
-            List<LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubsPaginated(userId, subsPage, 4);
-            long subsTotalCount = leaveRequestDao.getTotalCountForSubs(userId);
-            PaginationUtil.paginateFromDatabase(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage", 
-                    subsRequests, subsTotalCount, 4);
+            // Also get direct subordinates' requests for review tab
+            List<LeaveRequest> directSubRequests = leaveRequestDao.leaveRequestsOfDirectSubs(userId);
+            PaginationUtil.paginate(request, "reviewPage", "directSubRequests", "reviewTotalPages", "reviewCurrentPage", directSubRequests, 4);
         }
-        
+
         if (canViewAll) {
-            // Get current page for all requests
-            int allPage = 1;
-            if (request.getParameter("allPage") != null) {
-                try {
-                    allPage = Integer.parseInt(request.getParameter("allPage"));
-                } catch (NumberFormatException e) {
-                    allPage = 1;
-                }
-            }
-            
-            List<LeaveRequest> allRequests = leaveRequestDao.listPaginated(allPage, 5);
-            long allTotalCount = leaveRequestDao.getTotalCount();
-            PaginationUtil.paginateFromDatabase(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage", 
-                    allRequests, allTotalCount, 5);
+            List<LeaveRequest> allRequests = leaveRequestDao.list();
+            PaginationUtil.paginate(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage", allRequests, 5);
         }
 
         request.getRequestDispatcher("/view/dashboard.jsp").forward(request, response);

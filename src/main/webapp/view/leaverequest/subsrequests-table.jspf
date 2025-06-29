@@ -5,12 +5,11 @@
         <thead>
             <tr>
                 <th>Title</th>
-                <th>Sender</th>
+                <th>Employee</th>
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Status</th>
                 <th>Reason</th>
-                <th>Action</th>
                 <th>Reviewer</th>
             </tr>
         </thead>
@@ -21,27 +20,34 @@
                     <td>
                         <c:choose>
                             <c:when test="${not empty req.sender}">${req.sender.fullName}</c:when>
-                            <c:otherwise> N/A </c:otherwise>
+                            <c:otherwise>N/A</c:otherwise>
                         </c:choose>
                     </td>
                     <td><fmt:formatDate value="${req.startDate}" pattern="yyyy-MM-dd" /></td>
                     <td><fmt:formatDate value="${req.endDate}" pattern="yyyy-MM-dd" /></td>
-                    <td>${req.status}</td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${req.status eq 'In Progress'}">
+                                <span class="badge bg-warning">Pending</span>
+                            </c:when>
+                            <c:when test="${req.status eq 'Approved'}">
+                                <span class="badge bg-success">Approved</span>
+                            </c:when>
+                            <c:when test="${req.status eq 'Rejected'}">
+                                <span class="badge bg-danger">Rejected</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="badge bg-secondary">${req.status}</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
                     <td>${req.reason}</td>
-                    <c:if test="${req.status eq 'In Progress'}">
-                        <td>
-                            <form method="post" action="${pageContext.request.contextPath}/leaverequest/subs" style="display: inline">
-                                <input type="hidden" name="requestId" value="${req.leaveRequestId}" />
-                                <input type="hidden" name="action" value="approve" />
-                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                            </form>
-                            <form method="post" action="${pageContext.request.contextPath}/leaverequest/subs" style="display: inline">
-                                <input type="hidden" name="requestId" value="${req.leaveRequestId}" />
-                                <input type="hidden" name="action" value="reject" />
-                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                            </form>
-                        </td>
-                    </c:if>
+                    <td>
+                        <c:choose>
+                            <c:when test="${not empty req.reviewer}">${req.reviewer.fullName}</c:when>
+                            <c:otherwise>N/A</c:otherwise>
+                        </c:choose>
+                    </td>
                 </tr>
             </c:forEach>
         </tbody>
@@ -53,7 +59,7 @@
             <ul class="pagination">
                 <c:forEach begin="1" end="${safeSubsTotalPages}" var="i">
                     <li class="page-item ${i == safeSubsCurrentPage ? 'active' : ''}">
-                        <a class="page-link" href="?subsPage=${i}&tab=subs">${i}</a>
+                        <a class="page-link" href="?subsPage=${i}">${i}</a>
                     </li>
                 </c:forEach>
             </ul>

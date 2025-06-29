@@ -17,70 +17,26 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- *
- * @author vinhnnpc
+ * Servlet for viewing all subordinates' leave requests (for monitoring/overview)
  */
-@WebServlet(name = "LeaveRequestListServlet", urlPatterns = "/leaverequest/subs")
-
+@WebServlet(name = "LeaveRequestSubServlet", urlPatterns = "/leaverequest/subs")
 public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
 
     @Override
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
-        // Get current page from request
-        int page = 1;
-        int pageSize = 4;
-        if (request.getParameter("subsPage") != null) {
-            try {
-                page = Integer.parseInt(request.getParameter("subsPage"));
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
-        }
-
-        // Use database-level pagination for better performance
-        List<LeaveRequest> pagedRequests = ldb.leaveRequestsOfSubsPaginated(user.getUserId(), page, pageSize);
-        long totalCount = ldb.getTotalCountForSubs(user.getUserId());
-
-        PaginationUtil.paginateFromDatabase(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage",
-                pagedRequests, totalCount, pageSize);
+        // Get ALL subordinates' requests (recursive) for viewing/monitoring
+        List<LeaveRequest> subRequests = ldb.leaveRequestsOfSubs(user.getUserId());
+        
+        PaginationUtil.paginate(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage",
+                subRequests, 4);
 
         request.getRequestDispatcher("/view/leaverequest/subsrequests.jsp").forward(request, response);
     }
 
     @Override
     protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        String action = request.getParameter("action");
-        String requestIdStr = request.getParameter("requestId");
-        if (action != null && requestIdStr != null) {
-            try {
-                int requestId = Integer.parseInt(requestIdStr);
-                LeaveRequest lr = ldb.find(requestId);
-                if (lr != null) {
-                    if ("approve".equals(action)) {
-                        lr.setStatus("Approved");
-                    } else if ("reject".equals(action)) {
-                        lr.setStatus("Rejected");
-                    }
-                    lr.setReviewerId(user.getUserId());
-                    ldb.edit(lr);
-                }
-            } catch (NumberFormatException e) {
-                // Optionally log or handle error
-            }
-        }
-        String subsPage = request.getParameter("subsPage");
-        if (subsPage == null || !subsPage.matches("\\d+")) {
-            subsPage = "1";
-        }
-        response.sendRedirect(request.getContextPath() + "/dashboard?subsPage=" + subsPage + "&tab=subs");
-
-//        String redirect = request.getParameter("redirect");
-//        if (redirect != null && !redirect.isEmpty()) {
-//            response.sendRedirect(redirect);
-//        } else {
-//            response.sendRedirect(request.getContextPath() + "/leaverequest/subs?tab=subs");
-//        }
+        // This servlet is for viewing only, not for actions
+        response.sendRedirect(request.getContextPath() + "/leaverequest/subs");
     }
-
 }

@@ -16,23 +16,11 @@ public class DivisionListServlet extends BaseDivisionServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
         try {
-            // Get current page from request
-            int page = 1;
-            int pageSize = 5;
-            if (request.getParameter("divisionPage") != null) {
-                try {
-                    page = Integer.parseInt(request.getParameter("divisionPage"));
-                } catch (NumberFormatException e) {
-                    page = 1;
-                }
-            }
-
-            // Use database-level pagination for better performance
-            List<Division> pagedDivisions = ddb.listPaginated(page, pageSize);
-            long totalCount = ddb.getTotalCount();
+            // Get all divisions and handle pagination in servlet
+            List<Division> divisions = ddb.list();
             
-            PaginationUtil.paginateFromDatabase(request, "divisionPage", "divisions", "divisionTotalPages", "divisionCurrentPage", 
-                    pagedDivisions, totalCount, pageSize);
+            PaginationUtil.paginate(request, "divisionPage", "divisions", "divisionTotalPages", "divisionCurrentPage", 
+                    divisions, 5);
             
             request.getRequestDispatcher("/view/division/list.jsp").forward(request, response);
         } catch (Exception e) {

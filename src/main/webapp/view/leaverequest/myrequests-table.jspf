@@ -18,7 +18,22 @@
                     <td>${req.title}</td>
                     <td><fmt:formatDate value="${req.startDate}" pattern="yyyy-MM-dd" /></td>
                     <td><fmt:formatDate value="${req.endDate}" pattern="yyyy-MM-dd" /></td>
-                    <td>${req.status}</td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${req.status eq 'In Progress'}">
+                                <span class="badge bg-warning">Pending</span>
+                            </c:when>
+                            <c:when test="${req.status eq 'Approved'}">
+                                <span class="badge bg-success">Approved</span>
+                            </c:when>
+                            <c:when test="${req.status eq 'Rejected'}">
+                                <span class="badge bg-danger">Rejected</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="badge bg-secondary">${req.status}</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
                     <td>${req.reason}</td>
                     <td>
                         <c:choose>

@@ -46,6 +46,53 @@ body {
     border-radius: 1rem 1rem 0 0;
 }
 
+/* Custom Tab Styling */
+.nav-tabs {
+    border-bottom: 2px solid #65CCB8;
+    margin-bottom: 1.5rem;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: -2px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 1rem 1rem 0 0;
+    color: #57BA98;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    margin-right: 0.5rem;
+    background: #F2F2F2;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: #3B945E;
+    background: #E8F5E8;
+}
+
+.nav-tabs .nav-link.active {
+    border: none;
+    background: #3B945E;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(59, 148, 94, 0.3);
+}
+
+.nav-tabs .nav-link.active:hover {
+    background: #3B945E;
+    color: #fff;
+}
+
+.tab-content {
+    background: #fff;
+    border-radius: 0 0 1rem 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 16px rgba(24,38,40,0.07);
+}
+
 .table {
     background: #fff;
     border-radius: 0.75rem;

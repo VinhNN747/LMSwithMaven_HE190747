@@ -19,8 +19,7 @@ public class PaginationUtil {
      * 
      * @param <T>             The type of objects in the list
      * @param request         The HTTP request
-     * @param pageParam       The page parameter name (e.g., "myPage", "subsPage",
-     *                        "userPage")
+     * @param pageParam       The page parameter name (e.g., "myPage", "subsPage", "userPage")
      * @param reqAttr         The request attribute name for the paged results
      * @param totalPagesAttr  The request attribute name for total pages
      * @param currentPageAttr The request attribute name for current page
@@ -51,39 +50,6 @@ public class PaginationUtil {
     public static <T> void paginate(HttpServletRequest request, String pageParam, String reqAttr,
             String totalPagesAttr, String currentPageAttr, List<T> allItems) {
         paginate(request, pageParam, reqAttr, totalPagesAttr, currentPageAttr, allItems, 4);
-    }
-
-    /**
-     * Database-level pagination method for better performance
-     * 
-     * @param <T>             The type of objects in the list
-     * @param request         The HTTP request
-     * @param pageParam       The page parameter name
-     * @param reqAttr         The request attribute name for the paged results
-     * @param totalPagesAttr  The request attribute name for total pages
-     * @param currentPageAttr The request attribute name for current page
-     * @param pagedItems      The already paginated items from database
-     * @param totalCount      Total count of all items (from separate count query)
-     * @param recordsPerPage  Number of records per page
-     */
-    public static <T> void paginateFromDatabase(HttpServletRequest request, String pageParam, String reqAttr,
-            String totalPagesAttr, String currentPageAttr, List<T> pagedItems, long totalCount, int recordsPerPage) {
-        
-        int page = getCurrentPage(request, pageParam);
-        int totalPages = calculateTotalPages((int) totalCount, recordsPerPage);
-        
-        // Validate page number
-        page = validatePageNumber(page, totalPages);
-        
-        setPaginationAttributes(request, reqAttr, totalPagesAttr, currentPageAttr, pagedItems, totalPages, page);
-    }
-
-    /**
-     * Database-level pagination method with default page size (4)
-     */
-    public static <T> void paginateFromDatabase(HttpServletRequest request, String pageParam, String reqAttr,
-            String totalPagesAttr, String currentPageAttr, List<T> pagedItems, long totalCount) {
-        paginateFromDatabase(request, pageParam, reqAttr, totalPagesAttr, currentPageAttr, pagedItems, totalCount, 4);
     }
 
     /**
