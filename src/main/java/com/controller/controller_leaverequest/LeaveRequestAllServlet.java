@@ -37,9 +37,7 @@ public class LeaveRequestAllServlet extends LeaveRequestBaseServlet {
         try {
             // Get all requests and handle pagination in servlet
             List<LeaveRequest> allRequests = ldb.list();
-            
-            PaginationUtil.paginate(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage",
-                    allRequests, 5);
+            request.setAttribute("allRequests", allRequests);
 
             request.getRequestDispatcher("/view/leaverequest/allrequests.jsp").forward(request, response);
         } catch (Exception e) {

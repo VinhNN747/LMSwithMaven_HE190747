@@ -20,8 +20,8 @@
             <div class="mb-3">
                 <a href="${pageContext.request.contextPath}/user/create" class="btn btn-primary">Add New User</a>
             </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered">
+            <div class="scrollable-list">
+                <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <!--<th>ID</th>-->
@@ -87,17 +87,6 @@
                         </c:forEach>
                     </tbody>
                 </table>
-                <c:if test="${userTotalPages > 1}">
-                    <nav>
-                        <ul class="pagination">
-                            <c:forEach begin="1" end="${userTotalPages}" var="i">
-                                <li class="page-item ${i == userCurrentPage ? 'active' : ''}">
-                                    <a class="page-link" href="?userPage=${i}">${i}</a>
-                                </li>
-                            </c:forEach>
-                        </ul>
-                    </nav>
-                </c:if>
             </div>
         </div>
         <%@ include file="/view/common_jsp_components/footer.jspf" %>

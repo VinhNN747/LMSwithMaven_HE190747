@@ -56,21 +56,20 @@ public class DashboardServlet extends AuthenticationServlet {
 
         if (canViewOwn) {
             List<LeaveRequest> myRequests = leaveRequestDao.listOf(userId);
-            PaginationUtil.paginate(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage", myRequests, 4);
+            request.setAttribute("myRequests", myRequests);
         }
 
         if (canViewSubs) {
             List<LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubs(userId);
-            PaginationUtil.paginate(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage", subsRequests, 4);
-            
+            request.setAttribute("subRequests", subsRequests);
             // Also get direct subordinates' requests for review tab
             List<LeaveRequest> directSubRequests = leaveRequestDao.leaveRequestsOfDirectSubs(userId);
-            PaginationUtil.paginate(request, "reviewPage", "directSubRequests", "reviewTotalPages", "reviewCurrentPage", directSubRequests, 4);
+            request.setAttribute("directSubRequests", directSubRequests);
         }
 
         if (canViewAll) {
             List<LeaveRequest> allRequests = leaveRequestDao.list();
-            PaginationUtil.paginate(request, "allPage", "allRequests", "allTotalPages", "allCurrentPage", allRequests, 5);
+            request.setAttribute("allRequests", allRequests);
         }
 
         request.getRequestDispatcher("/view/dashboard.jsp").forward(request, response);

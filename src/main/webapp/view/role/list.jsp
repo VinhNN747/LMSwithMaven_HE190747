@@ -31,8 +31,8 @@
             <div class="mb-3">
                 <a href="${pageContext.request.contextPath}/role/create" class="btn btn-primary">Add New Role</a>
             </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered">
+            <div class="scrollable-list">
+                <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <!--<th>ID</th>-->
@@ -70,17 +70,6 @@
                         </c:forEach>
                     </tbody>
                 </table>
-                <c:if test="${roleTotalPages > 1}">
-                    <nav>
-                        <ul class="pagination">
-                            <c:forEach begin="1" end="${roleTotalPages}" var="i">
-                                <li class="page-item ${i == roleCurrentPage ? 'active' : ''}">
-                                    <a class="page-link" href="?rolePage=${i}">${i}</a>
-                                </li>
-                            </c:forEach>
-                        </ul>
-                    </nav>
-                </c:if>
             </div>
         </div>
         <%@ include file="/view/common_jsp_components/footer.jspf" %>

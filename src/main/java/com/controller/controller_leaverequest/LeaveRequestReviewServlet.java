@@ -25,6 +25,7 @@ public class LeaveRequestReviewServlet extends LeaveRequestBaseServlet {
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
         // Get DIRECT subordinates' requests for reviewing
         List<LeaveRequest> directSubRequests = ldb.leaveRequestsOfDirectSubs(user.getUserId());
+        request.setAttribute("directSubRequests", directSubRequests);
         
         PaginationUtil.paginate(request, "reviewPage", "directSubRequests", "reviewTotalPages", "reviewCurrentPage",
                 directSubRequests, 4);

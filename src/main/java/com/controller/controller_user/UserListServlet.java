@@ -25,9 +25,7 @@ public class UserListServlet extends UserBaseServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
         try {
             List<User> allUsers = udb.list();
-            
-            // Use centralized pagination method
-            PaginationUtil.paginate(request, "userPage", "users", "userTotalPages", "userCurrentPage", allUsers, 10);
+            request.setAttribute("users", allUsers);
             
             request.setAttribute("divisions", ddb.list());
             request.getRequestDispatcher("/view/user/list.jsp").forward(request, response);

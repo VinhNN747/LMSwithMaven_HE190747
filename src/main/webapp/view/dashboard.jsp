@@ -140,13 +140,13 @@
                                     </button>
                                 </li>
                             </ul>
-                            <div class="tab-content">
+                            <div class="tab-content p-0">
                                 <div
                                     class="tab-pane fade ${activeTab == 'my' ? 'show active' : ''} h-100"
                                     id="my"
                                     role="tabpanel"
                                     >
-                                    <div class="card mt-3">
+                                    <div class="card">
                                         <div class="card-header">
                                             <h5>My Leave Requests</h5>
                                             <small class="text-muted">View and manage your own leave requests</small>
@@ -157,10 +157,10 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade ${activeTab == 'subs' ? 'show active' : ''} h-100" id="subs" role="tabpanel">
-                                    <div class="card mt-3">
+                                    <div class="card">
                                         <div class="card-header">
                                             <h5>All Subordinates' Requests</h5>
-                                            <small class="text-muted">View all subordinates' leave requests (recursive)</small>
+                                            <small class="text-muted">View all subordinates' leave requests</small>
                                         </div>
                                         <div class="card-body">
                                             <%@ include file="/view/leaverequest/subsrequests-table.jspf" %>
@@ -168,7 +168,7 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade ${activeTab == 'review' ? 'show active' : ''} h-100" id="review" role="tabpanel">
-                                    <div class="card mt-3">
+                                    <div class="card">
                                         <div class="card-header">
                                             <h5>Review Direct Subordinates' Requests</h5>
                                             <small class="text-muted">Only direct subordinates' requests that need approval/denial</small>

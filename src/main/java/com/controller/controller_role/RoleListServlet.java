@@ -26,6 +26,7 @@ public class RoleListServlet extends RoleBaseServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
         try {
             List<Role> allRoles = rdb.list();
+            request.setAttribute("roles", allRoles);
             
             // Use centralized pagination method
             PaginationUtil.paginate(request, "rolePage", "roles", "roleTotalPages", "roleCurrentPage", allRoles, 10);

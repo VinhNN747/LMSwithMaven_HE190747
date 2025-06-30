@@ -18,9 +18,7 @@ public class DivisionListServlet extends BaseDivisionServlet {
         try {
             // Get all divisions and handle pagination in servlet
             List<Division> divisions = ddb.list();
-            
-            PaginationUtil.paginate(request, "divisionPage", "divisions", "divisionTotalPages", "divisionCurrentPage", 
-                    divisions, 5);
+            request.setAttribute("divisions", divisions);
             
             request.getRequestDispatcher("/view/division/list.jsp").forward(request, response);
         } catch (Exception e) {

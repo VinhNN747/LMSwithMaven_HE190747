@@ -41,9 +41,7 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
             if (userSession != null) {
                 // Get user's requests and handle pagination in servlet
                 List<LeaveRequest> myRequests = ldb.listOf(userSession.getUserId());
-                
-                PaginationUtil.paginate(request, "myPage", "myRequests", "myTotalPages", "myCurrentPage",
-                        myRequests, 4);
+                request.setAttribute("myRequests", myRequests);
             }
         }
         request.getRequestDispatcher("/view/leaverequest/myrequests.jsp").forward(request, response);

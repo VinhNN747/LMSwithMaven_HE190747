@@ -21,68 +21,55 @@
                                     </div>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="table-responsive">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped table-bordered">
-                                                <thead>
+                                    <div class="scrollable-list">
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Request ID</th>
+                                                    <th>Sender</th>
+                                                    <th>Start Date</th>
+                                                    <th>End Date</th>
+                                                    <th>Status</th>
+                                                    <th>Reason</th>
+                                                    <th>Reviewer</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach var="req" items="${allRequests}">
                                                     <tr>
-                                                        <th>Request ID</th>
-                                                        <th>Sender</th>
-                                                        <th>Start Date</th>
-                                                        <th>End Date</th>
-                                                        <th>Status</th>
-                                                        <th>Reason</th>
-                                                        <th>Reviewer</th>
+                                                        <td>${req.leaveRequestId}</td>
+                                                        <td>
+                                                            <c:choose>
+                                                                <c:when test="${not empty req.sender}">${req.sender.fullName}</c:when>
+                                                                <c:otherwise>N/A</c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                        <td>
+                                                            <fmt:formatDate
+                                                                value="${req.startDate}"
+                                                                pattern="yyyy-MM-dd"
+                                                                />
+                                                        </td>
+                                                        <td>
+                                                            <fmt:formatDate
+                                                                value="${req.endDate}"
+                                                                pattern="yyyy-MM-dd"
+                                                                />
+                                                        </td>
+                                                        <td>${req.status}</td>
+                                                        <td>${req.reason}</td>
+                                                        <td>
+                                                            <c:choose>
+                                                                <c:when test="${not empty req.reviewer}">
+                                                                    ${req.reviewer.fullName}
+                                                                </c:when>
+                                                                <c:otherwise> N/A </c:otherwise>
+                                                            </c:choose>
+                                                        </td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <c:forEach var="req" items="${allRequests}">
-                                                        <tr>
-                                                            <td>${req.leaveRequestId}</td>
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${not empty req.sender}">${req.sender.fullName}</c:when>
-                                                                    <c:otherwise>N/A</c:otherwise>
-                                                                </c:choose>
-                                                            </td>
-                                                            <td>
-                                                                <fmt:formatDate
-                                                                    value="${req.startDate}"
-                                                                    pattern="yyyy-MM-dd"
-                                                                    />
-                                                            </td>
-                                                            <td>
-                                                                <fmt:formatDate
-                                                                    value="${req.endDate}"
-                                                                    pattern="yyyy-MM-dd"
-                                                                    />
-                                                            </td>
-                                                            <td>${req.status}</td>
-                                                            <td>${req.reason}</td>
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${not empty req.reviewer}">
-                                                                        ${req.reviewer.fullName}
-                                                                    </c:when>
-                                                                    <c:otherwise> N/A </c:otherwise>
-                                                                </c:choose>
-                                                            </td>
-                                                        </tr>
-                                                    </c:forEach>
-                                                </tbody>
-                                            </table>
-                                            <c:if test="${allTotalPages > 1}">
-                                                <nav>
-                                                    <ul class="pagination">
-                                                        <c:forEach begin="1" end="${allTotalPages}" var="i">
-                                                            <li class="page-item ${i == allCurrentPage ? 'active' : ''}">
-                                                                <a class="page-link" href="?allPage=${i}">${i}</a>
-                                                            </li>
-                                                        </c:forEach>
-                                                    </ul>
-                                                </nav>
-                                            </c:if>
-                                        </div>
+                                                </c:forEach>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </c:otherwise>
                             </c:choose>

@@ -27,7 +27,8 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
             throws ServletException, IOException {
         // Get ALL subordinates' requests (recursive) for viewing/monitoring
         List<LeaveRequest> subRequests = ldb.leaveRequestsOfSubs(user.getUserId());
-        
+        request.setAttribute("subRequests", subRequests);
+
         PaginationUtil.paginate(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage",
                 subRequests, 4);
 
