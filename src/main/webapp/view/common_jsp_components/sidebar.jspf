@@ -1,0 +1,97 @@
+<nav class="d-flex flex-column p-3 text-white bg-dark" style="width: 300px; height: 100vh">
+    <div class="sidebar-profile">
+        <div class="avatar-circle mb-2">
+            <!-- Default avatar -->
+            <svg width="60" height="60" viewBox="0 0 60 60">
+            <circle cx="30" cy="30" r="30" fill="#fff"/>
+            <circle cx="30" cy="24" r="12" fill="#3B945E"/>
+            <ellipse cx="30" cy="46" rx="16" ry="10" fill="#3B945E"/>
+            </svg>
+        </div>
+        <div class="profile-info">
+            <div class="profile-name fw-bold">
+                <c:out value="${sessionScope.user.fullName}"/>
+            </div>
+            <div class="profile-email text-secondary">
+                <c:out value="${sessionScope.user.email}"/>
+            </div>
+        </div>
+        <div class="profile-role">
+            <span>Role: </span>
+            <c:forEach var="role" items="${sessionScope.roles}" varStatus="status">
+                <c:out value="${role.roleName}"/>
+                <c:if test="${!status.last}">, </c:if>
+            </c:forEach>
+        </div>
+        <div class="profile-division">
+            <span>Division: </span>
+            <c:out value="${sessionScope.userDivision != null ? sessionScope.userDivision.divisionName : 'N/A'}"/>
+        </div>
+        <div class="profile-manager">
+            <span>Manager: </span>
+            <c:choose>
+                <c:when test="${sessionScope.userManager != null}">
+                    <c:out value="${sessionScope.userManager.fullName}"/>
+                </c:when>
+                <c:otherwise>N/A</c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <c:if test="${sessionScope.canViewOwn}">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'myrequests' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/myrequests">
+                    My Requests
+                </a>
+            </li>
+        </c:if>
+        <c:if test="${sessionScope.canCreate}">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'create' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/create">
+                    Create Request
+                </a>
+            </li>
+        </c:if>
+        <c:if test="${sessionScope.canViewUser}">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'user' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/user/list">
+                    User Management
+                </a>
+            </li>
+        </c:if>
+        <c:if test="${sessionScope.canViewRole}">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'role' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/role/list">
+                    Role Management
+                </a>
+            </li>
+        </c:if>
+        <c:if test="${sessionScope.canViewDivision}">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'division' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/division/list">
+                    Division Management
+                </a>
+            </li>
+        </c:if>
+        <c:if test="${sessionScope.canViewAll}">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'allrequests' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/list">
+                    All Leave Requests
+                </a>
+            </li>
+        </c:if>
+        <c:if test="${sessionScope.canViewSubs}">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'subs' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/subs">
+                    Subordinate Requests
+                </a>
+            </li>
+        </c:if>
+    </ul>
+    <div class="sidebar-logout">
+        <a href="${pageContext.request.contextPath}/logout" class="logout-link">
+            <span class="sidebar-text">Log out</span>
+        </a>
+    </div>
+</nav>

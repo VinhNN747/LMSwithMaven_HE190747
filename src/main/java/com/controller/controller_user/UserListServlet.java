@@ -1,7 +1,6 @@
 package com.controller.controller_user;
 
 import com.entity.User;
-import com.controller.PaginationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;

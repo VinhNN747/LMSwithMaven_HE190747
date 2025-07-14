@@ -2,7 +2,6 @@ package com.controller.controller_division;
 
 import com.entity.Division;
 import com.entity.User;
-import com.controller.PaginationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;

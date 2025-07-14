@@ -4,10 +4,8 @@
  */
 package com.controller.controller_leaverequest;
 
-import com.dao.LeaveRequestDao;
 import com.entity.LeaveRequest;
 import com.entity.User;
-import com.controller.PaginationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;

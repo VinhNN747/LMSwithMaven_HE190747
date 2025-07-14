@@ -6,12 +6,8 @@ package com.controller.controller_leaverequest;
 
 import com.entity.LeaveRequest;
 import com.entity.User;
-import com.controller.PaginationUtil;
-import java.io.IOException;
 import java.util.List;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -26,9 +22,6 @@ public class LeaveRequestReviewServlet extends LeaveRequestBaseServlet {
         // Get DIRECT subordinates' requests for reviewing
         List<LeaveRequest> directSubRequests = ldb.leaveRequestsOfDirectSubs(user.getUserId());
         request.setAttribute("directSubRequests", directSubRequests);
-        
-        PaginationUtil.paginate(request, "reviewPage", "directSubRequests", "reviewTotalPages", "reviewCurrentPage",
-                directSubRequests, 4);
 
         request.getRequestDispatcher("/view/leaverequest/review.jsp").forward(request, response);
     }

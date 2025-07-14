@@ -4,11 +4,8 @@
  */
 package com.controller.controller_leaverequest;
 
-import com.dao.LeaveRequestDao;
 import com.entity.LeaveRequest;
 import com.entity.User;
-import com.controller.controller_authorization.AuthorizationServlet;
-import com.controller.PaginationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,10 +25,6 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
         // Get ALL subordinates' requests (recursive) for viewing/monitoring
         List<LeaveRequest> subRequests = ldb.leaveRequestsOfSubs(user.getUserId());
         request.setAttribute("subRequests", subRequests);
-
-        PaginationUtil.paginate(request, "subsPage", "subRequests", "subsTotalPages", "subsCurrentPage",
-                subRequests, 4);
-
         request.getRequestDispatcher("/view/leaverequest/subsrequests.jsp").forward(request, response);
     }
 

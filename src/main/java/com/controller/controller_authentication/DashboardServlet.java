@@ -8,7 +8,6 @@ import com.entity.User;
 import com.dao.LeaveRequestDao;
 import com.dao.UserDao;
 import com.entity.LeaveRequest;
-import com.controller.PaginationUtil;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,11 +30,11 @@ public class DashboardServlet extends AuthenticationServlet {
         HttpSession session = request.getSession();
         UserDao udb = new UserDao();
         int userId = user.getUserId();
-        
+
         // Fetch user's division and manager information
         User fullUser = udb.getById(userId);
         session.setAttribute("userDivision", fullUser.getDivision());
-        
+
         // Fetch manager information if user has a manager
         if (fullUser.getManagerId() != null) {
             User manager = udb.getById(fullUser.getManagerId());
@@ -43,17 +42,23 @@ public class DashboardServlet extends AuthenticationServlet {
         } else {
             session.setAttribute("userManager", null);
         }
-        
+
         boolean canViewOwn = udb.hasPermission(userId, "/leaverequest/myrequests");
         boolean canViewSubs = udb.hasPermission(userId, "/leaverequest/subs");
         boolean canViewAll = udb.hasPermission(userId, "/leaverequest/list");
         boolean canCreate = udb.hasPermission(userId, "/leaverequest/create");
+        boolean canViewUser = udb.hasPermission(userId, "/user/list");
+        boolean canViewRole = udb.hasPermission(userId, "/role/list");
+        boolean canViewDivision = udb.hasPermission(userId, "/division/list");
+
         LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
         session.setAttribute("canViewOwn", canViewOwn);
         session.setAttribute("canViewSubs", canViewSubs);
         session.setAttribute("canViewAll", canViewAll);
         session.setAttribute("canCreate", canCreate);
-
+        session.setAttribute("canViewUser", canViewUser);
+        session.setAttribute("canViewRole", canViewRole);
+        session.setAttribute("canViewDivision", canViewDivision);
         if (canViewOwn) {
             List<LeaveRequest> myRequests = leaveRequestDao.listOf(userId);
             request.setAttribute("myRequests", myRequests);

@@ -5,7 +5,6 @@
 package com.controller.controller_leaverequest;
 
 import com.controller.controller_authorization.AuthorizationServlet;
-import com.controller.PaginationUtil;
 import com.dao.LeaveRequestDao;
 import com.entity.LeaveRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +28,7 @@ public abstract class LeaveRequestBaseServlet extends AuthorizationServlet {
 
     /**
      * Centralized pagination method for leave requests using PaginationUtil
+     *
      * @param request The HTTP request
      * @param pageParam The page parameter name (e.g., "myPage", "subsPage")
      * @param reqAttr The request attribute name for the paged results
@@ -37,16 +37,4 @@ public abstract class LeaveRequestBaseServlet extends AuthorizationServlet {
      * @param allRequests The complete list of requests to paginate
      * @param recordsPerPage Number of records per page (default: 3)
      */
-    protected void paginate(HttpServletRequest request, String pageParam, String reqAttr, 
-            String totalPagesAttr, String currentPageAttr, List<LeaveRequest> allRequests, int recordsPerPage) {
-        PaginationUtil.paginate(request, pageParam, reqAttr, totalPagesAttr, currentPageAttr, allRequests, recordsPerPage);
-    }
-
-    /**
-     * Overloaded paginate method with default records per page (3)
-     */
-    protected void paginate(HttpServletRequest request, String pageParam, String reqAttr, 
-            String totalPagesAttr, String currentPageAttr, List<LeaveRequest> allRequests) {
-        PaginationUtil.paginate(request, pageParam, reqAttr, totalPagesAttr, currentPageAttr, allRequests);
-    }
 }
