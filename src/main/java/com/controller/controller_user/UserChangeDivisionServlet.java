@@ -26,7 +26,7 @@ public class UserChangeDivisionServlet extends UserBaseServlet {
         User existingUser = udb.get(userId);
 
         // Get subordinates to show impact
-        List<User> subordinates = udb.listUsers(null, null, null, userId, null);
+        List<User> subordinates = udb.listUsers(null, null, null, userId, null, null, null);
 
         // Get current role to check if user is Division Head
         Role currentRole = udb.getUserRole(userId);
@@ -122,7 +122,7 @@ public class UserChangeDivisionServlet extends UserBaseServlet {
      */
     private int removeSubordinateRelationships(Integer managerId) {
         // Find all users who have this user as their manager
-        List<User> subordinates = udb.listUsers(null, null, null, managerId, null);
+        List<User> subordinates = udb.listUsers(null, null, null, managerId, null, null, null);
 
         for (User subordinate : subordinates) {
             subordinate.setManagerId(null);

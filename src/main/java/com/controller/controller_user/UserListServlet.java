@@ -33,21 +33,32 @@ public class UserListServlet extends UserBaseServlet {
                     : null;
             Integer roleId = (roleIdStr != null && !roleIdStr.isEmpty()) ? Integer.valueOf(roleIdStr) : null;
 
+            String pageNumberStr = request.getParameter("pageNumber");
+            String pageSizeStr = request.getParameter("pageSize");
+            Integer pageNumber = (pageNumberStr != null && !pageNumberStr.isEmpty()) ? Integer.valueOf(pageNumberStr) : 1;
+            Integer pageSize = (pageSizeStr != null && !pageSizeStr.isEmpty()) ? Integer.valueOf(pageSizeStr) : 7;
+
             boolean isAdmin = user.getRole().getRoleLevel() == 100;
             boolean isDivisionHead = user.getRole().getRoleLevel() == 99;
             List<User> users;
+            long totalCount;
+            int totalPages;
 
             if (isAdmin) {
-                // Admin: list all users, with optional filters
-                users = udb.listUsers(null, divisionId, roleId, null, null);
+                // Admin: listRoles all users, with optional filters
+                users = udb.listUsers(null, divisionId, roleId, null, null, pageNumber, pageSize);
+                totalCount = udb.countUsers(null, divisionId, roleId, null, null);
             } else if (isDivisionHead) {
-                // Division Head: list all users in their division, with optional filters
-                users = udb.listUsers(null, user.getDivisionId(), roleId, null, null);
+                // Division Head: listRoles all users in their division, with optional filters
+                users = udb.listUsers(null, user.getDivisionId(), roleId, null, null, pageNumber, pageSize);
+                totalCount = udb.countUsers(null, user.getDivisionId(), roleId, null, null);
             } else {
-                // Regular user: list all subordinates (direct and indirect), with optional filters
+                // Regular user: listRoles all subordinates (direct and indirect), with optional filters
                 List<Integer> subordinateIds = udb.getAllSubordinateIds(user.getUserId());
-                users = udb.listUsers(subordinateIds, divisionId, roleId, null, null);
+                users = udb.listUsers(subordinateIds, divisionId, roleId, null, null, pageNumber, pageSize);
+                totalCount = udb.countUsers(subordinateIds, divisionId, roleId, null, null);
             }
+            totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
             request.setAttribute("users", users);
             request.setAttribute("divisions", ddb.list());
@@ -55,6 +66,9 @@ public class UserListServlet extends UserBaseServlet {
             request.setAttribute("selectedDivisionId", divisionId);
             request.setAttribute("selectedRoleId", roleId);
             request.setAttribute("isAdmin", isAdmin);
+            request.setAttribute("pageNumber", pageNumber);
+            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("totalPages", totalPages);
             request.getRequestDispatcher("/view/user/list.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "An error occurred: " + e.getMessage());

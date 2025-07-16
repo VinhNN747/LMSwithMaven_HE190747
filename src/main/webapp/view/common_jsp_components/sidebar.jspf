@@ -18,10 +18,7 @@
         </div>
         <div class="profile-role">
             <span>Role: </span>
-            <c:forEach var="role" items="${sessionScope.role}" varStatus="status">
                 <c:out value="${role.roleName}"/>
-                <c:if test="${!status.last}">, </c:if>
-            </c:forEach>
         </div>
         <div class="profile-division">
             <span>Division: </span>

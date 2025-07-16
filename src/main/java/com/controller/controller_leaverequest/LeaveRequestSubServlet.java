@@ -28,6 +28,11 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
         Integer reviewerId = (reviewerIdStr != null && !reviewerIdStr.isEmpty()) ? Integer.valueOf(reviewerIdStr) : null;
         Integer divisionId = (divisionIdStr != null && !divisionIdStr.isEmpty()) ? Integer.valueOf(divisionIdStr) : null;
 
+        String pageNumberStr = request.getParameter("pageNumber");
+        String pageSizeStr = request.getParameter("pageSize");
+        Integer pageNumber = (pageNumberStr != null && !pageNumberStr.isEmpty()) ? Integer.valueOf(pageNumberStr) : 1;
+        Integer pageSize = (pageSizeStr != null && !pageSizeStr.isEmpty()) ? Integer.valueOf(pageSizeStr) : 7;
+
         UserDao udb = new UserDao();
         // Get all subordinate IDs
         java.util.List<Integer> subordinateIds = udb.getAllSubordinateIds(user.getUserId());
@@ -36,7 +41,9 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
         if (senderId != null && subordinateIds.contains(senderId)) {
             filteredSenderIds = java.util.List.of(senderId);
         }
-        List<LeaveRequest> subRequests = ldb.listRequests(filteredSenderIds, status, reviewerId, divisionId);
+        List<LeaveRequest> subRequests = ldb.listRequests(filteredSenderIds, status, reviewerId, divisionId, pageNumber, pageSize);
+        long totalCount = ldb.countRequests(filteredSenderIds, status, reviewerId, divisionId);
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
         // Fetch all users and divisions for filter dropdowns
         UserDao userDao = new UserDao();
@@ -44,6 +51,9 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
         request.setAttribute("allUsers", userDao.list());
         request.setAttribute("allDivisions", divisionDao.list());
         request.setAttribute("subRequests", subRequests);
+        request.setAttribute("pageNumber", pageNumber);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("selectedStatus", status);
         request.setAttribute("selectedSenderId", senderId);
         request.setAttribute("selectedReviewerId", reviewerId);

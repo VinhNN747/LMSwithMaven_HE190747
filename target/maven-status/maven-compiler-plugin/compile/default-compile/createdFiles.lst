@@ -1,7 +1,6 @@
 com\controller\controller_user\UserCreateServlet.class
 com\entity\Division.class
 com\controller\controller_role\RoleEditServlet.class
-com\controller\controller_leaverequest\LeaveRequestOwnServlet.class
 com\controller\controller_user\UserDeleteServlet.class
 com\controller\controller_role\RoleBaseServlet.class
 com\dao\FeatureDao.class
@@ -15,7 +14,6 @@ com\dao\BaseDao.class
 com\controller\controller_division\DivisionCreateServlet.class
 com\controller\controller_role\RoleCreateServlet.class
 com\entity\RoleFeatureId.class
-com\controller\controller_user\UserChangeDivisionServlet.class
 com\controller\controller_authentication\LogoutServlet.class
 com\mycompany\jpahibernatetesting\resources\JakartaEE10Resource.class
 com\entity\Feature.class
@@ -25,7 +23,6 @@ com\controller\controller_role\RoleAssignFeaturesServlet.class
 com\entity\LeaveRequest.class
 com\controller\controller_authentication\LoginServlet.class
 com\controller\controller_division\DivisionListServlet.class
-com\controller\controller_user\UserRoleServlet.class
 com\controller\controller_leaverequest\LeaveRequestAllServlet.class
 com\controller\controller_authentication\DashboardServlet.class
 com\dao\RoleDao.class
@@ -33,12 +30,10 @@ com\controller\controller_leaverequest\LeaveRequestCreateServlet.class
 com\controller\controller_authorization\AuthorizationServlet.class
 com\dao\DivisionDao.class
 com\dao\UserDao.class
-com\controller\controller_leaverequest\LeaveRequestReviewServlet.class
 com\controller\controller_role\RoleDeleteServlet.class
 com\controller\controller_leaverequest\LeaveRequestBaseServlet.class
 com\controller\controller_user\UserEditServlet.class
 com\entity\User.class
 com\controller\controller_user\UserListServlet.class
 com\dao\LeaveRequestDao.class
-com\controller\controller_leaverequest\LeaveRequestSubServlet.class
 com\controller\controller_user\UserBaseServlet.class

@@ -6,7 +6,6 @@ import com.entity.RoleFeature;
 import com.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RoleDao extends BaseDao<Role> {
@@ -15,14 +14,30 @@ public class RoleDao extends BaseDao<Role> {
         super();
     }
 
-    @Override
-    public List<Role> list() {
+    public List<Role> listRoles(String name, Integer pageNumber, Integer pageSize) {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT r FROM Role r", Role.class).getResultList();
+            StringBuilder jpql = new StringBuilder("SELECT r FROM Role r WHERE 1=1");
+            if (name != null && !name.isEmpty()) {
+                jpql.append(" AND r.roleName LIKE :name");
+            }
+            var query = em.createQuery(jpql.toString(), Role.class);
+            if (name != null && !name.isEmpty()) {
+                query.setParameter("name", "%" + name + "%");
+            }
+            if (pageNumber != null && pageSize != null) {
+                query.setFirstResult((pageNumber - 1) * pageSize);
+                query.setMaxResults(pageSize);
+            }
+            return query.getResultList();
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public List<Role> list() {
+        return listRoles(null, null, null);
     }
 
     @Override
@@ -219,8 +234,20 @@ public class RoleDao extends BaseDao<Role> {
         }
     }
 
-    public Integer getRoleIdByName(String roleName) {
-        Role role = findByName(roleName);
-        return role != null ? role.getRoleId() : null;
+    public long countRoles(String name) {
+        EntityManager em = getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT COUNT(r) FROM Role r WHERE 1=1");
+            if (name != null && !name.isEmpty()) {
+                jpql.append(" AND r.roleName LIKE :name");
+            }
+            var query = em.createQuery(jpql.toString(), Long.class);
+            if (name != null && !name.isEmpty()) {
+                query.setParameter("name", "%" + name + "%");
+            }
+            return query.getSingleResult();
+        } finally {
+            em.close();
+        }
     }
 }

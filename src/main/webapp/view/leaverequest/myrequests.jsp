@@ -39,6 +39,7 @@
                             </div>
                             <div class="col">
                                 <button type="submit" class="btn btn-primary">Search</button>
+                                <a href="${pageContext.request.contextPath}/leaverequest/myrequests" class="btn btn-secondary ms-2">Reset</a>
                             </div>
                         </form>
                         <c:choose>
@@ -48,13 +49,100 @@
                                 </div>
                             </c:when>
                             <c:otherwise>
-                                <%@ include file="/view/leaverequest/myrequests-table.jspf" %>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
+                                <div class="scrollable-list">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Status</th>
+                                                <th>Reason</th>
+                                                <th>Reviewer</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach var="req" items="${myRequests}">
+                                                <tr>
+                                                    <td>${req.title}</td>
+                                                    <td><fmt:formatDate value="${req.startDate}" pattern="yyyy-MM-dd" /></td>
+                                                    <td><fmt:formatDate value="${req.endDate}" pattern="yyyy-MM-dd" /></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${req.status eq 'In Progress'}">
+                                                                <span class="badge bg-warning">Pending</span>
+                                                            </c:when>
+                                                            <c:when test="${req.status eq 'Approved'}">
+                                                                <span class="badge bg-success">Approved</span>
+                                                            </c:when>
+                                                            <c:when test="${req.status eq 'Rejected'}">
+                                                                <span class="badge bg-danger">Rejected</span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="badge bg-secondary">${req.status}</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td>${req.reason}</td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${not empty req.reviewer}">${req.reviewer.fullName}</c:when>
+                                                            <c:otherwise> N/A </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Pagination Controls: Input for Page Number -->
+                                <c:if test="${totalPages > 1}">
+                                    <nav aria-label="MyRequests pagination">
+                                        <form method="get" action="" class="myrequests-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
+                                            <button class="btn btn-outline-secondary" type="button" data-page="1" ${pageNumber == 1 ? 'disabled' : ''}>&lt;&lt;</button>
+                                            <button class="btn btn-outline-secondary" type="button" data-page="${pageNumber - 1}" ${pageNumber == 1 ? 'disabled' : ''}>&lt;</button>
+                                            <span>Page</span>
+                                            <input type="number" min="1" max="${totalPages}" name="pageNumber" value="${pageNumber}" style="width: 60px; text-align: center;" required />
+                                            <span>/ ${totalPages}</span>
+                                            <button class="btn btn-outline-primary" type="submit">Go</button>
+                                            <button class="btn btn-outline-secondary" type="button" data-page="${pageNumber + 1}" ${pageNumber == totalPages ? 'disabled' : ''}>&gt;</button>
+                                            <button class="btn btn-outline-secondary" type="button" data-page="${totalPages}" ${pageNumber == totalPages ? 'disabled' : ''}>&gt;&gt;</button>
+                                            <input type="hidden" name="pageSize" value="${pageSize}" />
+                                            <c:if test="${not empty selectedStatus}">
+                                                <input type="hidden" name="status" value="${selectedStatus}" />
+                                            </c:if>
+                                            <c:if test="${not empty selectedReviewerId}">
+                                                <input type="hidden" name="reviewerId" value="${selectedReviewerId}" />
+                                            </c:if>
+                                        </form>
+                                    </nav>
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            const form = document.querySelector('.myrequests-pagination-form');
+                                            if (!form)
+                                                return;
+                                            const pageInput = form.querySelector('input[name="pageNumber"]');
+                                            var totalPages = parseInt('${totalPages}');
+                                            form.querySelectorAll('button[data-page]').forEach(btn => {
+                                                btn.addEventListener('click', function (e) {
+                                                    e.preventDefault();
+                                                    const page = parseInt(this.getAttribute('data-page'));
+                                                    if (!isNaN(page) && page >= 1 && page <= totalPages && page !== parseInt(pageInput.value)) {
+                                                        pageInput.value = page;
+                                                        form.submit();
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    </script>
+                                </c:if>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
-            </main>
         </div>
-        <%@ include file="/view/common_jsp_components/footer.jspf" %>
-    </body>
+    </main>
+</div>
+<%@ include file="/view/common_jsp_components/footer.jspf" %>
+</body>
 </html>

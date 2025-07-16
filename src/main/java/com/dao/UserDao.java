@@ -19,7 +19,7 @@ public class UserDao extends BaseDao<User> {
         super();
     }
 
-    public List<User> listUsers(List<Integer> userIds, Integer divisionId, Integer roleId, Integer managerId, Integer roleLevel) {
+    public List<User> listUsers(List<Integer> userIds, Integer divisionId, Integer roleId, Integer managerId, Integer roleLevel, Integer pageNumber, Integer pageSize) {
         EntityManager em = getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT u FROM User u WHERE 1=1");
@@ -54,7 +54,52 @@ public class UserDao extends BaseDao<User> {
             if (roleLevel != null) {
                 query.setParameter("roleLevel", roleLevel);
             }
+            if (pageNumber != null && pageSize != null) {
+                query.setFirstResult((pageNumber - 1) * pageSize);
+                query.setMaxResults(pageSize);
+            }
             return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long countUsers(List<Integer> userIds, Integer divisionId, Integer roleId, Integer managerId, Integer roleLevel) {
+        EntityManager em = getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT COUNT(u) FROM User u WHERE 1=1");
+            if (userIds != null) {
+                jpql.append(" AND u.userId IN :userIds");
+            }
+            if (divisionId != null) {
+                jpql.append(" AND u.divisionId = :divisionId");
+            }
+            if (roleId != null) {
+                jpql.append(" AND u.roleId = :roleId");
+            }
+            if (managerId != null) {
+                jpql.append(" AND u.managerId = :managerId");
+            }
+            if (roleLevel != null) {
+                jpql.append(" AND u.role.roleLevel = :roleLevel");
+            }
+            var query = em.createQuery(jpql.toString(), Long.class);
+            if (userIds != null) {
+                query.setParameter("userIds", userIds);
+            }
+            if (divisionId != null) {
+                query.setParameter("divisionId", divisionId);
+            }
+            if (roleId != null) {
+                query.setParameter("roleId", roleId);
+            }
+            if (managerId != null) {
+                query.setParameter("managerId", managerId);
+            }
+            if (roleLevel != null) {
+                query.setParameter("roleLevel", roleLevel);
+            }
+            return query.getSingleResult();
         } finally {
             em.close();
         }
@@ -62,7 +107,7 @@ public class UserDao extends BaseDao<User> {
 
     @Override
     public List<User> list() {
-        return listUsers(null, null, null, null, null);
+        return listUsers(null, null, null, null, null, null, null);
     }
 
     public List<Integer> getAllSubordinateIds(int userId) {

@@ -15,14 +15,30 @@ public class DivisionDao extends BaseDao<Division> {
         return getEntityManager().find(Division.class, id);
     }
 
-    @Override
-    public List<Division> list() {
+    public List<Division> list(String name, Integer pageNumber, Integer pageSize) {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT d FROM Division d", Division.class).getResultList();
+            StringBuilder jpql = new StringBuilder("SELECT d FROM Division d WHERE 1=1");
+            if (name != null && !name.isEmpty()) {
+                jpql.append(" AND d.divisionName LIKE :name");
+            }
+            var query = em.createQuery(jpql.toString(), Division.class);
+            if (name != null && !name.isEmpty()) {
+                query.setParameter("name", "%" + name + "%");
+            }
+            if (pageNumber != null && pageSize != null) {
+                query.setFirstResult((pageNumber - 1) * pageSize);
+                query.setMaxResults(pageSize);
+            }
+            return query.getResultList();
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public List<Division> list() {
+        return list(null, null, null);
     }
 
     @Override
@@ -99,6 +115,23 @@ public class DivisionDao extends BaseDao<Division> {
             return em.createQuery("SELECT d FROM Division d WHERE d.divisionId IN "
                     + "(SELECT DISTINCT u.divisionId FROM User u WHERE u.isActive = true)", Division.class)
                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long countUsers(String name) {
+        EntityManager em = getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT COUNT(d) FROM Division d WHERE 1=1");
+            if (name != null && !name.isEmpty()) {
+                jpql.append(" AND d.divisionName LIKE :name");
+            }
+            var query = em.createQuery(jpql.toString(), Long.class);
+            if (name != null && !name.isEmpty()) {
+                query.setParameter("name", "%" + name + "%");
+            }
+            return query.getSingleResult();
         } finally {
             em.close();
         }

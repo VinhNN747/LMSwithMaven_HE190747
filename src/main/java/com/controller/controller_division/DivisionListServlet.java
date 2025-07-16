@@ -14,9 +14,20 @@ public class DivisionListServlet extends BaseDivisionServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
         // Get all divisions and handle pagination in servlet
-        List<Division> divisions = ddb.list();
-        request.setAttribute("divisions", divisions);
+        String name = request.getParameter("name");
+        String pageNumberStr = request.getParameter("pageNumber");
+        String pageSizeStr = request.getParameter("pageSize");
+        
+        Integer pageNumber = (pageNumberStr != null && !pageNumberStr.isEmpty()) ? Integer.valueOf(pageNumberStr) : 1;
+        Integer pageSize = (pageSizeStr != null && !pageSizeStr.isEmpty()) ? Integer.valueOf(pageSizeStr) : 7;
+        List<Division> divisions = ddb.list(name, pageNumber, pageSize);
+        long totalCount = ddb.countUsers(null);
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
+        request.setAttribute("divisions", divisions);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("pageNumber", pageNumber);
+        request.setAttribute("pageSize", pageSize);
         request.getRequestDispatcher("/view/division/list.jsp").forward(request, response);
 
     }

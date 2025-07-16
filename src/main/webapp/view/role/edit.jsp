@@ -23,7 +23,7 @@
                                     </c:if>
                                     <form action="edit" method="post">
                                         <input type="hidden" name="roleId" value="${role.roleId}"/>
-                                        
+
                                         <div class="mb-3">
                                             <input type="text" id="roleName" name="roleName" class="form-control" placeholder="Role Name" value="${role.roleName}" maxlength="50" required/>
                                         </div>

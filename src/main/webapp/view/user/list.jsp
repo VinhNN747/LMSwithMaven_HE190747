@@ -129,6 +129,47 @@
                                 </tbody>
                             </table>
                         </div>
+                        <!-- Pagination Controls: Input for Page Number -->
+                        <c:if test="${totalPages > 1}">
+                            <nav aria-label="User pagination">
+                                <form method="get" action="" class="user-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
+                                    <button class="btn btn-outline-secondary" type="button" data-page="1" ${pageNumber == 1 ? 'disabled' : ''}>&lt;&lt;</button>
+                                    <button class="btn btn-outline-secondary" type="button" data-page="${pageNumber - 1}" ${pageNumber == 1 ? 'disabled' : ''}>&lt;</button>
+                                    <span>Page</span>
+                                    <input type="number" min="1" max="${totalPages}" name="pageNumber" value="${pageNumber}" style="width: 60px; text-align: center;" required />
+                                    <span>/ ${totalPages}</span>
+                                    <button class="btn btn-outline-primary" type="submit">Go</button>
+                                    <button class="btn btn-outline-secondary" type="button" data-page="${pageNumber + 1}" ${pageNumber == totalPages ? 'disabled' : ''}>&gt;</button>
+                                    <button class="btn btn-outline-secondary" type="button" data-page="${totalPages}" ${pageNumber == totalPages ? 'disabled' : ''}>&gt;&gt;</button>
+                                    <input type="hidden" name="pageSize" value="${pageSize}" />
+                                    <c:if test="${not empty selectedDivisionId}">
+                                        <input type="hidden" name="divisionId" value="${selectedDivisionId}" />
+                                    </c:if>
+                                    <c:if test="${not empty selectedRoleId}">
+                                        <input type="hidden" name="roleId" value="${selectedRoleId}" />
+                                    </c:if>
+                                </form>
+                            </nav>
+                        </c:if>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const form = document.querySelector('.user-pagination-form');
+                                if (!form)
+                                    return;
+                                const pageInput = form.querySelector('input[name="pageNumber"]');
+                                var totalPages = parseInt('${totalPages}');
+                                form.querySelectorAll('button[data-page]').forEach(btn => {
+                                    btn.addEventListener('click', function (e) {
+                                        e.preventDefault();
+                                        const page = parseInt(this.getAttribute('data-page'));
+                                        if (!isNaN(page) && page >= 1 && page <= totalPages && page !== parseInt(pageInput.value)) {
+                                            pageInput.value = page;
+                                            form.submit();
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
                     </div>
                 </div>
             </main>

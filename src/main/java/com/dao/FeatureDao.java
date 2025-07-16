@@ -11,14 +11,31 @@ public class FeatureDao extends BaseDao<Feature> {
         super();
     }
 
-    @Override
-    public List<Feature> list() {
+    public List<Feature> list(String name, Integer pageNumber, Integer pageSize) {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT f FROM Feature f", Feature.class).getResultList();
+            StringBuilder jpql = new StringBuilder("SELECT f FROM Feature f WHERE 1=1");
+            if (name != null && !name.isEmpty()) {
+                jpql.append(" AND f.featureName LIKE :name");
+            }
+            jpql.append(" ORDER BY f.endpoint");
+            var query = em.createQuery(jpql.toString(), Feature.class);
+            if (name != null && !name.isEmpty()) {
+                query.setParameter("name", "%" + name + "%");
+            }
+            if (pageNumber != null && pageSize != null) {
+                query.setFirstResult((pageNumber - 1) * pageSize);
+                query.setMaxResults(pageSize);
+            }
+            return query.getResultList();
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public List<Feature> list() {
+        return list(null, null, null);
     }
 
     @Override

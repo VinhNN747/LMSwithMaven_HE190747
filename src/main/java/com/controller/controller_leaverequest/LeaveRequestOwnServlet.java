@@ -40,12 +40,23 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
         Integer reviewerId = (reviewerIdStr != null && !reviewerIdStr.isEmpty()) ? Integer.valueOf(reviewerIdStr) : null;
         Integer divisionId = (divisionIdStr != null && !divisionIdStr.isEmpty()) ? Integer.valueOf(divisionIdStr) : null;
 
-        List<LeaveRequest> myRequests = ldb.listRequests(java.util.List.of(user.getUserId()), status, reviewerId, divisionId);
+        String pageNumberStr = request.getParameter("pageNumber");
+        String pageSizeStr = request.getParameter("pageSize");
+        Integer pageNumber = (pageNumberStr != null && !pageNumberStr.isEmpty()) ? Integer.valueOf(pageNumberStr) : 1;
+        Integer pageSize = (pageSizeStr != null && !pageSizeStr.isEmpty()) ? Integer.valueOf(pageSizeStr) : 7;
+
+        List<LeaveRequest> myRequests = ldb.listRequests(java.util.List.of(user.getUserId()), status, reviewerId, divisionId, pageNumber, pageSize);
+        long totalCount = ldb.countRequests(java.util.List.of(user.getUserId()), status, reviewerId, divisionId);
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
         UserDao userDao = new UserDao();
         DivisionDao divisionDao = new DivisionDao();
         request.setAttribute("allUsers", userDao.list());
         request.setAttribute("allDivisions", divisionDao.list());
         request.setAttribute("myRequests", myRequests);
+        request.setAttribute("pageNumber", pageNumber);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("selectedStatus", status);
         request.setAttribute("selectedReviewerId", reviewerId);
         request.setAttribute("selectedDivisionId", divisionId);

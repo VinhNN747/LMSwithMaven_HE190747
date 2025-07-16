@@ -68,7 +68,7 @@ public class UserRoleServlet extends UserBaseServlet {
         // Set success message
         request.getSession().setAttribute("successMessage", "Role updated successfully.");
 
-        // Redirect to user list on success
+        // Redirect to user listRoles on success
         response.sendRedirect(request.getContextPath() + "/user/list");
 
     }
@@ -99,7 +99,7 @@ public class UserRoleServlet extends UserBaseServlet {
         }
 
         // Check if user's new role level is lower than their subordinates' role levels
-        List<User> subordinates = udb.listUsers(null, null, null, user.getUserId(), null);
+        List<User> subordinates = udb.listUsers(null, null, null, user.getUserId(), null, null, null);
         for (User subordinate : subordinates) {
             Role subordinateRole = udb.getUserRole(subordinate.getUserId());
             if (subordinateRole != null && newRole.getRoleLevel() != null && subordinateRole.getRoleLevel() != null
@@ -144,7 +144,7 @@ public class UserRoleServlet extends UserBaseServlet {
             // promote to head
             division.setDivisionHead(user.getUserId());
             divisionDao.edit(division);
-            List<User> users = udb.listUsers(null, user.getDivisionId(), null, null, null);
+            List<User> users = udb.listUsers(null, user.getDivisionId(), null, null, null, null, null);
             for (User otherUser : users) {
                 if (otherUser.getManagerId() == null && !otherUser.getUserId().equals(user.getUserId())) {
                     otherUser.setManagerId(user.getUserId());

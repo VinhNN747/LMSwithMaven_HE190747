@@ -57,7 +57,7 @@ public class RoleAssignFeaturesServlet extends RoleBaseServlet {
             }
         }
 
-        // Redirect to role list on success
+        // Redirect to role listRoles on success
         response.sendRedirect(request.getContextPath() + "/role/list");
 
     }

@@ -35,7 +35,7 @@ public class RoleCreateServlet extends RoleBaseServlet {
         }
         // Create the role
         rdb.create(newRole);
-        // Redirect to role list on success
+        // Redirect to role listRoles on success
         response.sendRedirect(request.getContextPath() + "/role/list");
 
     }

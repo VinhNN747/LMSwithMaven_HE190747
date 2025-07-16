@@ -25,8 +25,18 @@ public class RoleListServlet extends RoleBaseServlet {
     }
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
-        List<Role> allRoles = rdb.list();
+        String name = request.getParameter("name");
+        String pageNumberStr = request.getParameter("pageNumber");
+        String pageSizeStr = request.getParameter("pageSize");
+        Integer pageNumber = (pageNumberStr != null && !pageNumberStr.isEmpty()) ? Integer.valueOf(pageNumberStr) : 1;
+        Integer pageSize = (pageSizeStr != null && !pageSizeStr.isEmpty()) ? Integer.valueOf(pageSizeStr) : 7;
+        List<Role> allRoles = rdb.listRoles(name, pageNumber, pageSize);
+        long totalCount = rdb.countRoles(name);
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
         request.setAttribute("roles", allRoles);
+        request.setAttribute("pageNumber", pageNumber);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
         request.getRequestDispatcher("/view/role/list.jsp").forward(request, response);
 
     }
