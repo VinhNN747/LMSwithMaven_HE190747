@@ -7,8 +7,6 @@ package com.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import java.io.Serializable;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +49,9 @@ public class User {
     @Column(name = "ManagerID")
     private Integer managerId;
 
+    @Column(name = "RoleID")
+    private Integer roleId;
+
     // Navigation property for the division
     @ManyToOne
     @JoinColumn(name = "DivisionID", insertable = false, updatable = false)
@@ -60,6 +61,10 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "ManagerID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private User manager;
+
+    @ManyToOne
+    @JoinColumn(name = "RoleID", insertable = false, updatable = false)
+    private Role role;
 
     // Navigation property for employees managed by this user
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
@@ -72,10 +77,6 @@ public class User {
     // Navigation property for leave requests to be approved by this user
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL)
     private List<LeaveRequest> receivedLeaveRequests = new ArrayList<>();
-
-    // Navigation property for user roles
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserRole> userRoles = new ArrayList<>();
 
     // Getters and Setters
     public Integer getUserId() {
@@ -182,24 +183,24 @@ public class User {
         this.receivedLeaveRequests = receivedLeaveRequests;
     }
 
-    public List<UserRole> getUserRoles() {
-        return userRoles;
+    public Integer getRoleId() {
+        return roleId;
     }
 
-    public void setUserRoles(List<UserRole> userRoles) {
-        this.userRoles = userRoles;
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     // Hibernate requires a no-arg constructor
     public User() {
     }
 
-    // Constructor for convenience
-    public User(Integer userId, String fullName, String username, String email, Integer managerId) {
-        this.userId = userId;
-        this.fullName = fullName;
-        this.username = username;
-        this.email = email;
-        this.managerId = managerId;
-    }
 }

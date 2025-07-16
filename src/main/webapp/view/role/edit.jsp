@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html>
     <%@ include file="/view/common_jsp_components/head.jspf" %>
+    <%
+        request.setAttribute("activeTab", "role");
+    %>
     <body>
         <div class="d-flex">
             <%@ include file="/view/common_jsp_components/sidebar.jspf" %>

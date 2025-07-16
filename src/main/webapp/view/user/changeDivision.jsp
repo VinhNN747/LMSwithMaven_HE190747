@@ -21,29 +21,8 @@
                         <c:if test="${not empty error}">
                             <p class="error">${error}</p>
                         </c:if>
-                        
-                        <div class="alert alert-warning" role="alert">
-                            <h5><i class="fas fa-exclamation-triangle"></i> Important Notice</h5>
-                            <p><strong>Changing a user's division will affect organizational relationships:</strong></p>
-                            <ul>
-                                <li><strong>Subordinates:</strong> If this user manages other employees, their manager relationships will be removed</li>
-                                <li><strong>Manager:</strong> If this user has a manager in a different division, the manager relationship will be removed</li>
-                                <li><strong>Reassignment:</strong> You may need to manually reassign manager relationships after the change</li>
-                            </ul>
-                        </div>
-                        
-                        <c:if test="${not empty currentRole && currentRole.roleLevel == 99}">
-                            <div class="alert alert-danger" role="alert">
-                                <h5><i class="fas fa-exclamation-triangle"></i> Division Head Restriction</h5>
-                                <p><strong>This user is a Division Head (Level 99).</strong></p>
-                                <ul>
-                                    <li>Division Heads cannot be moved to different divisions</li>
-                                    <li>To change divisions, first remove the Division Head role</li>
-                                    <li>Then assign a new Division Head to the current division</li>
-                                </ul>
-                            </div>
-                        </c:if>
-                        
+
+
                         <div class="card mb-3">
                             <div class="card-header">
                                 <h6>Current Organizational Relationships</h6>
@@ -88,7 +67,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <form action="changedivision" method="post">
                             <input type="hidden" name="userId" value="${user.userId}"/>
                             <div class="mb-3">
@@ -100,23 +79,13 @@
                                                 ${user.divisionId == division.divisionId ? 'disabled' : ''}>
                                             ${division.divisionName}
                                             <c:if test="${user.divisionId == division.divisionId}"> (Current)</c:if>
-                                        </option>
+                                            </option>
                                     </c:forEach>
                                 </select>
                             </div>
-                            <c:choose>
-                                <c:when test="${not empty currentRole && currentRole.roleLevel == 99}">
-                                    <button type="button" class="btn btn-secondary" disabled>
-                                        Cannot Move Division Head
-                                    </button>
-                                    <small class="form-text text-muted d-block mt-2">
-                                        Division Heads must remain in their assigned division. Remove the Division Head role first to change divisions.
-                                    </small>
-                                </c:when>
-                                <c:otherwise>
-                                    <button type="submit" class="btn btn-primary">Change Division</button>
-                                </c:otherwise>
-                            </c:choose>
+
+                            <button type="submit" class="btn btn-primary">Change Division</button>
+
                             <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary">Cancel</a>
                         </form>
                     </div>

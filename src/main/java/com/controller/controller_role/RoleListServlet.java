@@ -25,14 +25,9 @@ public class RoleListServlet extends RoleBaseServlet {
     }
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
-        try {
-            List<Role> allRoles = rdb.list();
-            request.setAttribute("roles", allRoles);
+        List<Role> allRoles = rdb.list();
+        request.setAttribute("roles", allRoles);
+        request.getRequestDispatcher("/view/role/list.jsp").forward(request, response);
 
-            request.getRequestDispatcher("/view/role/list.jsp").forward(request, response);
-        } catch (Exception e) {
-            request.setAttribute("error", "An error occurred: " + e.getMessage());
-            request.getRequestDispatcher("/view/role/list.jsp").forward(request, response);
-        }
     }
 }

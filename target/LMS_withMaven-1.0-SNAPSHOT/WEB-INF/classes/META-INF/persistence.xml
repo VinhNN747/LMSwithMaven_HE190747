@@ -8,7 +8,6 @@
     <class>com.entity.Role</class>
     <class>com.entity.RoleFeature</class>
     <class>com.entity.User</class>
-    <class>com.entity.UserRole</class>
     <properties>
       <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
       <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=LeaveManagementAssignment;encrypt=true;trustServerCertificate=true;"/>

@@ -5,7 +5,6 @@ import com.entity.User;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @WebServlet(name = "DivisionCreateServlet", urlPatterns = "/division/create")
 public class DivisionCreateServlet extends BaseDivisionServlet {
@@ -26,13 +25,8 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
             request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
             return;
         }
+        ddb.create(newDivision);
+        response.sendRedirect(request.getContextPath() + "/division/list");
 
-        try {
-            ddb.create(newDivision);
-            response.sendRedirect(request.getContextPath() + "/division/list");
-        } catch (IOException e) {
-            request.setAttribute("error", "Failed to create division: " + e.getMessage());
-            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
-        }
     }
 }

@@ -6,6 +6,8 @@ package com.controller.controller_leaverequest;
 
 import com.entity.LeaveRequest;
 import com.entity.User;
+import com.dao.UserDao;
+import com.dao.DivisionDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,23 +33,22 @@ public class LeaveRequestOwnServlet extends LeaveRequestBaseServlet {
         processRequest(request, response, user);
     }
 
-    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            User userSession = (User) session.getAttribute("user");
-            if (userSession != null) {
-                // Get user's requests and handle pagination in servlet
-                List<LeaveRequest> myRequests = ldb.listOf(userSession.getUserId());
-                request.setAttribute("myRequests", myRequests);
-            }
-        }
-        request.getRequestDispatcher("/view/leaverequest/myrequests.jsp").forward(request, response);
-    }
+    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
+        String status = request.getParameter("status");
+        String reviewerIdStr = request.getParameter("reviewerId");
+        String divisionIdStr = request.getParameter("divisionId");
+        Integer reviewerId = (reviewerIdStr != null && !reviewerIdStr.isEmpty()) ? Integer.valueOf(reviewerIdStr) : null;
+        Integer divisionId = (divisionIdStr != null && !divisionIdStr.isEmpty()) ? Integer.valueOf(divisionIdStr) : null;
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response, null);
+        List<LeaveRequest> myRequests = ldb.listRequests(java.util.List.of(user.getUserId()), status, reviewerId, divisionId);
+        UserDao userDao = new UserDao();
+        DivisionDao divisionDao = new DivisionDao();
+        request.setAttribute("allUsers", userDao.list());
+        request.setAttribute("allDivisions", divisionDao.list());
+        request.setAttribute("myRequests", myRequests);
+        request.setAttribute("selectedStatus", status);
+        request.setAttribute("selectedReviewerId", reviewerId);
+        request.setAttribute("selectedDivisionId", divisionId);
+        request.getRequestDispatcher("/view/leaverequest/myrequests.jsp").forward(request, response);
     }
 }

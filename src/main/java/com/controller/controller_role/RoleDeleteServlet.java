@@ -18,49 +18,23 @@ public class RoleDeleteServlet extends RoleBaseServlet {
     protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
         String roleIdStr = request.getParameter("id");
 
-        if (roleIdStr == null || roleIdStr.trim().isEmpty()) {
-            request.getSession().setAttribute("error", "Role ID is required");
+        Integer roleId = Integer.valueOf(roleIdStr);
+        Role role = rdb.get(roleId);
+
+        // Check if role is being used by any users
+        if (!rdb.getUsersWithRoleId(roleId).isEmpty()) {
+            request.getSession().setAttribute("error", "Cannot delete role: There are users assigned to this role!");
             response.sendRedirect(request.getContextPath() + "/role/list");
             return;
         }
 
-        try {
-            Integer roleId = Integer.valueOf(roleIdStr);
-            Role role = rdb.findById(roleId);
-            
-            if (role == null) {
-                request.getSession().setAttribute("error", "Role not found");
-                response.sendRedirect(request.getContextPath() + "/role/list");
-                return;
-            }
+        // Delete the role
+        rdb.delete(role);
 
-            // Prevent deleting Division Head role (level 99)
-            if (role.getRoleLevel() != null && role.getRoleLevel() == 99) {
-                request.getSession().setAttribute("error", "Cannot delete Division Head role - it is protected.");
-                response.sendRedirect(request.getContextPath() + "/role/list");
-                return;
-            }
+        // Set success message
+        request.getSession().setAttribute("successMessage", "Role '" + role.getRoleName() + "' deleted successfully.");
 
-            // Check if role is being used by any users
-            if (!role.getUserRoles().isEmpty()) {
-                request.getSession().setAttribute("error", "Cannot delete role: It is assigned to " + role.getUserRoles().size() + " user(s)");
-                response.sendRedirect(request.getContextPath() + "/role/list");
-                return;
-            }
+        response.sendRedirect(request.getContextPath() + "/role/list");
 
-            // Delete the role
-            rdb.delete(role);
-            
-            // Set success message
-            request.getSession().setAttribute("successMessage", "Role '" + role.getRoleName() + "' deleted successfully.");
-            
-            response.sendRedirect(request.getContextPath() + "/role/list");
-        } catch (NumberFormatException e) {
-            request.getSession().setAttribute("error", "Invalid role ID format");
-            response.sendRedirect(request.getContextPath() + "/role/list");
-        } catch (Exception e) {
-            request.getSession().setAttribute("error", "Failed to delete role: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/role/list");
-        }
     }
 }

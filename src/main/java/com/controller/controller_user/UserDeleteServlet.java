@@ -31,31 +31,11 @@ public class UserDeleteServlet extends UserBaseServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
         String id = request.getParameter("id");
 
-        if (id == null || id.trim().isEmpty()) {
-            request.setAttribute("error", "User ID is required");
-            response.sendRedirect("list");
-            return;
-        }
-        try {
-            Integer userId = Integer.valueOf(id);
-            User existingUser = udb.getById(userId);
-            if (existingUser == null) {
-                request.setAttribute("error", "User not found");
-                request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
-                return;
-            }
+        Integer userId = Integer.valueOf(id);
+        User existingUser = udb.get(userId);
 
-            udb.delete(existingUser);
-            request.setAttribute("success", "User '" + existingUser.getFullName() + "' has been deleted successfully");
-        } catch (ServletException | IOException | NumberFormatException e) {
-            String errorMessage = "Cannot delete user!";
-            if (e.getCause() != null) {
-                errorMessage += e.getCause().getMessage();
-            } else {
-                errorMessage += e.getMessage();
-            }
-            request.setAttribute("error", errorMessage);
-        }
+        udb.delete(existingUser);
+        request.setAttribute("success", "User '" + existingUser.getFullName() + "' has been deleted successfully");
 
         response.sendRedirect("list");
     }

@@ -5,12 +5,13 @@
         <thead>
             <tr>
                 <th>Title</th>
-                <th>Employee</th>
+                <th>Sender</th>
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Status</th>
                 <th>Reason</th>
                 <th>Reviewer</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -19,7 +20,9 @@
                     <td>${req.title}</td>
                     <td>
                         <c:choose>
-                            <c:when test="${not empty req.sender}">${req.sender.fullName}</c:when>
+                            <c:when test="${not empty req.sender}">
+                                ${req.sender.fullName}
+                            </c:when>
                             <c:otherwise>N/A</c:otherwise>
                         </c:choose>
                     </td>
@@ -44,9 +47,25 @@
                     <td>${req.reason}</td>
                     <td>
                         <c:choose>
-                            <c:when test="${not empty req.reviewer}">${req.reviewer.fullName}</c:when>
+                            <c:when test="${not empty req.reviewer}">
+                                ${req.reviewer.fullName}
+                            </c:when>
                             <c:otherwise>N/A</c:otherwise>
                         </c:choose>
+                    </td>
+                    <td>
+                        <c:if test="${req.status eq 'In Progress'}">
+                            <form method="post" action="${pageContext.request.contextPath}/leaverequest/review" style="display:inline;">
+                                <input type="hidden" name="requestId" value="${req.leaveRequestId}" />
+                                <input type="hidden" name="action" value="approve" />
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                            <form method="post" action="${pageContext.request.contextPath}/leaverequest/review" style="display:inline; margin-left: 4px;">
+                                <input type="hidden" name="requestId" value="${req.leaveRequestId}" />
+                                <input type="hidden" name="action" value="reject" />
+                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                        </c:if>
                     </td>
                 </tr>
             </c:forEach>

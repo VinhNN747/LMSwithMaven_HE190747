@@ -33,8 +33,8 @@ public class Division {
     private User head;
 
     // Navigation property for users in this division
-    @OneToMany(mappedBy = "division", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> users = new ArrayList<>();
+    @OneToMany(mappedBy = "division")
+    private List<User> users;
 
     // Getters and Setters
     public Integer getDivisionId() {

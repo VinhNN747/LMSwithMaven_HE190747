@@ -12,18 +12,13 @@ import java.util.List;
 @WebServlet(name = "DivisionListServlet", urlPatterns = "/division/list")
 public class DivisionListServlet extends BaseDivisionServlet {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
-            throws ServletException, IOException {
-        try {
-            // Get all divisions and handle pagination in servlet
-            List<Division> divisions = ddb.list();
-            request.setAttribute("divisions", divisions);
-            
-            request.getRequestDispatcher("/view/division/list.jsp").forward(request, response);
-        } catch (Exception e) {
-            request.setAttribute("error", "An error occurred: " + e.getMessage());
-            request.getRequestDispatcher("/view/division/list.jsp").forward(request, response);
-        }
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
+        // Get all divisions and handle pagination in servlet
+        List<Division> divisions = ddb.list();
+        request.setAttribute("divisions", divisions);
+
+        request.getRequestDispatcher("/view/division/list.jsp").forward(request, response);
+
     }
 
     @Override

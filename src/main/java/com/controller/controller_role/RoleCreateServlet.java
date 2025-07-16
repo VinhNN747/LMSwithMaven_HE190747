@@ -24,18 +24,7 @@ public class RoleCreateServlet extends RoleBaseServlet {
         Role newRole = new Role();
         newRole.setRoleName(roleName);
         newRole.setRoleDescription(roleDescription);
-
-        // Parse role level
-        if (roleLevelStr != null && !roleLevelStr.trim().isEmpty()) {
-            try {
-                Integer roleLevel = Integer.valueOf(roleLevelStr);
-                newRole.setRoleLevel(roleLevel);
-            } catch (NumberFormatException e) {
-                request.setAttribute("error", "Invalid role level format");
-                request.getRequestDispatcher("/view/role/create.jsp").forward(request, response);
-                return;
-            }
-        }
+        newRole.setRoleLevel(Integer.valueOf(roleLevelStr));
 
         // Validate the new role
         String roleValidation = validateRole(newRole);
@@ -44,16 +33,10 @@ public class RoleCreateServlet extends RoleBaseServlet {
             request.getRequestDispatcher("/view/role/create.jsp").forward(request, response);
             return;
         }
+        // Create the role
+        rdb.create(newRole);
+        // Redirect to role list on success
+        response.sendRedirect(request.getContextPath() + "/role/list");
 
-        try {
-            // Create the role
-            rdb.create(newRole);
-
-            // Redirect to role list on success
-            response.sendRedirect(request.getContextPath() + "/role/list");
-        } catch (Exception e) {
-            request.setAttribute("error", "Failed to create role: " + e.getMessage());
-            request.getRequestDispatcher("/view/role/create.jsp").forward(request, response);
-        }
     }
-} 
+}

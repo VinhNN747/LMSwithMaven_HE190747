@@ -7,9 +7,9 @@ package com.dao;
 import com.entity.User;
 import com.entity.Division;
 import com.entity.Role;
-import com.entity.UserRole;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,14 +19,70 @@ public class UserDao extends BaseDao<User> {
         super();
     }
 
-    @Override
-    public List<User> list() {
+    public List<User> listUsers(List<Integer> userIds, Integer divisionId, Integer roleId, Integer managerId, Integer roleLevel) {
         EntityManager em = getEntityManager();
         try {
-            return em
-                    .createQuery("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.userRoles ur LEFT JOIN FETCH ur.role",
-                            User.class)
+            StringBuilder jpql = new StringBuilder("SELECT u FROM User u WHERE 1=1");
+            if (userIds != null) {
+                jpql.append(" AND u.userId IN :userIds");
+            }
+            if (divisionId != null) {
+                jpql.append(" AND u.divisionId = :divisionId");
+            }
+            if (roleId != null) {
+                jpql.append(" AND u.roleId = :roleId");
+            }
+            if (managerId != null) {
+                jpql.append(" AND u.managerId = :managerId");
+            }
+            if (roleLevel != null) {
+                jpql.append(" AND u.role.roleLevel = :roleLevel");
+            }
+            var query = em.createQuery(jpql.toString(), User.class);
+            if (userIds != null) {
+                query.setParameter("userIds", userIds);
+            }
+            if (divisionId != null) {
+                query.setParameter("divisionId", divisionId);
+            }
+            if (roleId != null) {
+                query.setParameter("roleId", roleId);
+            }
+            if (managerId != null) {
+                query.setParameter("managerId", managerId);
+            }
+            if (roleLevel != null) {
+                query.setParameter("roleLevel", roleLevel);
+            }
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public List<User> list() {
+        return listUsers(null, null, null, null, null);
+    }
+
+    public List<Integer> getAllSubordinateIds(int userId) {
+        EntityManager em = getEntityManager();
+        try {
+            // Get direct subordinates
+            List<Integer> directSubordinates = em.createQuery(
+                    "SELECT u.userId FROM User u WHERE u.managerId = :userId",
+                    Integer.class)
+                    .setParameter("userId", userId)
                     .getResultList();
+
+            List<Integer> allSubordinates = new ArrayList<>(directSubordinates);
+
+            // Recursively get subordinates of subordinates
+            for (Integer subordinateId : directSubordinates) {
+                allSubordinates.addAll(getAllSubordinateIds(subordinateId));
+            }
+
+            return allSubordinates;
         } finally {
             em.close();
         }
@@ -121,7 +177,7 @@ public class UserDao extends BaseDao<User> {
     public boolean existsByEmail(String email) {
         EntityManager em = getEntityManager();
         try {
-            Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.email) = LOWER(:email)", Long.class)
+            Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
                     .setParameter("email", email)
                     .getSingleResult();
             return count > 0;
@@ -134,7 +190,7 @@ public class UserDao extends BaseDao<User> {
         EntityManager em = getEntityManager();
         try {
             Long count = em
-                    .createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.username) = LOWER(:username)", Long.class)
+                    .createQuery("SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class)
                     .setParameter("username", username)
                     .getSingleResult();
             return count > 0;
@@ -143,25 +199,12 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public User getById(Integer id) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.find(User.class, id);
-        } finally {
-            em.close();
-        }
+    public User get(Integer id) {
+        return getEntityManager().find(User.class, id);
     }
 
     public boolean existsById(Integer id) {
-        EntityManager em = getEntityManager();
-        try {
-            Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.userId = :id", Long.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-            return count > 0;
-        } finally {
-            em.close();
-        }
+        return get(id) != null;
     }
 
     public boolean existsByDivisionId(Integer divisionId) {
@@ -191,14 +234,11 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public List<Role> getUserRoles(Integer userId) {
+    public Role getUserRole(Integer userId) {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery(
-                    "SELECT ur.role FROM UserRole ur WHERE ur.userId = :userId",
-                    Role.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
+            User user = em.find(User.class, userId);
+            return user != null ? user.getRole() : null;
         } finally {
             em.close();
         }
@@ -208,9 +248,7 @@ public class UserDao extends BaseDao<User> {
         EntityManager em = getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT DISTINCT rf.feature.endpoint FROM UserRole ur "
-                    + "JOIN RoleFeature rf ON ur.roleId = rf.roleId "
-                    + "WHERE ur.userId = :userId AND rf.feature.endpoint IS NOT NULL",
+                    "SELECT rf.feature.endpoint FROM RoleFeature rf WHERE rf.roleId = (SELECT u.roleId FROM User u WHERE u.userId = :userId) AND rf.feature.endpoint IS NOT NULL",
                     String.class)
                     .setParameter("userId", userId)
                     .getResultList();
@@ -223,9 +261,7 @@ public class UserDao extends BaseDao<User> {
         EntityManager em = getEntityManager();
         try {
             Long count = em.createQuery(
-                    "SELECT COUNT(rf) FROM UserRole ur "
-                    + "JOIN RoleFeature rf ON ur.roleId = rf.roleId "
-                    + "WHERE ur.userId = :userId AND rf.feature.endpoint = :endpoint",
+                    "SELECT COUNT(rf) FROM RoleFeature rf WHERE rf.roleId = (SELECT u.roleId FROM User u WHERE u.userId = :userId) AND rf.feature.endpoint = :endpoint",
                     Long.class)
                     .setParameter("userId", userId)
                     .setParameter("endpoint", endpoint)
@@ -236,120 +272,23 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public List<String> getUserRoleNames(Integer userId) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT r.roleName "
-                    + "FROM UserRole ur "
-                    + "JOIN ur.role r "
-                    + "WHERE ur.userId = :userId",
-                    String.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    public Role getUserRole(Integer userId) {
-        EntityManager em = getEntityManager();
-        try {
-            List<Role> roles = em.createQuery(
-                    "SELECT ur.role FROM UserRole ur WHERE ur.userId = :userId",
-                    Role.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-            
-            return roles.isEmpty() ? null : roles.get(0);
-        } finally {
-            em.close();
-        }
-    }
-
-    public void updateUserRole(Integer userId, Integer newRoleId) {
-        EntityManager em = getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            
-            // Remove existing role
-            em.createQuery("DELETE FROM UserRole ur WHERE ur.userId = :userId")
-                    .setParameter("userId", userId)
-                    .executeUpdate();
-            
-            // Add new role
-            UserRole userRole = new UserRole();
-            userRole.setUserId(userId);
-            userRole.setRoleId(newRoleId);
-            em.persist(userRole);
-            
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-
     public void clearUserRole(Integer userId) {
         EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            em.createQuery("DELETE FROM UserRole ur WHERE ur.userId = :userId")
-                    .setParameter("userId", userId)
-                    .executeUpdate();
+            User user = em.find(User.class, userId);
+            if (user != null) {
+                user.setRoleId(null);
+                user.setRole(null);
+                em.merge(user);
+            }
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
             throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Get all users who have the specified user as their manager
-     * @param managerId The ID of the manager
-     * @return List of users who have this manager
-     */
-    public List<User> getUsersByManagerId(Integer managerId) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT u FROM User u WHERE u.managerId = :managerId",
-                    User.class)
-                    .setParameter("managerId", managerId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Get all users with a specific role level in a division
-     * @param roleLevel The role level to search for
-     * @param divisionId The division ID
-     * @return List of users with the specified role level in the division
-     */
-    public List<User> getUsersWithRoleLevelInDivision(Integer roleLevel, Integer divisionId) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT DISTINCT u FROM User u " +
-                    "JOIN u.userRoles ur " +
-                    "JOIN ur.role r " +
-                    "WHERE u.divisionId = :divisionId AND r.roleLevel = :roleLevel",
-                    User.class)
-                    .setParameter("divisionId", divisionId)
-                    .setParameter("roleLevel", roleLevel)
-                    .getResultList();
         } finally {
             em.close();
         }

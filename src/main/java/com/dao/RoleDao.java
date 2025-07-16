@@ -3,8 +3,10 @@ package com.dao;
 import com.entity.Role;
 import com.entity.Feature;
 import com.entity.RoleFeature;
+import com.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RoleDao extends BaseDao<Role> {
@@ -17,7 +19,7 @@ public class RoleDao extends BaseDao<Role> {
     public List<Role> list() {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT r FROM Role r LEFT JOIN FETCH r.roleFeatures rf LEFT JOIN FETCH rf.feature ORDER BY r.roleName", Role.class).getResultList();
+            return em.createQuery("SELECT r FROM Role r", Role.class).getResultList();
         } finally {
             em.close();
         }
@@ -61,7 +63,6 @@ public class RoleDao extends BaseDao<Role> {
 
     @Override
     public void delete(Role role) {
-        System.out.println("delete");
         EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -69,7 +70,6 @@ public class RoleDao extends BaseDao<Role> {
             Role managedRole = em.find(Role.class, role.getRoleId());
             if (managedRole != null) {
                 em.remove(managedRole);
-                System.out.println("delete");
             }
             tx.commit();
         } catch (Exception e) {
@@ -82,17 +82,10 @@ public class RoleDao extends BaseDao<Role> {
         }
     }
 
-    public Role findById(Integer id) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery("SELECT r FROM Role r LEFT JOIN FETCH r.userRoles WHERE r.roleId = :id", Role.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-        } catch (Exception e) {
-            return null;
-        } finally {
-            em.close();
-        }
+    public Role get(Integer id) {
+        return getEntityManager().createQuery("SELECT r FROM Role r WHERE r.roleId = :id", Role.class)
+                .setParameter("id", id)
+                .getSingleResult();
     }
 
     public List<Feature> getFeaturesByRoleId(Integer roleId) {
@@ -101,6 +94,19 @@ public class RoleDao extends BaseDao<Role> {
             return em.createQuery(
                     "SELECT rf.feature FROM RoleFeature rf WHERE rf.roleId = :roleId",
                     Feature.class)
+                    .setParameter("roleId", roleId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<User> getUsersWithRoleId(Integer roleId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT u FROM User u WHERE u.roleId = :roleId",
+                    User.class)
                     .setParameter("roleId", roleId)
                     .getResultList();
         } finally {
@@ -146,17 +152,14 @@ public class RoleDao extends BaseDao<Role> {
         return existsByName(roleName, null);
     }
 
-    public boolean hasPermission(Integer userId, String permission) {
+    public boolean hasPermission(Integer userId, String endpoint) {
         EntityManager em = getEntityManager();
         try {
             Long count = em.createQuery(
-                    "SELECT COUNT(rf) FROM RoleFeature rf "
-                    + "JOIN rf.role r "
-                    + "JOIN r.userRoles ur "
-                    + "WHERE ur.userId = :userId AND rf.feature.endpoint = :permission",
+                    "SELECT COUNT(rf) FROM RoleFeature rf WHERE rf.roleId = (SELECT u.roleId FROM User u WHERE u.userId = :userId) AND rf.feature.endpoint = :endpoint",
                     Long.class)
                     .setParameter("userId", userId)
-                    .setParameter("permission", permission)
+                    .setParameter("endpoint", endpoint)
                     .getSingleResult();
             return count > 0;
         } finally {

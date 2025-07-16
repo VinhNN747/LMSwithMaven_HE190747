@@ -10,7 +10,6 @@ C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\contr
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_user\UserBaseServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\dao\DivisionDao.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_leaverequest\LeaveRequestOwnServlet.java
-C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entity\UserRoleId.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_authentication\AuthenticationServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_division\DivisionListServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entity\Role.java
@@ -27,12 +26,10 @@ C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entit
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_division\DivisionEditServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_authentication\LoginServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_leaverequest\LeaveRequestSubServlet.java
-C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\PaginationUtil.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\mycompany\jpahibernatetesting\resources\JakartaEE10Resource.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_leaverequest\LeaveRequestAllServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_role\RoleListServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_division\BaseDivisionServlet.java
-C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entity\UserRole.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_leaverequest\LeaveRequestBaseServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\controller\controller_authorization\AuthorizationServlet.java
 C:\Users\VinhNN\Documents\NetBeansProjects\LMS_withMaven\src\main\java\com\entity\Division.java

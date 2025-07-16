@@ -8,7 +8,6 @@ com\dao\FeatureDao.class
 com\mycompany\jpahibernatetesting\JakartaRestConfiguration.class
 com\controller\controller_division\DivisionEditServlet.class
 com\entity\RoleFeature.class
-com\entity\UserRoleId.class
 com\controller\controller_authentication\AuthenticationServlet.class
 com\entity\Role.class
 com\controller\controller_division\DivisionDeleteServlet.class
@@ -19,7 +18,6 @@ com\entity\RoleFeatureId.class
 com\controller\controller_user\UserChangeDivisionServlet.class
 com\controller\controller_authentication\LogoutServlet.class
 com\mycompany\jpahibernatetesting\resources\JakartaEE10Resource.class
-com\entity\UserRole.class
 com\entity\Feature.class
 com\controller\controller_division\BaseDivisionServlet.class
 com\controller\controller_role\RoleListServlet.class

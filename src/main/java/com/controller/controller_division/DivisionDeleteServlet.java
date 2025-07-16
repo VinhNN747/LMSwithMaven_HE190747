@@ -16,17 +16,8 @@ public class DivisionDeleteServlet extends BaseDivisionServlet {
 
     @Override
     protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        Division division = ddb.findById(id);
-        if (division != null) {
-            try {
-                ddb.delete(division);
-            } catch (Exception e) {
-                request.setAttribute("error", "Cannot delete division: " + e.getMessage());
-            }
-        } else {
-            request.setAttribute("error", "Division not found");
-        }
+        Division division = ddb.get(Integer.parseInt(request.getParameter("id")));
+        ddb.delete(division);
         response.sendRedirect("list");
     }
 }

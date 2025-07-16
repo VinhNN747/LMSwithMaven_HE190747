@@ -6,7 +6,6 @@ package com.controller.controller_user;
 
 import com.entity.Division;
 import com.entity.User;
-import com.entity.UserRole;
 import com.dao.RoleDao;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,12 +56,6 @@ public class UserCreateServlet extends UserBaseServlet {
 
                 // Validate division exists
                 Division division = ddb.get(divisionId);
-                if (division == null) {
-                    request.setAttribute("error", "Selected division does not exist");
-                    request.setAttribute("divisions", ddb.list());
-                    request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
-                    return;
-                }
 
                 // Set manager to division head if division has one
                 if (division.getDivisionHead() != null) {
@@ -85,50 +78,10 @@ public class UserCreateServlet extends UserBaseServlet {
             return;
         }
 
-        try {
-            // Create the user
-            udb.create(newUser);
+        // Create the user
+        udb.create(newUser);
 
-            // Assign Employee role to the new user
-            // Fetch the userId (should be set after persist)
-            Integer newUserId = newUser.getUserId();
-            if (newUserId != null) {
-                // Find Employee role by name
-                RoleDao roleDao = new RoleDao();
-                Integer employeeRoleId = roleDao.getRoleIdByName("Employee");
-                
-                if (employeeRoleId != null) {
-                    UserRole userRole = new UserRole();
-                    userRole.setUserId(newUserId);
-                    userRole.setRoleId(employeeRoleId);
+        response.sendRedirect(request.getContextPath() + "/user/list");
 
-                    // Persist UserRole using the same EntityManager pattern as UserDao
-                    jakarta.persistence.EntityManager em = udb.getEntityManager();
-                    jakarta.persistence.EntityTransaction tx = em.getTransaction();
-                    try {
-                        tx.begin();
-                        em.persist(userRole);
-                        tx.commit();
-                    } catch (Exception e) {
-                        if (tx.isActive()) {
-                            tx.rollback();
-                        }
-                        throw e;
-                    } finally {
-                        em.close();
-                    }
-                } else {
-                    // Log warning if Employee role doesn't exist
-                    System.err.println("Warning: Employee role not found in database");
-                }
-            }
-
-            // Redirect to user list on success
-            response.sendRedirect(request.getContextPath() + "/user/list");
-        } catch (IOException e) {
-            request.setAttribute("error", "Failed to create user: " + e.getMessage());
-            request.setAttribute("divisions", ddb.list());
-            request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
-        }
     }
 }

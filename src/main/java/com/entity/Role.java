@@ -30,10 +30,6 @@ public class Role {
         this.roleLevel = roleLevel;
     }
 
-    // Navigation property for UserRole
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private List<UserRole> userRoles = new ArrayList<>();
-
     // Navigation property for RoleFeature
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
     private List<RoleFeature> roleFeatures = new ArrayList<>();
@@ -61,14 +57,6 @@ public class Role {
 
     public void setRoleDescription(String roleDescription) {
         this.roleDescription = roleDescription;
-    }
-
-    public List<UserRole> getUserRoles() {
-        return userRoles;
-    }
-
-    public void setUserRoles(List<UserRole> userRoles) {
-        this.userRoles = userRoles;
     }
 
     public List<RoleFeature> getRoleFeatures() {

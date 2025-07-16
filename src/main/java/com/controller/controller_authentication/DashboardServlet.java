@@ -5,10 +5,7 @@
 package com.controller.controller_authentication;
 
 import com.entity.User;
-import com.dao.LeaveRequestDao;
 import com.dao.UserDao;
-import com.entity.LeaveRequest;
-import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,50 +29,24 @@ public class DashboardServlet extends AuthenticationServlet {
         int userId = user.getUserId();
 
         // Fetch user's division and manager information
-        User fullUser = udb.getById(userId);
+        User fullUser = udb.get(userId);
         session.setAttribute("userDivision", fullUser.getDivision());
 
         // Fetch manager information if user has a manager
         if (fullUser.getManagerId() != null) {
-            User manager = udb.getById(fullUser.getManagerId());
+            User manager = udb.get(fullUser.getManagerId());
             session.setAttribute("userManager", manager);
         } else {
             session.setAttribute("userManager", null);
         }
 
-        boolean canViewOwn = udb.hasPermission(userId, "/leaverequest/myrequests");
-        boolean canViewSubs = udb.hasPermission(userId, "/leaverequest/subs");
-        boolean canViewAll = udb.hasPermission(userId, "/leaverequest/list");
-        boolean canCreate = udb.hasPermission(userId, "/leaverequest/create");
-        boolean canViewUser = udb.hasPermission(userId, "/user/list");
-        boolean canViewRole = udb.hasPermission(userId, "/role/list");
-        boolean canViewDivision = udb.hasPermission(userId, "/division/list");
-
-        LeaveRequestDao leaveRequestDao = new LeaveRequestDao();
-        session.setAttribute("canViewOwn", canViewOwn);
-        session.setAttribute("canViewSubs", canViewSubs);
-        session.setAttribute("canViewAll", canViewAll);
-        session.setAttribute("canCreate", canCreate);
-        session.setAttribute("canViewUser", canViewUser);
-        session.setAttribute("canViewRole", canViewRole);
-        session.setAttribute("canViewDivision", canViewDivision);
-        if (canViewOwn) {
-            List<LeaveRequest> myRequests = leaveRequestDao.listOf(userId);
-            request.setAttribute("myRequests", myRequests);
-        }
-
-        if (canViewSubs) {
-            List<LeaveRequest> subsRequests = leaveRequestDao.leaveRequestsOfSubs(userId);
-            request.setAttribute("subRequests", subsRequests);
-            // Also get direct subordinates' requests for review tab
-            List<LeaveRequest> directSubRequests = leaveRequestDao.leaveRequestsOfDirectSubs(userId);
-            request.setAttribute("directSubRequests", directSubRequests);
-        }
-
-        if (canViewAll) {
-            List<LeaveRequest> allRequests = leaveRequestDao.list();
-            request.setAttribute("allRequests", allRequests);
-        }
+        setPermission(session, "canViewOwn", "/leaverequest/myrequests", udb, userId);
+        setPermission(session, "canViewSubs", "/leaverequest/subs", udb, userId);
+        setPermission(session, "canViewAll", "/leaverequest/list", udb, userId);
+        setPermission(session, "canCreate", "/leaverequest/create", udb, userId);
+        setPermission(session, "canViewUser", "/user/list", udb, userId);
+        setPermission(session, "canViewRole", "/role/list", udb, userId);
+        setPermission(session, "canViewDivision", "/division/list", udb, userId);
 
         request.getRequestDispatcher("/view/dashboard.jsp").forward(request, response);
     }
@@ -98,4 +69,7 @@ public class DashboardServlet extends AuthenticationServlet {
         }
     }
 
+    private void setPermission(HttpSession session, String permission, String endpoint, UserDao udb, int userId) {
+        session.setAttribute(permission, udb.hasPermission(userId, endpoint));
+    }
 }

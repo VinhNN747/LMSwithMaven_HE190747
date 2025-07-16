@@ -22,107 +22,48 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
 
     @Override
     public List<LeaveRequest> list() {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery("SELECT lr FROM LeaveRequest lr LEFT JOIN FETCH lr.sender LEFT JOIN FETCH lr.reviewer ORDER BY lr.startDate DESC", LeaveRequest.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return listRequests(null, null, null, null);
     }
 
     /**
-     * Get all leave requests for a specific user
+     * List leave requests with flexible filtering.
+     *
+     * @param senderIds List of sender user IDs to include (null for all)
+     * @param status Status to filter (null or empty for all)
+     * @param reviewerId Reviewer user ID to filter (null for all)
+     * @param divisionId Division ID to filter (null for all)
+     * @return List of LeaveRequest
      */
-    public List<LeaveRequest> listOf(int userId) {
+    public List<LeaveRequest> listRequests(List<Integer> senderIds, String status, Integer reviewerId, Integer divisionId) {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr LEFT JOIN FETCH lr.reviewer WHERE lr.senderId = :userId ORDER BY lr.startDate DESC",
-                    LeaveRequest.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Get all leave requests from subordinates of a user
-     */
-    public List<LeaveRequest> leaveRequestsOfSubs(int userId) {
-        EntityManager em = getEntityManager();
-        try {
-            // First, get all subordinate IDs using a recursive approach
-            List<Integer> subordinateIds = getAllSubordinateIds(userId);
-
-            if (subordinateIds.isEmpty()) {
-                return new ArrayList<>();
+            StringBuilder jpql = new StringBuilder("SELECT lr FROM LeaveRequest lr WHERE 1=1");
+            if (senderIds != null) {
+                jpql.append(" AND lr.senderId IN :senderIds");
             }
-
-            // Then get leave requests from all subordinates with proper fetching
-            return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr "
-                    + "LEFT JOIN FETCH lr.reviewer "
-                    + "LEFT JOIN FETCH lr.sender "
-                    + "WHERE lr.senderId IN :subordinateIds "
-                    + "ORDER BY lr.startDate DESC",
-                    LeaveRequest.class)
-                    .setParameter("subordinateIds", subordinateIds)
-                    .getResultList();
-        } catch (Exception e) {
-            System.err.println("Error in leaveRequestsOfSubs: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Get leave requests from DIRECT subordinates only (not recursive)
-     */
-    public List<LeaveRequest> leaveRequestsOfDirectSubs(int userId) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT lr FROM LeaveRequest lr "
-                    + "LEFT JOIN FETCH lr.reviewer "
-                    + "LEFT JOIN FETCH lr.sender "
-                    + "WHERE lr.senderId IN (SELECT u.userId FROM User u WHERE u.managerId = :userId) "
-                    + "ORDER BY lr.startDate DESC",
-                    LeaveRequest.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-        } catch (Exception e) {
-            System.err.println("Error in leaveRequestsOfDirectSubs: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Helper method to get all subordinate IDs recursively
-     */
-    private List<Integer> getAllSubordinateIds(int userId) {
-        EntityManager em = getEntityManager();
-        try {
-            // Get direct subordinates
-            List<Integer> directSubordinates = em.createQuery(
-                    "SELECT u.userId FROM User u WHERE u.managerId = :userId",
-                    Integer.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-
-            List<Integer> allSubordinates = new ArrayList<>(directSubordinates);
-
-            // Recursively get subordinates of subordinates
-            for (Integer subordinateId : directSubordinates) {
-                allSubordinates.addAll(getAllSubordinateIds(subordinateId));
+            if (status != null && !status.isEmpty()) {
+                jpql.append(" AND lr.status = :status");
             }
-
-            return allSubordinates;
+            if (reviewerId != null) {
+                jpql.append(" AND lr.reviewerId = :reviewerId");
+            }
+            if (divisionId != null) {
+                jpql.append(" AND lr.sender.divisionId = :divisionId");
+            }
+            var query = em.createQuery(jpql.toString(), LeaveRequest.class);
+            if (senderIds != null) {
+                query.setParameter("senderIds", senderIds);
+            }
+            if (status != null && !status.isEmpty()) {
+                query.setParameter("status", status);
+            }
+            if (reviewerId != null) {
+                query.setParameter("reviewerId", reviewerId);
+            }
+            if (divisionId != null) {
+                query.setParameter("divisionId", divisionId);
+            }
+            return query.getResultList();
         } finally {
             em.close();
         }
@@ -188,12 +129,7 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
     /**
      * Find a LeaveRequest by its ID
      */
-    public LeaveRequest find(int id) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.find(LeaveRequest.class, id);
-        } finally {
-            em.close();
-        }
+    public LeaveRequest get(int id) {
+        return getEntityManager().find(LeaveRequest.class, id);
     }
 }

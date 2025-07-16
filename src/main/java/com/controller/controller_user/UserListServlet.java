@@ -1,5 +1,7 @@
 package com.controller.controller_user;
 
+import com.dao.RoleDao;
+import com.entity.Role;
 import com.entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,12 +23,38 @@ public class UserListServlet extends UserBaseServlet {
         processRequest(request, response, user);
     }
 
-    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
+    private void processRequest(HttpServletRequest request, HttpServletResponse response, User user)
+            throws ServletException, IOException {
         try {
-            List<User> allUsers = udb.list();
-            request.setAttribute("users", allUsers);
-            
+            // Parse filter parameters
+            String divisionIdStr = request.getParameter("divisionId");
+            String roleIdStr = request.getParameter("roleId");
+            Integer divisionId = (divisionIdStr != null && !divisionIdStr.isEmpty()) ? Integer.valueOf(divisionIdStr)
+                    : null;
+            Integer roleId = (roleIdStr != null && !roleIdStr.isEmpty()) ? Integer.valueOf(roleIdStr) : null;
+
+            boolean isAdmin = user.getRole().getRoleLevel() == 100;
+            boolean isDivisionHead = user.getRole().getRoleLevel() == 99;
+            List<User> users;
+
+            if (isAdmin) {
+                // Admin: list all users, with optional filters
+                users = udb.listUsers(null, divisionId, roleId, null, null);
+            } else if (isDivisionHead) {
+                // Division Head: list all users in their division, with optional filters
+                users = udb.listUsers(null, user.getDivisionId(), roleId, null, null);
+            } else {
+                // Regular user: list all subordinates (direct and indirect), with optional filters
+                List<Integer> subordinateIds = udb.getAllSubordinateIds(user.getUserId());
+                users = udb.listUsers(subordinateIds, divisionId, roleId, null, null);
+            }
+
+            request.setAttribute("users", users);
             request.setAttribute("divisions", ddb.list());
+            request.setAttribute("roles", new RoleDao().list());
+            request.setAttribute("selectedDivisionId", divisionId);
+            request.setAttribute("selectedRoleId", roleId);
+            request.setAttribute("isAdmin", isAdmin);
             request.getRequestDispatcher("/view/user/list.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "An error occurred: " + e.getMessage());

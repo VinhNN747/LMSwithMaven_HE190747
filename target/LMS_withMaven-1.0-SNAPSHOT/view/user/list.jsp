@@ -29,6 +29,38 @@
                             <% session.removeAttribute("successMessage");%>
                         </c:if>
                         <div class="mb-3">
+                            <form method="get" action="${pageContext.request.contextPath}/user/list" class="row g-2 align-items-end">
+                                <c:if test="${isAdmin}">
+                                    <div class="col-md-4">
+                                        <label for="divisionId" class="form-label">Division</label>
+                                        <select id="divisionId" name="divisionId" class="form-select">
+                                            <option value="">All Divisions</option>
+                                            <c:forEach var="division" items="${divisions}">
+                                                <option value="${division.divisionId}" ${selectedDivisionId != null && selectedDivisionId == division.divisionId ? 'selected' : ''}>
+                                                    ${division.divisionName}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </c:if>
+                                <div class="col-md-4">
+                                    <label for="roleId" class="form-label">Role</label>
+                                    <select id="roleId" name="roleId" class="form-select">
+                                        <option value="">All Roles</option>
+                                        <c:forEach var="role" items="${roles}">
+                                            <option value="${role.roleId}" ${selectedRoleId != null && selectedRoleId == role.roleId ? 'selected' : ''}>
+                                                ${role.roleName}
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary">Search</button>
+                                    <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary ms-2">Reset</a>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="mb-3">
                             <a href="${pageContext.request.contextPath}/user/create" class="btn btn-primary">Add New User</a>
                         </div>
                         <div class="scrollable-list">
@@ -71,9 +103,7 @@
                                                 </c:choose>
                                             </td>
                                             <td>
-                                                <c:forEach var="userRole" items="${user.userRoles}">
-                                                    <span class="badge bg-dark text-white me-1">${userRole.role.roleName}</span>
-                                                </c:forEach>
+                                                <span class="badge bg-dark text-white me-1">${user.role.roleName}</span>
                                             </td>
                                             <td>
                                                 <c:choose>

@@ -15,7 +15,7 @@ public class FeatureDao extends BaseDao<Feature> {
     public List<Feature> list() {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery("SELECT f FROM Feature f ORDER BY f.featureName", Feature.class).getResultList();
+            return em.createQuery("SELECT f FROM Feature f", Feature.class).getResultList();
         } finally {
             em.close();
         }
@@ -78,13 +78,8 @@ public class FeatureDao extends BaseDao<Feature> {
         }
     }
 
-    public Feature findById(Integer id) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.find(Feature.class, id);
-        } finally {
-            em.close();
-        }
+    public Feature get(Integer id) {
+        return getEntityManager().find(Feature.class, id);
     }
 
     public boolean existsByName(String featureName, Integer excludeFeatureId) {
@@ -94,14 +89,14 @@ public class FeatureDao extends BaseDao<Feature> {
             if (excludeFeatureId != null) {
                 jpql += " AND f.featureId != :excludeFeatureId";
             }
-            
+
             var query = em.createQuery(jpql, Long.class)
                     .setParameter("featureName", featureName);
-            
+
             if (excludeFeatureId != null) {
                 query.setParameter("excludeFeatureId", excludeFeatureId);
             }
-            
+
             return query.getSingleResult() > 0;
         } finally {
             em.close();
@@ -129,4 +124,4 @@ public class FeatureDao extends BaseDao<Feature> {
         Feature feature = findByEndpoint(endpoint);
         return feature != null ? feature.getFeatureId() : null;
     }
-} 
+}

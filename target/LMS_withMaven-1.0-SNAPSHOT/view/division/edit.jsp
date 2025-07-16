@@ -1,5 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    request.setAttribute("activeTab", "division");
+%>
 <!DOCTYPE html>
 <html>
     <%@ include file="/view/common_jsp_components/head.jspf" %>
@@ -35,10 +38,7 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                             </div>
-                                            <small class="form-text text-muted">
-                                                Division heads are managed through role assignments. To change the head, 
-                                                assign the "Division Head" role to a user in this division.
-                                            </small>
+
                                         </div>
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
                                         <a href="${pageContext.request.contextPath}/division/list" class="btn btn-secondary">Cancel</a>

@@ -18,12 +18,12 @@ public class LeaveRequest implements Serializable {
     private Integer leaveRequestId;
 
     // Navigation attribute for sender (User)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "SenderID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private User sender;
 
     // Navigation attribute for reviewer (User)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "ReviewerID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private User reviewer;
 

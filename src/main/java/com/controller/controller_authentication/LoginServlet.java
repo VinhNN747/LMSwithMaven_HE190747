@@ -36,10 +36,10 @@ public class LoginServlet extends HttpServlet {
         if (user != null) {
             HttpSession session = req.getSession();
             List<String> permissions = userDao.getUserFeatureEndpoints(user.getUserId());
-            List<Role> roles = userDao.getUserRoles(user.getUserId());
+            Role role = userDao.getUserRole(user.getUserId());
             session.setAttribute("user", user);
             session.setAttribute("permissions", permissions);
-            session.setAttribute("roles", roles);
+            session.setAttribute("role", role);
             resp.sendRedirect(req.getContextPath() + "/dashboard");
         } else {
             req.setAttribute("error", "Invalid username or password");

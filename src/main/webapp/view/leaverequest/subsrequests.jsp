@@ -21,6 +21,38 @@
                         <h4>All Subordinates' Leave Requests</h4>
                         <small class="text-muted">View all subordinates' requests (including subordinates of subordinates) for monitoring</small>
                     </div>
+                    <div class="card-body">
+                        <form method="get" class="row g-2 mb-3">
+                            <div class="col">
+                                <select name="status" class="form-select">
+                                    <option value="">All Statuses</option>
+                                    <option value="In Progress" ${selectedStatus == 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                    <option value="Approved" ${selectedStatus == 'Approved' ? 'selected' : ''}>Approved</option>
+                                    <option value="Rejected" ${selectedStatus == 'Rejected' ? 'selected' : ''}>Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <select name="senderId" class="form-select">
+                                    <option value="">All Senders</option>
+                                    <c:forEach var="user" items="${allUsers}">
+                                        <option value="${user.userId}" <c:if test="${selectedSenderId == user.userId}">selected</c:if>>${user.fullName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <select name="reviewerId" class="form-select">
+                                    <option value="">All Reviewers</option>
+                                    <c:forEach var="user" items="${allUsers}">
+                                        <option value="${user.userId}" <c:if test="${selectedReviewerId == user.userId}">selected</c:if>>${user.fullName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                        </form>
+                    </div>
                     <c:choose>
                         <c:when test="${empty subRequests}">
                             <div class="alert alert-info">
