@@ -64,7 +64,7 @@ public class LeaveRequestAllServlet extends LeaveRequestBaseServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("pageNumber", pageNumber);
         request.setAttribute("pageSize", pageSize);
-        request.getRequestDispatcher("/view/leaverequest/allrequests.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/leaverequest/allrequests.jsp").forward(request, response);
     }
 
 }

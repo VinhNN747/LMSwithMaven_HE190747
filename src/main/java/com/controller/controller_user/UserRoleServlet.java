@@ -28,7 +28,7 @@ public class UserRoleServlet extends UserBaseServlet {
         request.setAttribute("targetUser", targetUser);
         request.setAttribute("currentRole", currentRole);
         request.setAttribute("allRoles", roleDao.list());
-        request.getRequestDispatcher("/view/user/role.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/user/role.jsp").forward(request, response);
 
     }
 
@@ -47,7 +47,7 @@ public class UserRoleServlet extends UserBaseServlet {
         String divisionHeadConflict = handleDivisionHeadConflict(targetUser, selectedRole);
         if (divisionHeadConflict != null) {
             request.getSession().setAttribute("error", divisionHeadConflict);
-            response.sendRedirect(request.getContextPath() + "/user/list");
+            response.sendRedirect("list");
             return;
         }
 
@@ -65,11 +65,8 @@ public class UserRoleServlet extends UserBaseServlet {
         // Check if this creates a hierarchy conflict and handle it
         handleHierarchyConflict(targetUser, selectedRole);
 
-        // Set success message
-        request.getSession().setAttribute("successMessage", "Role updated successfully.");
-
         // Redirect to user listRoles on success
-        response.sendRedirect(request.getContextPath() + "/user/list");
+        response.sendRedirect("list");
 
     }
 

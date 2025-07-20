@@ -69,10 +69,10 @@ public class UserListServlet extends UserBaseServlet {
             request.setAttribute("pageNumber", pageNumber);
             request.setAttribute("pageSize", pageSize);
             request.setAttribute("totalPages", totalPages);
-            request.getRequestDispatcher("/view/user/list.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/user/list.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "An error occurred: " + e.getMessage());
-            request.getRequestDispatcher("/view/user/list.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/user/list.jsp").forward(request, response);
         }
     }
 }

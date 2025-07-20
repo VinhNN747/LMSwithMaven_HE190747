@@ -17,7 +17,7 @@ public class DivisionListServlet extends BaseDivisionServlet {
         String name = request.getParameter("name");
         String pageNumberStr = request.getParameter("pageNumber");
         String pageSizeStr = request.getParameter("pageSize");
-        
+
         Integer pageNumber = (pageNumberStr != null && !pageNumberStr.isEmpty()) ? Integer.valueOf(pageNumberStr) : 1;
         Integer pageSize = (pageSizeStr != null && !pageSizeStr.isEmpty()) ? Integer.valueOf(pageSizeStr) : 7;
         List<Division> divisions = ddb.list(name, pageNumber, pageSize);
@@ -28,7 +28,7 @@ public class DivisionListServlet extends BaseDivisionServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("pageNumber", pageNumber);
         request.setAttribute("pageSize", pageSize);
-        request.getRequestDispatcher("/view/division/list.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/division/list.jsp").forward(request, response);
 
     }
 

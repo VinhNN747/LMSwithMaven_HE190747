@@ -56,7 +56,7 @@
                             </div>
                             <div class="col">
                                 <button type="submit" class="btn btn-primary">Search</button>
-                                <a href="${pageContext.request.contextPath}/leaverequest/list" class="btn btn-secondary ms-2">Reset</a>
+                                <a href="list" class="btn btn-secondary ms-2">Reset</a>
                             </div>
                         </form>
                         <c:choose>
@@ -127,7 +127,7 @@
                                 <!-- Pagination Controls: Input for Page Number -->
                                 <c:if test="${totalPages > 1}">
                                     <nav aria-label="AllRequests pagination">
-                                        <form method="get" action="" class="allrequests-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
+                                        <form method="get" action="list" class="allrequests-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
                                             <button class="btn btn-outline-secondary" type="button" data-page="1" ${pageNumber == 1 ? 'disabled' : ''}>&lt;&lt;</button>
                                             <button class="btn btn-outline-secondary" type="button" data-page="${pageNumber - 1}" ${pageNumber == 1 ? 'disabled' : ''}>&lt;</button>
                                             <span>Page</span>

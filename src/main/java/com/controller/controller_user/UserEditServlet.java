@@ -33,7 +33,7 @@ public class UserEditServlet extends UserBaseServlet {
 
         request.setAttribute("user", existingUser);
         request.setAttribute("potentialManagers", potentialManagers);
-        request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/user/edit.jsp").forward(request, response);
 
     }
 
@@ -75,12 +75,12 @@ public class UserEditServlet extends UserBaseServlet {
             request.setAttribute("error", userEditValidation);
             request.setAttribute("user", originalUser);
             request.setAttribute("potentialManagers", getPotentialManagers(originalUser));
-            request.getRequestDispatcher("/view/user/edit.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/user/edit.jsp").forward(request, response);
             return;
         }
 
         udb.edit(targetUser);
-        response.sendRedirect(request.getContextPath() + "/user/list");
+        response.sendRedirect("list");
 
     }
 

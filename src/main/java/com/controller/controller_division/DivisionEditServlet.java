@@ -14,7 +14,7 @@ public class DivisionEditServlet extends BaseDivisionServlet {
         Division division = ddb.get(Integer.parseInt(request.getParameter("id")));
 
         request.setAttribute("division", division);
-        request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/division/edit.jsp").forward(request, response);
 
     }
 
@@ -31,14 +31,13 @@ public class DivisionEditServlet extends BaseDivisionServlet {
         // Validate the updated division
         String validationError = validateDivision(division);
         if (validationError != null) {
-            request.setAttribute("error", validationError);
             request.setAttribute("division", division);
-            request.getRequestDispatcher("/view/division/edit.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/division/edit.jsp").forward(request, response);
             return;
         }
         // Save the changes
         ddb.edit(division);
-        response.sendRedirect(request.getContextPath() + "/division/list");
+        response.sendRedirect("list");
 
     }
 }

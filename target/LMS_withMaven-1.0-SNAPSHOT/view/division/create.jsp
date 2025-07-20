@@ -18,15 +18,13 @@
                                     <h4>Add New Division</h4>
                                 </div>
                                 <div class="card-body">
-                                    <c:if test="${not empty error}">
-                                        <p class="error">${error}</p>
-                                    </c:if>
+
                                     <form action="create" method="post">
                                         <div class="mb-3">
                                             <input type="text" id="divisionName" name="divisionName" class="form-control" placeholder="Division Name" maxlength="50" required />
                                         </div>
                                         <button type="submit" class="btn btn-primary">Save Division</button>
-                                        <a href="${pageContext.request.contextPath}/division/list" class="btn btn-secondary">Cancel</a>
+                                        <a href="list" class="btn btn-secondary">Cancel</a>
                                     </form>
                                 </div>
                             </div>

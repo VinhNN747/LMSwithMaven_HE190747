@@ -24,7 +24,7 @@ import java.util.List;
 public class LoginServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/view/auth/login.jsp").forward(request, response);
+        request.getRequestDispatcher("view/auth/login.jsp").forward(request, response);
     }
 
     @Override
@@ -40,10 +40,10 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("user", user);
             session.setAttribute("permissions", permissions);
             session.setAttribute("role", role);
-            resp.sendRedirect(req.getContextPath() + "/dashboard");
+            resp.sendRedirect("dashboard");
         } else {
             req.setAttribute("error", "Invalid username or password");
-            req.getRequestDispatcher("/view/auth/login.jsp").forward(req, resp);
+            req.getRequestDispatcher("view/auth/login.jsp").forward(req, resp);
         }
     }
 

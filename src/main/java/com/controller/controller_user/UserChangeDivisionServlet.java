@@ -35,7 +35,7 @@ public class UserChangeDivisionServlet extends UserBaseServlet {
         request.setAttribute("user", existingUser);
         request.setAttribute("subordinates", subordinates);
         request.setAttribute("currentRole", currentRole);
-        request.getRequestDispatcher("/view/user/changedivision.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/user/changedivision.jsp").forward(request, response);
 
     }
 
@@ -54,17 +54,14 @@ public class UserChangeDivisionServlet extends UserBaseServlet {
 
         // Check if user is already in the selected division
         if (oldDivisionId != null && oldDivisionId.equals(divisionId)) {
-            request.getSession().setAttribute("successMessage", "User is already in the selected division.");
-            response.sendRedirect(request.getContextPath() + "/user/list");
+            response.sendRedirect("list");
             return;
         }
 
         // Check if user is a Division Head - prevent moving Division Heads
         Role currentRole = udb.getUserRole(userId);
         if (currentRole != null && currentRole.getRoleLevel() != null && currentRole.getRoleLevel() == 99) {
-            request.getSession().setAttribute("error",
-                    "Cannot move Division Head to different division. Division Heads must remain in their assigned division.");
-            response.sendRedirect(request.getContextPath() + "/user/list");
+            response.sendRedirect("/list");
             return;
         }
 
@@ -77,14 +74,14 @@ public class UserChangeDivisionServlet extends UserBaseServlet {
         handleOrganizationalRelationships(targetUser, oldDivisionId, divisionId);
 
         // Redirect to user list
-        response.sendRedirect(request.getContextPath() + "/user/list");
+        response.sendRedirect("list");
 
     }
 
     /**
      * Handle organizational relationships when a user moves to a new division
      *
-     * @param user          The user being moved
+     * @param user The user being moved
      * @param oldDivisionId The old division ID
      * @param newDivisionId The new division ID
      * @return Description of changes made
@@ -135,7 +132,7 @@ public class UserChangeDivisionServlet extends UserBaseServlet {
     /**
      * Assign user to the division head if one exists
      *
-     * @param user       The user being moved
+     * @param user The user being moved
      * @param divisionId The division ID
      * @return true if assigned to division head, false otherwise
      */
@@ -178,7 +175,7 @@ public class UserChangeDivisionServlet extends UserBaseServlet {
     /**
      * Remove manager assignment if the manager is in a different division
      *
-     * @param user          The user being moved
+     * @param user The user being moved
      * @param newDivisionId The new division ID
      * @return true if manager was removed, false otherwise
      */

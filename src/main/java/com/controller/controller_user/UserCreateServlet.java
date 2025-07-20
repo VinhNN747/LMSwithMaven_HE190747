@@ -4,13 +4,12 @@
  */
 package com.controller.controller_user;
 
+import com.dao.RoleDao;
 import com.entity.Division;
 import com.entity.User;
-import com.dao.RoleDao;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -42,12 +41,11 @@ public class UserCreateServlet extends UserBaseServlet {
         newUser.setUsername(userName);
         newUser.setPassword(password);
         newUser.setEmail(email);
-
+        newUser.setRoleId(new RoleDao().findByName("Employee").getRoleId()); // set default role to be Employee
         // Parse gender
         if (genderStr != null && !genderStr.trim().isEmpty()) {
             newUser.setGender(Boolean.valueOf(genderStr));
         }
-
         // Parse division ID
         if (divisionIdStr != null && !divisionIdStr.trim().isEmpty()) {
             try {
@@ -64,7 +62,7 @@ public class UserCreateServlet extends UserBaseServlet {
             } catch (NumberFormatException e) {
                 request.setAttribute("error", "Invalid division ID format");
                 request.setAttribute("divisions", ddb.list());
-                request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
+                request.getRequestDispatcher("../view/user/create.jsp").forward(request, response);
                 return;
             }
         }
@@ -74,14 +72,14 @@ public class UserCreateServlet extends UserBaseServlet {
         if (userValidation != null) {
             request.setAttribute("error", userValidation);
             request.setAttribute("divisions", ddb.list());
-            request.getRequestDispatcher("/view/user/create.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/user/create.jsp").forward(request, response);
             return;
         }
 
         // Create the user
         udb.create(newUser);
 
-        response.sendRedirect(request.getContextPath() + "/user/list");
+        response.sendRedirect("list");
 
     }
 }

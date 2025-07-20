@@ -59,12 +59,12 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
         request.setAttribute("selectedReviewerId", reviewerId);
         request.setAttribute("selectedDivisionId", divisionId);
 
-        request.getRequestDispatcher("/view/leaverequest/subsrequests.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/leaverequest/subsrequests.jsp").forward(request, response);
     }
 
     @Override
     protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
         // This servlet is for viewing only, not for actions
-        response.sendRedirect(request.getContextPath() + "/leaverequest/subs");
+        response.sendRedirect("subs");
     }
 }

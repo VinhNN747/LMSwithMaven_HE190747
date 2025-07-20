@@ -6,7 +6,6 @@ package com.controller.controller_leaverequest;
 
 import com.entity.LeaveRequest;
 import com.entity.User;
-import java.util.List;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * Servlet for reviewing direct subordinates' leave requests (for
  * approval/denial)
  */
-@WebServlet(name = "LeaveRequestReviewServlet", urlPatterns = { "/leaverequest/review" })
+@WebServlet(name = "LeaveRequestReviewServlet", urlPatterns = {"/leaverequest/review"})
 public class LeaveRequestReviewServlet extends LeaveRequestBaseServlet {
 
     @Override
@@ -45,7 +44,7 @@ public class LeaveRequestReviewServlet extends LeaveRequestBaseServlet {
             ldb.edit(lr);
         }
 
-        response.sendRedirect(request.getContextPath() + "/leaverequest/subs");
+        response.sendRedirect("subs");
 
     }
 }

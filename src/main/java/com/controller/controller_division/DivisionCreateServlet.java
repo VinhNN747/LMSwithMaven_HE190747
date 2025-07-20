@@ -11,7 +11,7 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
 
     @Override
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/division/create.jsp").forward(request, response);
     }
 
     @Override
@@ -21,12 +21,11 @@ public class DivisionCreateServlet extends BaseDivisionServlet {
         newDivision.setDivisionName(divisionName);
         String divisionValidation = validateDivision(newDivision);
         if (divisionValidation != null) {
-            request.setAttribute("error", divisionValidation);
-            request.getRequestDispatcher("/view/division/create.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/division/create.jsp").forward(request, response);
             return;
         }
         ddb.create(newDivision);
-        response.sendRedirect(request.getContextPath() + "/division/list");
+        response.sendRedirect("list");
 
     }
 }

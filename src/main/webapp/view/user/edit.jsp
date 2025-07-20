@@ -18,12 +18,9 @@
                         <h4>Edit User: ${user.fullName}</h4>
                     </div>
                     <div class="card-body">
-                        <c:if test="${not empty error}">
-                            <p class="error">${error}</p>
-                        </c:if>
                         <form action="edit" method="post">
                             <input type="hidden" name="userId" value="${user.userId}"/>
-                            
+
                             <div class="mb-3">
                                 <input type="text" id="fullName" name="fullName" class="form-control" placeholder="Full Name" value="${user.fullName}" maxlength="100" required/>
                             </div>
@@ -56,8 +53,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary">Save Changes</button>
-                            <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary">Cancel</a>
-                            <a href="${pageContext.request.contextPath}/user/changeDivision?userId=${user.userId}" class="btn btn-warning ms-2">Change Division</a>
+                            <a href="list" class="btn btn-secondary">Cancel</a>
                         </form>
                     </div>
                 </div>

@@ -18,18 +18,8 @@
                         <h4>User Management</h4>
                     </div>
                     <div class="card-body">
-                        <c:if test="${not empty error}">
-                            <p class="error">${error}</p>
-                        </c:if>
-                        <c:if test="${not empty sessionScope.successMessage}">
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                ${sessionScope.successMessage}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            <% session.removeAttribute("successMessage");%>
-                        </c:if>
                         <div class="mb-3">
-                            <form method="get" action="${pageContext.request.contextPath}/user/list" class="row g-2 align-items-end">
+                            <form method="get" action="list" class="row g-2 align-items-end">
                                 <c:if test="${isAdmin}">
                                     <div class="col-md-4">
                                         <label for="divisionId" class="form-label">Division</label>
@@ -56,12 +46,12 @@
                                 </div>
                                 <div class="col-md-4">
                                     <button type="submit" class="btn btn-primary">Search</button>
-                                    <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary ms-2">Reset</a>
+                                    <a href="list" class="btn btn-secondary ms-2">Reset</a>
                                 </div>
                             </form>
                         </div>
                         <div class="mb-3">
-                            <a href="${pageContext.request.contextPath}/user/create" class="btn btn-primary">Add New User</a>
+                            <a href="create" class="btn btn-primary">Add New User</a>
                         </div>
                         <div class="scrollable-list">
                             <table class="table table-bordered table-hover">
@@ -113,12 +103,12 @@
                                                     <c:otherwise>
                                                         N/A
                                                     </c:otherwise>
-                                                </c:choose>
+                                                </c:choose> 
                                             </td>
                                             <td>
                                                 <a href="edit?id=${user.userId}" class="btn btn-sm btn-secondary">Edit</a>
-                                                <a href="${pageContext.request.contextPath}/user/changedivision?id=${user.userId}" class="btn btn-sm btn-warning ms-1">Change Division</a>
-                                                <a href="${pageContext.request.contextPath}/user/role?userId=${user.userId}" class="btn btn-sm btn-info ms-1">Change Role</a>
+                                                <a href="changedivision?id=${user.userId}" class="btn btn-sm btn-warning ms-1">Change Division</a>
+                                                <a href="role?userId=${user.userId}" class="btn btn-sm btn-info ms-1">Change Role</a>
                                                 <form action="delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                                     <input type="hidden" name="id" value="${user.userId}" />
                                                     <button type="submit" class="btn btn-sm btn-danger">Delete</button>
@@ -132,7 +122,7 @@
                         <!-- Pagination Controls: Input for Page Number -->
                         <c:if test="${totalPages > 1}">
                             <nav aria-label="User pagination">
-                                <form method="get" action="" class="user-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
+                                <form method="get" action="list" class="user-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
                                     <button class="btn btn-outline-secondary" type="button" data-page="1" ${pageNumber == 1 ? 'disabled' : ''}>&lt;&lt;</button>
                                     <button class="btn btn-outline-secondary" type="button" data-page="${pageNumber - 1}" ${pageNumber == 1 ? 'disabled' : ''}>&lt;</button>
                                     <span>Page</span>

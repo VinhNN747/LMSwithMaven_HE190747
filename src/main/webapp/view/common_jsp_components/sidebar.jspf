@@ -18,7 +18,7 @@
         </div>
         <div class="profile-role">
             <span>Role: </span>
-                <c:out value="${role.roleName}"/>
+            <c:out value="${role.roleName}"/>
         </div>
         <div class="profile-division">
             <span>Division: </span>
@@ -38,56 +38,56 @@
     <ul class="nav nav-pills flex-column mb-auto">
         <c:if test="${sessionScope.canViewOwn}">
             <li class="nav-item" role="presentation">
-                <a class="nav-link ${requestScope.activeTab == 'myrequests' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/myrequests">
+                <a class="nav-link ${requestScope.activeTab == 'myrequests' ? 'active' : 'text-white'}" href="/LMS_withMaven/leaverequest/myrequests">
                     My Requests
                 </a>
             </li>
         </c:if>
         <c:if test="${sessionScope.canCreate}">
             <li class="nav-item" role="presentation">
-                <a class="nav-link ${requestScope.activeTab == 'create' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/create">
+                <a class="nav-link ${requestScope.activeTab == 'create' ? 'active' : 'text-white'}" href="/LMS_withMaven/leaverequest/create">
                     Create Request
                 </a>
             </li>
         </c:if>
         <c:if test="${sessionScope.canViewUser}">
             <li class="nav-item" role="presentation">
-                <a class="nav-link ${requestScope.activeTab == 'user' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/user/list">
+                <a class="nav-link ${requestScope.activeTab == 'user' ? 'active' : 'text-white'}" href="/LMS_withMaven/user/list">
                     User Management
                 </a>
             </li>
         </c:if>
         <c:if test="${sessionScope.canViewRole}">
             <li class="nav-item" role="presentation">
-                <a class="nav-link ${requestScope.activeTab == 'role' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/role/list">
+                <a class="nav-link ${requestScope.activeTab == 'role' ? 'active' : 'text-white'}" href="/LMS_withMaven/role/list">
                     Role Management
                 </a>
             </li>
         </c:if>
         <c:if test="${sessionScope.canViewDivision}">
             <li class="nav-item" role="presentation">
-                <a class="nav-link ${requestScope.activeTab == 'division' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/division/list">
+                <a class="nav-link ${requestScope.activeTab == 'division' ? 'active' : 'text-white'}" href="/LMS_withMaven/division/list">
                     Division Management
                 </a>
             </li>
         </c:if>
         <c:if test="${sessionScope.canViewAll}">
             <li class="nav-item" role="presentation">
-                <a class="nav-link ${requestScope.activeTab == 'allrequests' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/list">
+                <a class="nav-link ${requestScope.activeTab == 'allrequests' ? 'active' : 'text-white'}" href="/LMS_withMaven/leaverequest/list">
                     All Leave Requests
                 </a>
             </li>
         </c:if>
         <c:if test="${sessionScope.canViewSubs}">
             <li class="nav-item" role="presentation">
-                <a class="nav-link ${requestScope.activeTab == 'subs' ? 'active' : 'text-white'}" href="${pageContext.request.contextPath}/leaverequest/subs">
+                <a class="nav-link ${requestScope.activeTab == 'subs' ? 'active' : 'text-white'}" href="/LMS_withMaven/leaverequest/subs">
                     Subordinate Requests
                 </a>
             </li>
         </c:if>
     </ul>
     <div class="sidebar-logout">
-        <a href="${pageContext.request.contextPath}/logout" class="logout-link">
+        <a href="/LMS_withMaven/logout" class="logout-link">
             <span class="sidebar-text">Log out</span>
         </a>
     </div>

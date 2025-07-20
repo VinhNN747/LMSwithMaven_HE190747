@@ -37,7 +37,7 @@ public class RoleListServlet extends RoleBaseServlet {
         request.setAttribute("pageNumber", pageNumber);
         request.setAttribute("pageSize", pageSize);
         request.setAttribute("totalPages", totalPages);
-        request.getRequestDispatcher("/view/role/list.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/role/list.jsp").forward(request, response);
 
     }
 }

@@ -18,17 +18,14 @@
                                     <h4>Edit Division: ${division.divisionName}</h4>
                                 </div>
                                 <div class="card-body">
-                                    <c:if test="${not empty error}">
-                                        <p class="error">${error}</p>
-                                    </c:if>
                                     <form action="edit" method="post">
                                         <input type="hidden" name="divisionId" value="${division.divisionId}" />
                                         <div class="mb-3">
                                             <input type="text" id="divisionName" name="divisionName" class="form-control" placeholder="Division Name" value="${division.divisionName}" maxlength="50" required />
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Current Head:</label>
-                                            <div>
+                                        <div class="mb-3 row align-items-center">
+                                            <label class="col-auto col-form-label">Current Head:</label>
+                                            <div class="col-auto">
                                                 <c:choose>
                                                     <c:when test="${not empty division.head}">
                                                         <span class="form-control-plaintext">${division.head.fullName}</span>
@@ -38,10 +35,9 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                             </div>
-
                                         </div>
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        <a href="${pageContext.request.contextPath}/division/list" class="btn btn-secondary">Cancel</a>
+                                        <a href="list" class="btn btn-secondary">Cancel</a>
                                     </form>
                                 </div>
                             </div>

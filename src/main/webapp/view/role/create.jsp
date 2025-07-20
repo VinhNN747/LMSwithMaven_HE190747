@@ -18,9 +18,6 @@
                                     <h4>Add New Role</h4>
                                 </div>
                                 <div class="card-body">
-                                    <c:if test="${not empty error}">
-                                        <p class="error">${error}</p>
-                                    </c:if>
                                     <form action="create" method="post">
                                         <div class="mb-3">
                                             <input type="text" id="roleName" name="roleName" class="form-control" placeholder="Role Name" maxlength="50" required/>
@@ -44,7 +41,7 @@
                                             </select>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Save Role</button>
-                                        <a href="${pageContext.request.contextPath}/role/list" class="btn btn-secondary">Cancel</a>
+                                        <a href="list" class="btn btn-secondary">Cancel</a>
                                     </form>
                                 </div>
                             </div>

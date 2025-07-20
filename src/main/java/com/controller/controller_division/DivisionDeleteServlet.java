@@ -8,12 +8,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "DivisionDeleteServlet", urlPatterns = "/division/delete")
 public class DivisionDeleteServlet extends BaseDivisionServlet {
-
+    
     @Override
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        processPost(request, response, user);
     }
-
+    
     @Override
     protected void processPost(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
         Division division = ddb.get(Integer.parseInt(request.getParameter("id")));

@@ -48,7 +48,7 @@ public class DashboardServlet extends AuthenticationServlet {
         setPermission(session, "canViewRole", "/role/list", udb, userId);
         setPermission(session, "canViewDivision", "/division/list", udb, userId);
 
-        request.getRequestDispatcher("/view/dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("view/dashboard.jsp").forward(request, response);
     }
 
     @Override

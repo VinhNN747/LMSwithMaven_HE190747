@@ -18,27 +18,6 @@
                         <h4>Role Management</h4>
                     </div>
                     <div class="card-body">
-                        <c:if test="${not empty error}">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${error}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            <% session.removeAttribute("error"); %>
-                        </c:if>
-                        <c:if test="${not empty sessionScope.error}">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${sessionScope.error}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            <% session.removeAttribute("error"); %>
-                        </c:if>
-                        <c:if test="${not empty sessionScope.successMessage}">
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                ${sessionScope.successMessage}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            <% session.removeAttribute("successMessage");%>
-                        </c:if>
                         <div class="mb-3">
                             <form method="get" action="" class="row g-2 align-items-end mb-2">
                                 <div class="col-md-4">
@@ -47,10 +26,10 @@
                                 </div>
                                 <div class="col-md-4">
                                     <button type="submit" class="btn btn-primary">Search</button>
-                                    <a href="${pageContext.request.contextPath}/role/list" class="btn btn-secondary ms-2">Reset</a>
+                                    <a href="list" class="btn btn-secondary ms-2">Reset</a>
                                 </div>
                             </form>
-                            <a href="${pageContext.request.contextPath}/role/create" class="btn btn-primary">Add New Role</a>
+                            <a href="create" class="btn btn-primary">Add New Role</a>
                         </div>
                         <div class="scrollable-list">
                             <table class="table table-bordered table-hover">
@@ -73,19 +52,18 @@
 
                                             <td>
                                                 <c:choose>
-                                                    <c:when test="${role.roleLevel == 99}">
+                                                    <c:when test="${role.roleLevel == 99 or role.roleLevel == 100 or role.roleName == 'Employee'}">
                                                         <span class="badge bg-warning text-dark">Protected Role</span>
-                                                        <small class="text-muted d-block">Cannot be edited or deleted</small>
                                                     </c:when>
                                                     <c:otherwise>
                                                         <a href="edit?id=${role.roleId}" class="btn btn-sm btn-secondary">Edit</a>
-                                                        <form action="${pageContext.request.contextPath}/role/delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this role?');">
+                                                        <form action="delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this role?');">
                                                             <input type="hidden" name="id" value="${role.roleId}" />
                                                             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                                         </form>
                                                     </c:otherwise>
                                                 </c:choose>
-                                                <a href="${pageContext.request.contextPath}/role/assignFeatures?id=${role.roleId}" class="btn btn-sm btn-warning ms-1">Assign Features</a>
+                                                <a href="assignFeatures?id=${role.roleId}" class="btn btn-sm btn-warning ms-1">Assign Features</a>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -95,7 +73,7 @@
                         <!-- Pagination Controls: Input for Page Number -->
                         <c:if test="${totalPages > 1}">
                             <nav aria-label="Role pagination">
-                                <form method="get" action="" class="role-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
+                                <form method="get" action="list" class="role-pagination-form d-flex justify-content-center align-items-center mt-3" style="gap: 0.5rem;">
                                     <button class="btn btn-outline-secondary" type="button" data-page="1" ${pageNumber == 1 ? 'disabled' : ''}>&lt;&lt;</button>
                                     <button class="btn btn-outline-secondary" type="button" data-page="${pageNumber - 1}" ${pageNumber == 1 ? 'disabled' : ''}>&lt;</button>
                                     <span>Page</span>

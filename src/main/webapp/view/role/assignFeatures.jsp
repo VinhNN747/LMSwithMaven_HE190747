@@ -18,9 +18,6 @@
                                     <h4>Assign Features to Role: ${role.roleName}</h4>
                                 </div>
                                 <div class="card-body">
-                                    <c:if test="${not empty error}">
-                                        <p class="error">${error}</p>
-                                    </c:if>
                                     <form action="assignFeatures" method="post">
                                         <input type="hidden" name="roleId" value="${role.roleId}"/>
 
@@ -45,7 +42,7 @@
                                         </div>
 
                                         <button type="submit" class="btn btn-primary">Save Assignments</button>
-                                        <a href="${pageContext.request.contextPath}/role/list" class="btn btn-secondary">Cancel</a>
+                                        <a href="list" class="btn btn-secondary">Cancel</a>
                                     </form>
                                 </div>
                             </div>

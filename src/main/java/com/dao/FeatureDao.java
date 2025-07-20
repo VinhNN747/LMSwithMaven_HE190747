@@ -136,9 +136,4 @@ public class FeatureDao extends BaseDao<Feature> {
             em.close();
         }
     }
-
-    public Integer getFeatureIdByEndpoint(String endpoint) {
-        Feature feature = findByEndpoint(endpoint);
-        return feature != null ? feature.getFeatureId() : null;
-    }
 }

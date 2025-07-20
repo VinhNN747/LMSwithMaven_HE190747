@@ -20,7 +20,7 @@ public class LeaveRequestCreateServlet extends LeaveRequestBaseServlet {
 
     @Override
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        request.getRequestDispatcher("/view/leaverequest/create.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/leaverequest/create.jsp").forward(request, response);
     }
 
     @Override
@@ -37,26 +37,22 @@ public class LeaveRequestCreateServlet extends LeaveRequestBaseServlet {
             startDate = sdf.parse(startDateStr);
             endDate = sdf.parse(endDateStr);
         } catch (Exception e) {
-            request.setAttribute("error", "Invalid date format.");
-            request.getRequestDispatcher("/dashboard").forward(request, response);
+            request.getRequestDispatcher("../view/leaverequest/create.jsp").forward(request, response);
             return;
         }
         if (title == null || title.trim().isEmpty() || title.length() > 255) {
-            request.setAttribute("error", "Title is required and must be less than 255 characters.");
-            request.getRequestDispatcher("/dashboard").forward(request, response);
+            request.getRequestDispatcher("../view/leaverequest/create.jsp").forward(request, response);
             return;
         }
         // Validate date interval
         if (!isDateIntervalValid(startDate, endDate)) {
-            request.setAttribute("error", "Start date must be before or equal to end date.");
-            request.getRequestDispatcher("/dashboard").forward(request, response);
+            request.getRequestDispatcher("../view/leaverequest/create.jsp").forward(request, response);
             return;
         }
 
         // Validate reason
         if (reason == null || reason.trim().isEmpty() || reason.length() > 255) {
-            request.setAttribute("error", "Reason is required and must be less than 255 characters.");
-            request.getRequestDispatcher("/dashboard").forward(request, response);
+            request.getRequestDispatcher("../view/leaverequest/create.jsp").forward(request, response);
             return;
         }
 
@@ -73,7 +69,7 @@ public class LeaveRequestCreateServlet extends LeaveRequestBaseServlet {
         ldb.create(lr);
 
         // Redirect to my requests page
-        response.sendRedirect(request.getContextPath() + "/dashboard");
+        response.sendRedirect("create");
     }
 
 }

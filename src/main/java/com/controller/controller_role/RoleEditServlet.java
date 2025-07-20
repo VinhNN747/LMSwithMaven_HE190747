@@ -16,15 +16,8 @@ public class RoleEditServlet extends RoleBaseServlet {
         Integer roleId = Integer.valueOf(roleIdStr);
         Role role = rdb.get(roleId);
 
-        // Prevent editing Division Head role (level 99)
-        if (role.getRoleLevel() != null && role.getRoleLevel() == 99) {
-            request.getSession().setAttribute("error", "Cannot edit Division Head role - it is protected.");
-            response.sendRedirect(request.getContextPath() + "/role/list");
-            return;
-        }
-
         request.setAttribute("role", role);
-        request.getRequestDispatcher("/view/role/edit.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/role/edit.jsp").forward(request, response);
 
     }
 
@@ -46,16 +39,15 @@ public class RoleEditServlet extends RoleBaseServlet {
         // Validate the updated role
         String roleValidation = validateRole(role);
         if (roleValidation != null) {
-            request.setAttribute("error", roleValidation);
             request.setAttribute("role", role);
-            request.getRequestDispatcher("/view/role/edit.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/role/edit.jsp").forward(request, response);
             return;
         }
 
         // Update the role
         rdb.edit(role);
 
-        response.sendRedirect(request.getContextPath() + "/role/list");
+        response.sendRedirect("list");
 
     }
 }

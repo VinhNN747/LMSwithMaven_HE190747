@@ -35,7 +35,7 @@ public class RoleAssignFeaturesServlet extends RoleBaseServlet {
         request.setAttribute("role", role);
         request.setAttribute("allFeatures", allFeatures);
         request.setAttribute("assignedFeatureIds", assignedFeatureIds);
-        request.getRequestDispatcher("/view/role/assignFeatures.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/role/assignFeatures.jsp").forward(request, response);
 
     }
 
@@ -58,7 +58,7 @@ public class RoleAssignFeaturesServlet extends RoleBaseServlet {
         }
 
         // Redirect to role listRoles on success
-        response.sendRedirect(request.getContextPath() + "/role/list");
+        response.sendRedirect("list");
 
     }
 }

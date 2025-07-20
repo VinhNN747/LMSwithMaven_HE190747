@@ -18,9 +18,7 @@
                                     <h4>Edit Role: ${role.roleName}</h4>
                                 </div>
                                 <div class="card-body">
-                                    <c:if test="${not empty error}">
-                                        <p class="error">${error}</p>
-                                    </c:if>
+
                                     <form action="edit" method="post">
                                         <input type="hidden" name="roleId" value="${role.roleId}"/>
 
@@ -47,8 +45,8 @@
                                         </div>
 
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        <a href="${pageContext.request.contextPath}/role/list" class="btn btn-secondary">Cancel</a>
-                                        <a href="${pageContext.request.contextPath}/role/assignFeatures?roleId=${role.roleId}" class="btn btn-warning ms-2">Assign Features</a>
+                                        <a href="list" class="btn btn-secondary">Cancel</a>
+                                        <a href="assignFeatures?roleId=${role.roleId}" class="btn btn-warning ms-2">Assign Features</a>
                                     </form>
                                 </div>
                             </div>

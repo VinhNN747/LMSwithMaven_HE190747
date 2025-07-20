@@ -18,18 +18,11 @@
                         <h4>Change Division for ${user.fullName}</h4>
                     </div>
                     <div class="card-body">
-                        <c:if test="${not empty error}">
-                            <p class="error">${error}</p>
-                        </c:if>
-
 
                         <div class="card mb-3">
-                            <div class="card-header">
-                                <h6>Current Organizational Relationships</h6>
-                            </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <strong>Current Manager:</strong>
                                         <c:choose>
                                             <c:when test="${not empty user.manager}">
@@ -41,18 +34,7 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </div>
-                                    <div class="col-md-4">
-                                        <strong>Current Division:</strong>
-                                        <c:choose>
-                                            <c:when test="${not empty user.division}">
-                                                <span class="badge bg-primary">${user.division.divisionName}</span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="text-muted">No division assigned</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <strong>Subordinates:</strong>
                                         <c:choose>
                                             <c:when test="${not empty subordinates}">
@@ -75,18 +57,17 @@
                                 <select id="divisionId" name="divisionId" class="form-select" required>
                                     <option value="">Select Division</option>
                                     <c:forEach items="${divisions}" var="division">
-                                        <option value="${division.divisionId}" 
-                                                ${user.divisionId == division.divisionId ? 'disabled' : ''}>
+                                        <option value="${division.divisionId}"
+                                                <c:if test="${user.division.divisionId == division.divisionId}">selected</c:if>>
                                             ${division.divisionName}
-                                            <c:if test="${user.divisionId == division.divisionId}"> (Current)</c:if>
-                                            </option>
+                                        </option>
                                     </c:forEach>
                                 </select>
+
                             </div>
 
                             <button type="submit" class="btn btn-primary">Change Division</button>
-
-                            <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary">Cancel</a>
+                            <a href="list" class="btn btn-secondary">Cancel</a>
                         </form>
                     </div>
                 </div>

@@ -3,21 +3,15 @@
 
 <!DOCTYPE html>
 <html>
-    <head>
-        <%@ include file="/view/common_jsp_components/head.jspf" %>
-        <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
-
-    </head>
+    <%@ include file="common_jsp_components/head.jspf" %>
     <body>
         <div class="d-flex">
             <!-- Sidebar -->
-            <%@ include file="/view/common_jsp_components/sidebar.jspf" %>
+            <%@ include file="common_jsp_components/sidebar.jspf" %>
 
             <!-- Main Content -->
 
         </div>
-        <%@ include file="/view/common_jsp_components/footer.jspf" %>
-        <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <%@ include file="common_jsp_components/footer.jspf" %>
     </body>
 </html>

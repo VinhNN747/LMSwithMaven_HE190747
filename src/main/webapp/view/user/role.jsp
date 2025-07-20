@@ -15,10 +15,6 @@
                                     <h4>Change Role for User: ${targetUser.fullName}</h4>
                                 </div>
                                 <div class="card-body">
-                                    <c:if test="${not empty error}">
-                                        <p class="error">${error}</p>
-                                    </c:if>
-                                    
                                     <div class="mb-3">
                                         <strong>Current Role:</strong>
                                         <c:choose>
@@ -33,18 +29,9 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </div>
-                                    
-                                    <c:if test="${not empty targetUser.manager}">
-                                        <div class="alert alert-warning" role="alert">
-                                            <strong>Note:</strong> If you assign a role with a higher level than the user's current manager 
-                                            (${targetUser.manager.fullName}), the manager assignment will be automatically removed to maintain 
-                                            organizational hierarchy.
-                                        </div>
-                                    </c:if>
-                                    
                                     <form action="role" method="post">
                                         <input type="hidden" name="userId" value="${targetUser.userId}"/>
-                                        
+
                                         <div class="mb-3">
                                             <label for="roleId" class="form-label">Select New Role:</label>
                                             <select id="roleId" name="roleId" class="form-select" required>
@@ -55,14 +42,13 @@
                                                         ${role.roleName}
                                                         <c:if test="${role.roleLevel != null}"> (Level ${role.roleLevel})</c:if>
                                                         <c:if test="${not empty role.roleDescription}"> - ${role.roleDescription}</c:if>
-                                                    </option>
+                                                        </option>
                                                 </c:forEach>
                                             </select>
                                         </div>
 
                                         <button type="submit" class="btn btn-primary">Update Role</button>
-                                        <a href="${pageContext.request.contextPath}/user/list" class="btn btn-secondary">Cancel</a>
-                                        <a href="${pageContext.request.contextPath}/user/edit?id=${targetUser.userId}" class="btn btn-warning ms-2">Edit User</a>
+                                        <a href="list" class="btn btn-secondary">Cancel</a>
                                     </form>
                                 </div>
                             </div>

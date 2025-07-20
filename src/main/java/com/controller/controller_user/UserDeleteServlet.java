@@ -30,13 +30,9 @@ public class UserDeleteServlet extends UserBaseServlet {
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
         String id = request.getParameter("id");
-
         Integer userId = Integer.valueOf(id);
         User existingUser = udb.get(userId);
-
         udb.delete(existingUser);
-        request.setAttribute("success", "User '" + existingUser.getFullName() + "' has been deleted successfully");
-
         response.sendRedirect("list");
     }
 

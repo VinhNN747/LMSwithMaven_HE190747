@@ -11,7 +11,7 @@ public class RoleDeleteServlet extends RoleBaseServlet {
 
     @Override
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        response.sendRedirect(request.getContextPath() + "/role/list");
+        processPost(request, response, user);
     }
 
     @Override
@@ -23,18 +23,14 @@ public class RoleDeleteServlet extends RoleBaseServlet {
 
         // Check if role is being used by any users
         if (!rdb.getUsersWithRoleId(roleId).isEmpty()) {
-            request.getSession().setAttribute("error", "Cannot delete role: There are users assigned to this role!");
-            response.sendRedirect(request.getContextPath() + "/role/list");
+            response.sendRedirect("list");
             return;
         }
 
         // Delete the role
         rdb.delete(role);
 
-        // Set success message
-        request.getSession().setAttribute("successMessage", "Role '" + role.getRoleName() + "' deleted successfully.");
-
-        response.sendRedirect(request.getContextPath() + "/role/list");
+        response.sendRedirect("list");
 
     }
 }

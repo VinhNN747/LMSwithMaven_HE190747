@@ -11,7 +11,7 @@ public class RoleCreateServlet extends RoleBaseServlet {
 
     @Override
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
-        request.getRequestDispatcher("/view/role/create.jsp").forward(request, response);
+        request.getRequestDispatcher("../view/role/create.jsp").forward(request, response);
     }
 
     @Override
@@ -29,14 +29,13 @@ public class RoleCreateServlet extends RoleBaseServlet {
         // Validate the new role
         String roleValidation = validateRole(newRole);
         if (roleValidation != null) {
-            request.setAttribute("error", roleValidation);
-            request.getRequestDispatcher("/view/role/create.jsp").forward(request, response);
+            request.getRequestDispatcher("../view/role/create.jsp").forward(request, response);
             return;
         }
         // Create the role
         rdb.create(newRole);
         // Redirect to role listRoles on success
-        response.sendRedirect(request.getContextPath() + "/role/list");
+        response.sendRedirect("list");
 
     }
 }
