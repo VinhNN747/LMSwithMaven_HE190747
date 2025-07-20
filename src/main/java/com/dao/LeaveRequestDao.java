@@ -3,6 +3,7 @@ package com.dao;
 import com.entity.LeaveRequest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,20 +18,11 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
 
     @Override
     public List<LeaveRequest> list() {
-        return listRequests(null, null, null, null, null, null);
+        return listRequests(null, null, null, null, null, null, null, null);
     }
 
-    /**
-     * List leave requests with flexible filtering.
-     *
-     * @param senderIds  List of sender user IDs to include (null for all)
-     * @param status     Status to filter (null or empty for all)
-     * @param reviewerId Reviewer user ID to filter (null for all)
-     * @param divisionId Division ID to filter (null for all)
-     * @return List of LeaveRequest
-     */
-    public List<LeaveRequest> listRequests(List<Integer> senderIds, String status, Integer reviewerId,
-            Integer divisionId, Integer pageNumber, Integer pageSize) {
+    public List<LeaveRequest> listRequests(List<Integer> senderIds, String status, Integer reviewerId, Integer divisionId,
+            Integer pageNumber, Integer pageSize, Date from, Date to) {
         EntityManager em = getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT lr FROM LeaveRequest lr WHERE 1=1");
@@ -46,6 +38,9 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
             if (divisionId != null) {
                 jpql.append(" AND lr.sender.divisionId = :divisionId");
             }
+            if (from != null && to != null) {
+                jpql.append(" AND lr.endDate >= :from AND lr.startDate <= :to");
+            }
             var query = em.createQuery(jpql.toString(), LeaveRequest.class);
             if (senderIds != null) {
                 query.setParameter("senderIds", senderIds);
@@ -58,6 +53,10 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
             }
             if (divisionId != null) {
                 query.setParameter("divisionId", divisionId);
+            }
+            if (from != null && to != null) {
+                query.setParameter("from", from);
+                query.setParameter("to", to);
             }
             if (pageNumber != null && pageSize != null) {
                 query.setFirstResult((pageNumber - 1) * pageSize);

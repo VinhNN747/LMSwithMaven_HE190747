@@ -41,7 +41,7 @@ public class LeaveRequestSubServlet extends LeaveRequestBaseServlet {
         if (senderId != null && subordinateIds.contains(senderId)) {
             filteredSenderIds = java.util.List.of(senderId);
         }
-        List<LeaveRequest> subRequests = ldb.listRequests(filteredSenderIds, status, reviewerId, divisionId, pageNumber, pageSize);
+        List<LeaveRequest> subRequests = ldb.listRequests(filteredSenderIds, status, reviewerId, divisionId, pageNumber, pageSize, null, null);
         long totalCount = ldb.countRequests(filteredSenderIds, status, reviewerId, divisionId);
         int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 

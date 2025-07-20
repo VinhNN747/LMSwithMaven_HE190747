@@ -338,4 +338,8 @@ public class UserDao extends BaseDao<User> {
             em.close();
         }
     }
+
+    public List<User> getUsersByDivision(Integer divisionId) {
+        return listUsers(null, divisionId, null, null, null, null, null);
+    }
 }

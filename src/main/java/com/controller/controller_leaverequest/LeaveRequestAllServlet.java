@@ -47,7 +47,7 @@ public class LeaveRequestAllServlet extends LeaveRequestBaseServlet {
         Integer pageSize = (pageSizeStr != null && !pageSizeStr.isEmpty()) ? Integer.valueOf(pageSizeStr) : 7;
 
         List<Integer> senderIds = (senderId != null) ? java.util.List.of(senderId) : null;
-        List<LeaveRequest> allRequests = ldb.listRequests(senderIds, status, reviewerId, divisionId, pageNumber, pageSize);
+        List<LeaveRequest> allRequests = ldb.listRequests(senderIds, status, reviewerId, divisionId, pageNumber, pageSize, null, null);
         long totalCount = ldb.countRequests(senderIds, status, reviewerId, divisionId);
         int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 

@@ -85,6 +85,14 @@
                 </a>
             </li>
         </c:if>
+        <c:if test="${sessionScope.canViewAgenda}">
+
+            <li class="nav-item" role="presentation">
+                <a class="nav-link ${requestScope.activeTab == 'agenda' ? 'active' : 'text-white'}" href="/LMS_withMaven/agenda">
+                    Agenda
+                </a>
+            </li>
+        </c:if>
     </ul>
     <div class="sidebar-logout">
         <a href="/LMS_withMaven/logout" class="logout-link">
