@@ -1,13 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.dao;
 
 import com.entity.LeaveRequest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,13 +23,14 @@ public class LeaveRequestDao extends BaseDao<LeaveRequest> {
     /**
      * List leave requests with flexible filtering.
      *
-     * @param senderIds List of sender user IDs to include (null for all)
-     * @param status Status to filter (null or empty for all)
+     * @param senderIds  List of sender user IDs to include (null for all)
+     * @param status     Status to filter (null or empty for all)
      * @param reviewerId Reviewer user ID to filter (null for all)
      * @param divisionId Division ID to filter (null for all)
      * @return List of LeaveRequest
      */
-    public List<LeaveRequest> listRequests(List<Integer> senderIds, String status, Integer reviewerId, Integer divisionId, Integer pageNumber, Integer pageSize) {
+    public List<LeaveRequest> listRequests(List<Integer> senderIds, String status, Integer reviewerId,
+            Integer divisionId, Integer pageNumber, Integer pageSize) {
         EntityManager em = getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT lr FROM LeaveRequest lr WHERE 1=1");

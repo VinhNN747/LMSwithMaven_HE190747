@@ -69,7 +69,7 @@ public class LeaveRequestCreateServlet extends LeaveRequestBaseServlet {
         ldb.create(lr);
 
         // Redirect to my requests page
-        response.sendRedirect("create");
+        response.sendRedirect("myrequests");
     }
 
 }

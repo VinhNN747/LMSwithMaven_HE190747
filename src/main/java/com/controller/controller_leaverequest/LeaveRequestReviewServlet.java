@@ -19,6 +19,18 @@ public class LeaveRequestReviewServlet extends LeaveRequestBaseServlet {
 
     @Override
     protected void processGet(HttpServletRequest request, HttpServletResponse response, User user) throws Exception {
+        String requestIdStr = request.getParameter("requestId");
+        if (requestIdStr != null) {
+            int requestId = Integer.parseInt(requestIdStr);
+            LeaveRequest lr = ldb.get(requestId);
+            if (lr != null) {
+                request.setAttribute("leaveRequest", lr);
+                request.setAttribute("reviewerName", user.getFullName());
+                request.setAttribute("reviewerRole", user.getRole() != null ? user.getRole().getRoleName() : "");
+                request.getRequestDispatcher("../view/leaverequest/review.jsp").forward(request, response);
+                return;
+            }
+        }
         processRequest(request, response, user);
     }
 

@@ -114,18 +114,7 @@
                                                         </c:choose>
                                                     </td>
                                                     <td>
-                                                        <c:if test="${req.status eq 'In Progress'}">
-                                                            <form method="post" action="${pageContext.request.contextPath}/leaverequest/review" style="display:inline;">
-                                                                <input type="hidden" name="requestId" value="${req.leaveRequestId}" />
-                                                                <input type="hidden" name="action" value="approve" />
-                                                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                                                            </form>
-                                                            <form method="post" action="${pageContext.request.contextPath}/leaverequest/review" style="display:inline; margin-left: 4px;">
-                                                                <input type="hidden" name="requestId" value="${req.leaveRequestId}" />
-                                                                <input type="hidden" name="action" value="reject" />
-                                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                                                            </form>
-                                                        </c:if>
+                                                        <a href="review?requestId=${req.leaveRequestId}" class="btn btn-info btn-sm">View Detail</a>
                                                     </td>
                                                 </tr>
                                             </c:forEach>
